@@ -1,0 +1,6 @@
+{
+  "name": "UKS Digital SMA Negeri 1 Batu",
+  "description": "Aplikasi Buku Tamu Digital dan Manajemen Stok Obat UKS SMA Negeri 1 Batu dengan rekapitulasi kunjungan real-time, peringatan stok menipis, dan ekspor laporan PDF serta Excel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
