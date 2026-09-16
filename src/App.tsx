@@ -5,7 +5,6 @@ import { AdminSidebar } from './components/AdminSidebar';
 import { GuestBookForm } from './components/GuestBookForm';
 import { AdminDashboard } from './components/AdminDashboard';
 import { MedicineInventory } from './components/MedicineInventory';
-import { BedManagement } from './components/BedManagement';
 import { ReportsView } from './components/ReportsView';
 import { UserManagement } from './components/UserManagement';
 import { AdminLoginView } from './components/AdminLoginView';
@@ -81,8 +80,6 @@ const AppContent: React.FC = () => {
     switch (activeTab) {
       case 'dashboard':
         return { title: 'Dashboard', category: 'Ringkasan Sistem' };
-      case 'beds':
-        return { title: 'Manajemen Fasilitas & Ranjang UKS', category: 'Fasilitas & Kamar' };
       case 'inventory':
         return { title: 'Manajemen Inventaris Stok Obat & Farmasi', category: 'Pengelolaan Farmasi' };
       case 'reports':
@@ -173,7 +170,6 @@ const AppContent: React.FC = () => {
           {/* Admin Main Body View */}
           <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
             {activeTab === 'dashboard' && <AdminDashboard onOpenRestockModal={handleOpenRestock} />}
-            {activeTab === 'beds' && <BedManagement />}
             {activeTab === 'inventory' && (
               <MedicineInventory
                 restockTargetId={targetRestockId}

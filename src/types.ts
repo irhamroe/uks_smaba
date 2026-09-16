@@ -93,7 +93,7 @@ export interface SchoolInfo {
   logoUrl?: string;
 }
 
-export type AppTab = 'guestbook' | 'dashboard' | 'inventory' | 'reports' | 'users' | 'beds' | 'login';
+export type AppTab = 'guestbook' | 'dashboard' | 'inventory' | 'reports' | 'users' | 'login';
 
 export interface FilterOptions {
   dateRange: 'all' | 'today' | 'week' | 'month' | 'custom';
