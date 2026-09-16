@@ -15,12 +15,18 @@ import {
   GraduationCap,
   Briefcase,
   CheckCircle,
+  CheckCircle2,
   XCircle,
   Clock,
   Printer,
   X,
   FileSpreadsheet,
-  FileText
+  FileText,
+  Check,
+  ShieldCheck,
+  Ban,
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 import { useUks } from '../context/UksContext';
 import { VisitRecord, VisitorRole, VisitStatus } from '../types';
@@ -37,6 +43,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
     medicines,
     lowStockMedicines,
     outOfStockMedicines,
+    pendingVisits,
+    approvedVisits,
+    approveVisitRecord,
+    rejectVisitRecord,
     deleteVisitRecord,
     updateVisitStatus,
     navigateToTab,
@@ -49,6 +59,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
   const [roleFilter, setRoleFilter] = useState<'all' | VisitorRole>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [classFilter, setClassFilter] = useState<string>('all');
+  const [approvalFilter, setApprovalFilter] = useState<'all' | 'approved' | 'pending' | 'rejected'>('all');
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,17 +71,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
   // Selected visit for delete confirmation modal
   const [deletingVisit, setDeletingVisit] = useState<VisitRecord | null>(null);
 
+  // Selected visit for reject confirmation modal
+  const [rejectingVisit, setRejectingVisit] = useState<VisitRecord | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+
   // Today ISO string
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, dateFilter, roleFilter, statusFilter, classFilter]);
+  }, [searchQuery, dateFilter, roleFilter, statusFilter, classFilter, approvalFilter]);
 
   // Filtered visits
   const filteredRecords = useMemo(() => {
     return records.filter(record => {
+      // Approval filter
+      if (approvalFilter !== 'all') {
+        const currentApproval = record.approvalStatus || 'approved';
+        if (currentApproval !== approvalFilter) return false;
+      }
+
       // Search query (name or class)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -114,7 +135,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
 
       return true;
     });
-  }, [records, searchQuery, roleFilter, statusFilter, classFilter, dateFilter, todayStr]);
+  }, [records, searchQuery, roleFilter, statusFilter, classFilter, dateFilter, approvalFilter, todayStr]);
 
   // Paginated records
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage) || 1;
@@ -124,17 +145,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
     return filteredRecords.slice(start, start + itemsPerPage);
   }, [filteredRecords, validCurrentPage, itemsPerPage]);
 
-  // Statistics
+  // Statistics (Calculated only on Approved visits)
   const stats = useMemo(() => {
-    const todayCount = records.filter(r => r.date === todayStr).length;
+    const approvedList = records.filter(r => r.approvalStatus === 'approved' || !r.approvalStatus);
+    const todayCount = approvedList.filter(r => r.date === todayStr).length;
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-    const monthCount = records.filter(r => {
+    const monthCount = approvedList.filter(r => {
       const d = new Date(r.date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     }).length;
-    const activeRestingCount = records.filter(r => r.finalStatus === 'Sedang Istirahat di UKS').length;
-    const totalMedicinesDosed = records.reduce((acc, r) =>
+    const activeRestingCount = approvedList.filter(r => r.finalStatus === 'Sedang Istirahat di UKS').length;
+    const totalMedicinesDosed = approvedList.reduce((acc, r) =>
       acc + r.medicinesGiven.reduce((sub, m) => sub + m.quantity, 0), 0
     );
 
@@ -146,11 +168,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
     };
   }, [records, todayStr]);
 
-  // Complaint breakdown (Top 5)
+  // Complaint breakdown (Top 5 Approved)
   const topComplaints = useMemo(() => {
+    const approvedList = records.filter(r => r.approvalStatus === 'approved' || !r.approvalStatus);
     const counts: Record<string, number> = {};
-    records.forEach(r => {
-      // Split multiple complaints if comma separated or use standard categories
+    approvedList.forEach(r => {
       const clean = r.complaint.split(',')[0].trim();
       counts[clean] = (counts[clean] || 0) + 1;
     });
@@ -162,10 +184,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
 
   // Role Breakdown
   const roleBreakdown = useMemo(() => {
-    const siswa = records.filter(r => r.role === 'siswa').length;
-    const guru = records.filter(r => r.role === 'guru').length;
-    const staf = records.filter(r => r.role === 'staf').length;
-    const total = records.length || 1;
+    const approvedList = records.filter(r => r.approvalStatus === 'approved' || !r.approvalStatus);
+    const siswa = approvedList.filter(r => r.role === 'siswa').length;
+    const guru = approvedList.filter(r => r.role === 'guru').length;
+    const staf = approvedList.filter(r => r.role === 'staf').length;
+    const total = approvedList.length || 1;
     return {
       siswa,
       guru,
@@ -185,6 +208,132 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
           Dashboard
         </h2>
       </div>
+
+      {/* PENDING APPROVAL QUEUE BANNER & CARDS */}
+      {pendingVisits.length > 0 && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-50/80 to-orange-50 border border-amber-300/90 rounded-3xl p-5 sm:p-6 shadow-md shadow-amber-500/5">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-amber-200/80">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 shrink-0">
+                <Clock className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base font-extrabold text-amber-950">
+                    Antrean Verifikasi Formulir Buku Tamu UKS
+                  </h3>
+                  <span className="bg-amber-600 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-xs animate-pulse">
+                    {pendingVisits.length} Pengajuan Menunggu
+                  </span>
+                </div>
+                <p className="text-xs text-amber-900/90 mt-0.5 leading-relaxed">
+                  Pengunjung mengisi buku tamu publik. Data kunjungan & pemotongan stok obat baru akan diproses resmi setelah disetujui oleh Petugas UKS.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Grid of Pending Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {pendingVisits.map(visit => (
+              <div
+                key={visit.id}
+                className="bg-white rounded-2xl p-4.5 border border-amber-200/80 shadow-xs hover:shadow-md transition flex flex-col justify-between"
+              >
+                <div className="space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-extrabold text-slate-900 text-sm">
+                        {visit.visitorName}
+                      </h4>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                          visit.role === 'siswa'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : visit.role === 'guru'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {visit.role.toUpperCase()}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-700">
+                          {visit.classOrPosition}
+                        </span>
+                        <span className="text-xs text-slate-400">({visit.gender})</span>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <div className="text-xs font-bold text-slate-800">{visit.time}</div>
+                      <div className="text-[10px] text-slate-400">{visit.date}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs space-y-1">
+                    <div>
+                      <span className="text-slate-400 font-medium block text-[10px] uppercase">Keluhan:</span>
+                      <span className="text-slate-800 font-semibold">{visit.complaint}</span>
+                    </div>
+                    {visit.actionTaken && (
+                      <div>
+                        <span className="text-slate-400 font-medium block text-[10px] uppercase">Tindakan:</span>
+                        <span className="text-slate-700">{visit.actionTaken}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Medicines Requested */}
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                      Kebutuhan Obat:
+                    </span>
+                    {visit.needsMedicine && visit.medicinesGiven.length > 0 ? (
+                      <div className="space-y-1">
+                        {visit.medicinesGiven.map((m, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between text-xs bg-emerald-50/70 border border-emerald-200 text-emerald-900 px-2.5 py-1.5 rounded-lg"
+                          >
+                            <span className="font-bold">{m.medicineName}</span>
+                            <span className="font-extrabold text-emerald-700">
+                              {m.quantity} {m.unit}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">Tidak ada permintaan obat</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Approve / Reject Actions */}
+                <div className="pt-3.5 mt-3.5 border-t border-slate-100 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRejectReason('');
+                      setRejectingVisit(visit);
+                    }}
+                    className="flex-1 py-2 px-3 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 hover:border-rose-200 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Tolak</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => approveVisitRecord(visit.id)}
+                    className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md transition flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Setujui</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* NOTIFIKASI PERINGATAN STOK MENIPIS (CRITICAL BANNER) */}
       {lowStockMedicines.length > 0 && (
@@ -224,7 +373,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                       <button
                         type="button"
                         onClick={() => onOpenRestockModal(m.id)}
-                        className="text-emerald-700 hover:text-emerald-900 underline text-[11px] font-bold"
+                        className="text-emerald-700 hover:text-emerald-900 underline text-[11px] font-bold cursor-pointer"
                       >
                         Restock
                       </button>
@@ -258,7 +407,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
             </div>
             <div className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              Tercatat real-time
+              Tercatat disetujui
             </div>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
@@ -284,195 +433,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
           </div>
         </div>
 
-        {/* Card 3: Sedang Istirahat */}
-        <div
-          className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between"
-        >
+        {/* Card 3: Pasien Istirahat Aktif */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Istirahat di UKS
+              Pasien Istirahat di UKS
             </span>
             <div className="text-3xl font-extrabold text-slate-900 mt-1">
-              {stats.activeRestingCount} <span className="text-sm font-normal text-slate-500">pasien</span>
+              {stats.activeRestingCount} <span className="text-sm font-normal text-slate-500">orang</span>
             </div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">
-              {stats.activeRestingCount > 0 ? 'Sedang dalam penanganan' : 'Tidak ada pasien istirahat'}
+            <div className="text-[11px] text-amber-600 font-medium mt-1">
+              {stats.activeRestingCount > 0 ? 'Sedang diobservasi di ranjang' : 'Semua ranjang kosong'}
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
             <Activity className="w-6 h-6" />
           </div>
         </div>
 
-        {/* Card 4: Obat Perlu Restock */}
-        <div className={`rounded-2xl p-5 border shadow-xs flex items-center justify-between ${lowStockMedicines.length > 0 ? 'bg-amber-50/70 border-amber-200' : 'bg-white border-slate-200'
-          }`}>
+        {/* Card 4: Total Obat & Peringatan */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Stok Obat Menipis
+              Katalog Stok Obat
             </span>
             <div className="text-3xl font-extrabold text-slate-900 mt-1">
-              {lowStockMedicines.length} <span className="text-sm font-normal text-slate-500">item</span>
+              {medicines.length} <span className="text-sm font-normal text-slate-500">jenis</span>
             </div>
-            <div className="text-[11px] text-amber-700 font-medium mt-1">
-              {outOfStockMedicines.length > 0 ? `${outOfStockMedicines.length} obat habis total!` : 'Semua stok tersedia'}
+            <div className="text-[11px] text-slate-500 font-medium mt-1">
+              <span className={lowStockMedicines.length > 0 ? 'text-amber-600 font-bold' : 'text-emerald-600 font-medium'}>
+                {lowStockMedicines.length} obat kritis / habis
+              </span>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center border border-amber-200">
+          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
             <Pill className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
-
-      {/* ANALYTICAL RECAP SECTION (Charts & Distributions) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Top Complaints */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-emerald-600" />
-              Keluhan Terbanyak
-            </h3>
-            <span className="text-[11px] text-slate-500 font-medium">Top 5 Kasus</span>
-          </div>
-
-          <div className="space-y-3">
-            {topComplaints.length === 0 ? (
-              <p className="text-xs text-slate-400 py-4 text-center">Belum ada data keluhan</p>
-            ) : (
-              topComplaints.map(([name, count], idx) => {
-                const pct = Math.round((count / (records.length || 1)) * 100);
-                return (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex justify-between text-xs font-medium">
-                      <span className="text-slate-700 truncate max-w-[200px]">{name}</span>
-                      <span className="text-slate-500 font-semibold">{count} kasus ({pct}%)</span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                      <div
-                        className="bg-emerald-600 h-2 rounded-full transition-all"
-                        style={{ width: `${Math.max(8, pct)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Demographics: Siswa vs Guru */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Users className="w-4 h-4 text-emerald-600" />
-              Demografi Pengunjung UKS
-            </h3>
-            <span className="text-[11px] text-slate-500 font-medium">Kategori Pengguna</span>
-          </div>
-
-          <div className="space-y-3.5 pt-1">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <GraduationCap className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-800">Siswa / Siswi</div>
-                  <div className="text-[11px] text-slate-500">Pelajar SMAN 1 Batu</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-extrabold text-slate-900">{roleBreakdown.siswa}</div>
-                <div className="text-[10px] text-emerald-700 font-semibold">{roleBreakdown.siswaPct}%</div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                  <Briefcase className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-800">Guru / Tenaga Pendidik</div>
-                  <div className="text-[11px] text-slate-500">Dewan Guru Pengajar</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-extrabold text-slate-900">{roleBreakdown.guru}</div>
-                <div className="text-[10px] text-blue-700 font-semibold">{roleBreakdown.guruPct}%</div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
-                  <UserCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-800">Staf & Karyawan TU</div>
-                  <div className="text-[11px] text-slate-500">Tenaga Kependidikan</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-extrabold text-slate-900">{roleBreakdown.staf}</div>
-                <div className="text-[10px] text-purple-700 font-semibold">{roleBreakdown.stafPct}%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Live UKS Resting Status */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-emerald-600" />
-                Pasien Sedang Istirahat di UKS
-              </h3>
-            </div>
-
-            {records.filter(r => r.finalStatus === 'Sedang Istirahat di UKS').length === 0 ? (
-              <div className="py-6 text-center text-slate-400">
-                <Activity className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                <p className="text-xs font-medium">Tidak ada pasien yang sedang istirahat di UKS saat ini.</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Semua pengunjung telah kembali atau dijemput.</p>
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {records
-                  .filter(r => r.finalStatus === 'Sedang Istirahat di UKS')
-                  .slice(0, 3)
-                  .map(patient => (
-                    <div key={patient.id} className="p-2.5 bg-amber-50/60 rounded-xl border border-amber-200 text-xs">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-bold text-slate-800">{patient.visitorName}</span>
-                        <span className="text-[10px] bg-amber-200 text-amber-900 font-semibold px-1.5 py-0.5 rounded">
-                          Sedang Istirahat
-                        </span>
-                      </div>
-                      <div className="text-slate-600 text-[11px] truncate">
-                        {patient.classOrPosition} • {patient.complaint}
-                      </div>
-                      <div className="mt-2 flex justify-between items-center">
-                        <span className="text-[10px] text-slate-500">Masuk: {patient.time}</span>
-                        <button
-                          type="button"
-                          onClick={() => updateVisitStatus(patient.id, 'Kembali ke Kelas / Mengajar')}
-                          className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 bg-white px-2 py-0.5 rounded border border-emerald-300 cursor-pointer"
-                        >
-                          Selesai Istirahat &rarr;
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Total Dosis Obat Terpakai:</span>
-            <span className="font-bold text-slate-800">{stats.totalMedicinesDosed} butir / sachet</span>
           </div>
         </div>
       </div>
@@ -540,8 +535,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
             </button>
           </div>
 
-          {/* Role, Status & Class Filter Dropdowns */}
+          {/* Role, Status & Approval Filter Dropdowns */}
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <select
+              value={approvalFilter}
+              onChange={(e) => setApprovalFilter(e.target.value as any)}
+              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800"
+            >
+              <option value="all">Semua Status Verifikasi</option>
+              <option value="approved">Disetujui Saja</option>
+              <option value="pending">Menunggu Verifikasi (Pending)</option>
+              <option value="rejected">Ditolak Saja</option>
+            </select>
+
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value as any)}
@@ -578,18 +584,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                 ))}
               </optgroup>
             </select>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700"
-            >
-              <option value="all">Semua Status</option>
-              <option value="Kembali ke Kelas / Mengajar">Kembali ke Kelas</option>
-              <option value="Sedang Istirahat di UKS">Sedang Istirahat</option>
-              <option value="Izin Pulang / Dijemput">Izin Pulang</option>
-              <option value="Rujukan ke Puskesmas/RS">Rujukan</option>
-            </select>
           </div>
         </div>
       </div>
@@ -612,124 +606,173 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                 <th className="py-3 px-4">Keluhan & Gejala</th>
                 <th className="py-3 px-4">Tindakan UKS</th>
                 <th className="py-3 px-4">Obat Diberikan</th>
-                <th className="py-3 px-4">Status Akhir</th>
+                <th className="py-3 px-4">Status Kunjungan</th>
+                <th className="py-3 px-4">Status Verifikasi</th>
                 <th className="py-3 px-4 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     <p className="font-medium text-sm">Tidak ada data kunjungan yang cocok.</p>
-                    <p className="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau ubah filter rentang waktu.</p>
+                    <p className="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau ubah filter status.</p>
                   </td>
                 </tr>
               ) : (
-                paginatedRecords.map(record => (
-                  <tr key={record.id} className="hover:bg-slate-50/70 transition">
-                    {/* Waktu */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="font-bold text-slate-900">{record.time}</div>
-                      <div className="text-slate-400 text-[11px]">{record.date}</div>
-                    </td>
+                paginatedRecords.map(record => {
+                  const isPending = record.approvalStatus === 'pending';
+                  const isRejected = record.approvalStatus === 'rejected';
 
-                    {/* Nama & Peran */}
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-900">{record.visitorName}</div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded ${record.role === 'siswa'
+                  return (
+                    <tr key={record.id} className={`hover:bg-slate-50/70 transition ${isPending ? 'bg-amber-50/30' : isRejected ? 'bg-rose-50/20 opacity-70' : ''}`}>
+                      {/* Waktu */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="font-bold text-slate-900">{record.time}</div>
+                        <div className="text-slate-400 text-[11px]">{record.date}</div>
+                      </td>
+
+                      {/* Nama & Peran */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900">{record.visitorName}</div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded ${record.role === 'siswa'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : record.role === 'guru'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
+                            }`}>
+                            {record.role === 'siswa' ? 'Siswa' : record.role === 'guru' ? 'Guru' : 'Staf'}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium">({record.gender})</span>
+                        </div>
+                      </td>
+
+                      {/* Kelas / Jabatan */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="font-semibold text-slate-800">{record.classOrPosition}</span>
+                        {record.bedNumber && (
+                          <div className="text-[10px] text-indigo-600 font-medium mt-0.5">
+                            {record.bedNumber}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Keluhan */}
+                      <td className="py-3.5 px-4 max-w-xs">
+                        <p className="line-clamp-2 text-slate-800">{record.complaint}</p>
+                        {(record.temperature || record.bloodPressure) && (
+                          <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
+                            {record.temperature && <span>Suhu: {record.temperature}°C</span>}
+                            {record.bloodPressure && <span>Tensi: {record.bloodPressure}</span>}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Tindakan */}
+                      <td className="py-3.5 px-4 max-w-xs">
+                        <p className="line-clamp-2 text-slate-700">{record.actionTaken}</p>
+                      </td>
+
+                      {/* Obat Diberikan */}
+                      <td className="py-3.5 px-4">
+                        {record.medicinesGiven.length > 0 ? (
+                          <div className="space-y-1">
+                            {record.medicinesGiven.map((m, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-semibold px-2 py-0.5 rounded-md mr-1"
+                              >
+                                {m.medicineName} ({m.quantity} {m.unit})
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 italic text-[11px]">Tanpa obat</span>
+                        )}
+                      </td>
+
+                      {/* Status Kunjungan */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${record.finalStatus === 'Kembali ke Kelas / Mengajar'
                           ? 'bg-emerald-100 text-emerald-800'
-                          : record.role === 'guru'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-purple-100 text-purple-800'
+                          : record.finalStatus === 'Sedang Istirahat di UKS'
+                            ? 'bg-amber-100 text-amber-800 animate-pulse'
+                            : record.finalStatus === 'Izin Pulang / Dijemput'
+                              ? 'bg-indigo-100 text-indigo-800'
+                              : 'bg-red-100 text-red-800'
                           }`}>
-                          {record.role === 'siswa' ? 'Siswa' : record.role === 'guru' ? 'Guru' : 'Staf'}
+                          {record.finalStatus}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium">({record.gender})</span>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Kelas / Jabatan */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="font-semibold text-slate-800">{record.classOrPosition}</span>
-                      {record.bedNumber && (
-                        <div className="text-[10px] text-indigo-600 font-medium mt-0.5">
-                          {record.bedNumber}
+                      {/* Status Verifikasi (Approval) */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {isPending ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">
+                            <Clock className="w-3 h-3 text-amber-600" />
+                            Menunggu Verifikasi
+                          </span>
+                        ) : isRejected ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
+                            <XCircle className="w-3 h-3 text-rose-600" />
+                            Ditolak
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            Disetujui
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Aksi */}
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1">
+                          {isPending && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => approveVisitRecord(record.id)}
+                                className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition cursor-pointer"
+                                title="Setujui Kunjungan & Potong Stok"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRejectReason('');
+                                  setRejectingVisit(record);
+                                }}
+                                className="p-1.5 text-amber-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                                title="Tolak Kunjungan"
+                              >
+                                <Ban className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedVisit(record)}
+                            className="p-1.5 text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition cursor-pointer"
+                            title="Lihat Detail Kartu Kunjungan"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeletingVisit(record)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                            title="Hapus Catatan Kunjungan"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
-                      )}
-                    </td>
-
-                    {/* Keluhan */}
-                    <td className="py-3.5 px-4 max-w-xs">
-                      <p className="line-clamp-2 text-slate-800">{record.complaint}</p>
-                      {(record.temperature || record.bloodPressure) && (
-                        <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
-                          {record.temperature && <span>Suhu: {record.temperature}°C</span>}
-                          {record.bloodPressure && <span>Tensi: {record.bloodPressure}</span>}
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Tindakan */}
-                    <td className="py-3.5 px-4 max-w-xs">
-                      <p className="line-clamp-2 text-slate-700">{record.actionTaken}</p>
-                    </td>
-
-                    {/* Obat Diberikan */}
-                    <td className="py-3.5 px-4">
-                      {record.medicinesGiven.length > 0 ? (
-                        <div className="space-y-1">
-                          {record.medicinesGiven.map((m, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-semibold px-2 py-0.5 rounded-md mr-1"
-                            >
-                              {m.medicineName} ({m.quantity} {m.unit})
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 italic text-[11px]">Tanpa obat</span>
-                      )}
-                    </td>
-
-                    {/* Status Akhir */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${record.finalStatus === 'Kembali ke Kelas / Mengajar'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : record.finalStatus === 'Sedang Istirahat di UKS'
-                          ? 'bg-amber-100 text-amber-800 animate-pulse'
-                          : record.finalStatus === 'Izin Pulang / Dijemput'
-                            ? 'bg-indigo-100 text-indigo-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                        {record.finalStatus}
-                      </span>
-                    </td>
-
-                    {/* Aksi */}
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedVisit(record)}
-                          className="p-1.5 text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition"
-                          title="Lihat Detail Kartu Kunjungan"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeletingVisit(record)}
-                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
-                          title="Hapus Catatan Kunjungan"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -764,137 +807,105 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
             <button
               type="button"
               disabled={validCurrentPage <= 1}
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 transition"
             >
-              Sebelumnya
+              &larr; Sebelumnya
             </button>
-
-            <div className="flex items-center gap-1 px-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
-                if (
-                  totalPages > 7 &&
-                  page !== 1 &&
-                  page !== totalPages &&
-                  Math.abs(page - validCurrentPage) > 1
-                ) {
-                  if (page === 2 || page === totalPages - 1) {
-                    return <span key={page} className="px-1 text-slate-400">...</span>;
-                  }
-                  return null;
-                }
-
-                return (
-                  <button
-                    key={page}
-                    type="button"
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-7 h-7 rounded-lg text-xs font-bold transition cursor-pointer ${
-                      page === validCurrentPage
-                        ? 'bg-emerald-600 text-white shadow-2xs'
-                        : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-            </div>
-
+            <span className="px-3 py-1.5 text-slate-700 font-bold">
+              {validCurrentPage} / {totalPages}
+            </span>
             <button
               type="button"
               disabled={validCurrentPage >= totalPages}
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 transition"
             >
-              Selanjutnya
+              Berikutnya &rarr;
             </button>
           </div>
         </div>
       </div>
 
-      {/* DETAIL MODAL KARTU KUNJUNGAN UKS */}
+      {/* DETAIL VISIT MODAL */}
       {selectedVisit && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <FileText className="w-4 h-4" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <UserCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-base">Kartu Rekam Medis UKS</h4>
-                  <span className="text-[11px] text-slate-500">ID: {selectedVisit.id}</span>
+                  <h3 className="font-bold text-slate-900 text-base">
+                    Kartu Rekam Kunjungan UKS
+                  </h3>
+                  <p className="text-[11px] text-slate-500">ID: {selectedVisit.id}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedVisit(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="py-4 space-y-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+            <div className="py-4 space-y-3.5 text-xs">
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Nama Pasien</span>
-                  <span className="font-bold text-slate-900 text-sm">{selectedVisit.visitorName}</span>
+                  <span className="text-slate-500 font-medium">Nama Pengunjung:</span>
+                  <div className="font-bold text-slate-900 text-sm">{selectedVisit.visitorName}</div>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Status & Kelas</span>
-                  <span className="font-semibold text-slate-800">
-                    {selectedVisit.role.toUpperCase()} — {selectedVisit.classOrPosition} ({selectedVisit.gender})
-                  </span>
+                  <span className="text-slate-500 font-medium">Peran / Kelas:</span>
+                  <div className="font-semibold text-slate-800">
+                    {selectedVisit.role.toUpperCase()} — {selectedVisit.classOrPosition}
+                  </div>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Waktu Kunjungan</span>
-                  <span className="font-medium text-slate-700">{selectedVisit.date} pukul {selectedVisit.time} WIB</span>
+                  <span className="text-slate-500 font-medium">Waktu Kunjungan:</span>
+                  <div className="font-semibold text-slate-800">
+                    {selectedVisit.date} ({selectedVisit.time} WIB)
+                  </div>
+                </div>
+                <div>
+                  <span className="text-slate-500 font-medium">Status Verifikasi:</span>
+                  <div className="font-bold">
+                    {selectedVisit.approvalStatus === 'pending' ? (
+                      <span className="text-amber-600">Menunggu Verifikasi</span>
+                    ) : selectedVisit.approvalStatus === 'rejected' ? (
+                      <span className="text-rose-600">Ditolak ({selectedVisit.rejectedReason || 'Oleh Petugas'})</span>
+                    ) : (
+                      <span className="text-emerald-600">Disetujui ({selectedVisit.approvedBy || 'Petugas UKS'})</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div>
-                <span className="text-slate-500 font-semibold block mb-1">Tanda Vital (Pemeriksaan Awal):</span>
-                <div className="flex gap-4">
-                  <div className="bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-lg font-medium">
-                    Suhu Tubuh: <strong>{selectedVisit.temperature ? `${selectedVisit.temperature}°C` : 'Tidak Diukur'}</strong>
-                  </div>
-                  <div className="bg-indigo-50 text-indigo-800 px-3 py-1.5 rounded-lg font-medium">
-                    Tekanan Darah: <strong>{selectedVisit.bloodPressure || 'Tidak Diukur'}</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <span className="text-slate-500 font-semibold block mb-1">Keluhan / Alasan ke UKS:</span>
-                <p className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-800 leading-relaxed font-medium">
+                <span className="text-slate-500 font-semibold block mb-1">Keluhan / Gejala:</span>
+                <p className="text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                   {selectedVisit.complaint}
                 </p>
               </div>
 
               <div>
-                <span className="text-slate-500 font-semibold block mb-1">Tindakan Penanganan UKS:</span>
-                <p className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-800 leading-relaxed">
+                <span className="text-slate-500 font-semibold block mb-1">Tindakan / Penanganan UKS:</span>
+                <p className="text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                   {selectedVisit.actionTaken}
                 </p>
               </div>
 
               <div>
-                <span className="text-slate-500 font-semibold block mb-1">Obat Yang Diberikan:</span>
+                <span className="text-slate-500 font-semibold block mb-1">Obat yang Diberikan:</span>
                 {selectedVisit.medicinesGiven.length > 0 ? (
                   <div className="space-y-1.5">
-                    {selectedVisit.medicinesGiven.map((med, i) => (
-                      <div key={i} className="flex justify-between items-center bg-teal-50 border border-teal-200 p-2.5 rounded-xl">
-                        <div>
-                          <div className="font-bold text-teal-900">{med.medicineName}</div>
-                          {med.dosageNotes && (
-                            <div className="text-[11px] text-teal-700">{med.dosageNotes}</div>
-                          )}
-                        </div>
-                        <span className="bg-teal-600 text-white font-bold px-2 py-0.5 rounded text-xs">
-                          {med.quantity} {med.unit}
-                        </span>
+                    {selectedVisit.medicinesGiven.map((m, idx) => (
+                      <div key={idx} className="flex justify-between items-center bg-teal-50 border border-teal-200 p-2 rounded-lg text-teal-900">
+                        <span className="font-bold">{m.medicineName}</span>
+                        <span className="font-semibold">{m.quantity} {m.unit} {m.dosageNotes ? `(${m.dosageNotes})` : ''}</span>
                       </div>
                     ))}
                   </div>
@@ -955,6 +966,83 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
         }}
         onCancel={() => setDeletingVisit(null)}
       />
+
+      {/* Modern Modal for Rejecting Visit */}
+      {rejectingVisit && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 pb-4">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 ring-4 ring-rose-50 flex items-center justify-center shrink-0">
+                  <Ban className="w-6 h-6" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRejectingVisit(null)}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <span className="text-[10px] font-black uppercase tracking-wider text-rose-500 block mb-1">
+                Tolak Pengajuan Kunjungan
+              </span>
+              <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
+                Tolak Kunjungan {rejectingVisit.visitorName}?
+              </h3>
+              <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                Pengajuan ini akan ditandai ditolak. Stok obat aman dan <strong>sama sekali tidak akan berkurang</strong>.
+              </p>
+
+              <div className="mt-4 p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Pengunjung:</span>
+                  <span className="font-bold text-slate-800">{rejectingVisit.visitorName} ({rejectingVisit.classOrPosition})</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Keluhan:</span>
+                  <span className="font-semibold text-slate-700 truncate max-w-[200px]">{rejectingVisit.complaint}</span>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Alasan Penolakan (Opsional)
+                </label>
+                <input
+                  type="text"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Misal: Data tidak valid / iseng / siswa tidak berada di UKS"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setRejectingVisit(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  rejectVisitRecord(rejectingVisit.id, rejectReason.trim() || undefined);
+                  setRejectingVisit(null);
+                }}
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-md shadow-rose-600/20 transition cursor-pointer flex items-center gap-1.5"
+              >
+                <Ban className="w-3.5 h-3.5" />
+                <span>Tolak Kunjungan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

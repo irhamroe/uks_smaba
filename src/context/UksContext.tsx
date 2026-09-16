@@ -62,7 +62,7 @@ interface UksContextType {
   setBedStatus: (id: string, status: UksBed['status']) => void;
   releaseBed: (bedName: string) => void;
   
-  // Actions
+  // Visit Actions & Approval Workflow
   addVisitRecord: (data: {
     visitorName: string;
     role: 'siswa' | 'guru' | 'staf';
@@ -81,9 +81,12 @@ interface UksContextType {
     customTime?: string;
   }) => { success: boolean; error?: string };
   
+  approveVisitRecord: (id: string) => { success: boolean; error?: string };
+  rejectVisitRecord: (id: string, reason?: string) => { success: boolean; error?: string };
   deleteVisitRecord: (id: string) => void;
   updateVisitStatus: (id: string, status: VisitRecord['finalStatus']) => void;
   
+  // Medicine Actions
   addMedicine: (data: Omit<Medicine, 'id' | 'lastUpdated'>) => void;
   updateMedicine: (id: string, updates: Partial<Omit<Medicine, 'id'>>) => void;
   deleteMedicine: (id: string) => void;
@@ -92,6 +95,8 @@ interface UksContextType {
   resetToDefaultData: () => void;
   
   // Computed
+  pendingVisits: VisitRecord[];
+  approvedVisits: VisitRecord[];
   lowStockMedicines: Medicine[];
   outOfStockMedicines: Medicine[];
   todayVisits: VisitRecord[];
@@ -693,6 +698,14 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [toast]);
 
   // Computed state
+  const pendingVisits = useMemo(() => {
+    return records.filter(r => r.approvalStatus === 'pending');
+  }, [records]);
+
+  const approvedVisits = useMemo(() => {
+    return records.filter(r => r.approvalStatus === 'approved' || !r.approvalStatus);
+  }, [records]);
+
   const lowStockMedicines = useMemo(() => {
     return medicines.filter(m => m.stock <= m.minStock);
   }, [medicines]);
@@ -706,14 +719,14 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const todayVisits = useMemo(() => {
-    return records.filter(r => r.date === todayStr);
+    return records.filter(r => r.date === todayStr && (r.approvalStatus === 'approved' || !r.approvalStatus));
   }, [records, todayStr]);
 
   const activePatients = useMemo(() => {
-    return records.filter(r => r.finalStatus === 'Sedang Istirahat di UKS');
+    return records.filter(r => r.finalStatus === 'Sedang Istirahat di UKS' && (r.approvalStatus === 'approved' || !r.approvalStatus));
   }, [records]);
 
-  // Add Visit Record & Real-time stock reduction
+  // Add Visit Record & Real-time stock reduction (Only for Admin; Public submissions go to pending queue)
   const addVisitRecord = (data: {
     visitorName: string;
     role: 'siswa' | 'guru' | 'staf';
@@ -731,26 +744,88 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     customDate?: string;
     customTime?: string;
   }) => {
-    // Validate medicine availability first
-    if (data.needsMedicine && data.medicinesGiven.length > 0) {
-      for (const usage of data.medicinesGiven) {
-        const found = medicines.find(m => m.id === usage.medicineId);
-        if (!found) {
-          return { success: false, error: `Obat "${usage.medicineName}" tidak ditemukan dalam sistem.` };
-        }
-        if (found.stock < usage.quantity) {
-          return {
-            success: false,
-            error: `Stok obat "${found.name}" tidak mencukupi! Tersedia: ${found.stock} ${found.unit}, diminta: ${usage.quantity} ${found.unit}.`
-          };
-        }
-      }
-    }
-
     const now = new Date();
     const currentDate = data.customDate || now.toISOString().split('T')[0];
     const currentTime = data.customTime || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
+    // CASE 1: DIRECT ADMIN ENTRY (Automatically approved and stock is deducted immediately)
+    if (isAdminLoggedIn) {
+      if (data.needsMedicine && data.medicinesGiven.length > 0) {
+        for (const usage of data.medicinesGiven) {
+          const found = medicines.find(m => m.id === usage.medicineId);
+          if (!found) {
+            return { success: false, error: `Obat "${usage.medicineName}" tidak ditemukan dalam sistem.` };
+          }
+          if (found.stock < usage.quantity) {
+            return {
+              success: false,
+              error: `Stok obat "${found.name}" tidak mencukupi! Tersedia: ${found.stock} ${found.unit}, diminta: ${usage.quantity} ${found.unit}.`
+            };
+          }
+        }
+      }
+
+      const newRecord: VisitRecord = {
+        id: `vis-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        timestamp: now.toISOString(),
+        date: currentDate,
+        time: currentTime,
+        visitorName: data.visitorName.trim(),
+        role: data.role,
+        classOrPosition: data.classOrPosition.trim(),
+        gender: data.gender,
+        complaint: data.complaint.trim(),
+        actionTaken: data.actionTaken.trim(),
+        needsMedicine: data.needsMedicine,
+        medicinesGiven: data.needsMedicine ? data.medicinesGiven : [],
+        notes: data.notes?.trim() || '',
+        finalStatus: data.finalStatus,
+        temperature: data.temperature?.trim(),
+        bloodPressure: data.bloodPressure?.trim(),
+        bedNumber: data.bedNumber,
+        approvalStatus: 'approved',
+        approvedBy: adminUser?.name || 'Petugas UKS',
+        approvedAt: now.toISOString()
+      };
+
+      // Deduct stock in real-time
+      let updatedMeds = [...medicines];
+      const lowStockAlerts: string[] = [];
+
+      if (data.needsMedicine && data.medicinesGiven.length > 0) {
+        updatedMeds = updatedMeds.map(med => {
+          const used = data.medicinesGiven.find(u => u.medicineId === med.id);
+          if (used) {
+            const newStock = Math.max(0, med.stock - used.quantity);
+            if (newStock <= med.minStock) {
+              lowStockAlerts.push(`${med.name} (Sisa: ${newStock} ${med.unit})`);
+            }
+            const updatedMedObj = {
+              ...med,
+              stock: newStock,
+              lastUpdated: new Date().toISOString()
+            };
+            syncSaveMedicine(updatedMedObj);
+            return updatedMedObj;
+          }
+          return med;
+        });
+        setMedicines(updatedMeds);
+      }
+
+      setRecords(prev => [newRecord, ...prev]);
+      syncSaveVisit(newRecord);
+
+      if (lowStockAlerts.length > 0) {
+        showToast(`Data tersimpan! Perhatian: Stok obat mulai menipis: ${lowStockAlerts.join(', ')}`, 'warning');
+      } else {
+        showToast(`Data kunjungan ${newRecord.visitorName} berhasil dicatat!`, 'success');
+      }
+
+      return { success: true };
+    }
+
+    // CASE 2: PUBLIC VISITOR ENTRY (Goes to Pending Approval Queue, stock is NOT deducted yet)
     const newRecord: VisitRecord = {
       id: `vis-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       timestamp: now.toISOString(),
@@ -768,16 +843,48 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       finalStatus: data.finalStatus,
       temperature: data.temperature?.trim(),
       bloodPressure: data.bloodPressure?.trim(),
-      bedNumber: data.bedNumber
+      bedNumber: data.bedNumber,
+      approvalStatus: 'pending'
     };
 
-    // Deduct stock in real-time
-    let updatedMeds = [...medicines];
-    const lowStockAlerts: string[] = [];
+    setRecords(prev => [newRecord, ...prev]);
+    syncSaveVisit(newRecord);
 
-    if (data.needsMedicine && data.medicinesGiven.length > 0) {
+    showToast(`Pengajuan kunjungan ${newRecord.visitorName} berhasil dikirim dan menunggu verifikasi Petugas UKS.`, 'info');
+    return { success: true };
+  };
+
+  // Approve Visit Record: Validates stock, deducts medicine stock, marks as approved
+  const approveVisitRecord = (id: string) => {
+    const visit = records.find(r => r.id === id);
+    if (!visit) {
+      return { success: false, error: 'Catatan kunjungan tidak ditemukan.' };
+    }
+    if (visit.approvalStatus === 'approved') {
+      return { success: false, error: 'Kunjungan ini sudah disetujui sebelumnya.' };
+    }
+
+    // Validate medicine availability first
+    if (visit.needsMedicine && visit.medicinesGiven.length > 0) {
+      for (const usage of visit.medicinesGiven) {
+        const found = medicines.find(m => m.id === usage.medicineId);
+        if (!found) {
+          return { success: false, error: `Obat "${usage.medicineName}" tidak ditemukan dalam master inventaris.` };
+        }
+        if (found.stock < usage.quantity) {
+          return {
+            success: false,
+            error: `Stok obat "${found.name}" tidak mencukupi! Tersedia: ${found.stock} ${found.unit}, diminta: ${usage.quantity} ${found.unit}.`
+          };
+        }
+      }
+
+      // Deduct stock upon approval
+      let updatedMeds = [...medicines];
+      const lowStockAlerts: string[] = [];
+
       updatedMeds = updatedMeds.map(med => {
-        const used = data.medicinesGiven.find(u => u.medicineId === med.id);
+        const used = visit.medicinesGiven.find(u => u.medicineId === med.id);
         if (used) {
           const newStock = Math.max(0, med.stock - used.quantity);
           if (newStock <= med.minStock) {
@@ -794,18 +901,58 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         return med;
       });
       setMedicines(updatedMeds);
+
+      if (lowStockAlerts.length > 0) {
+        showToast(`Peringatan: Stok obat menipis setelah disetujui: ${lowStockAlerts.join(', ')}`, 'warning');
+      }
     }
 
-    // Add to records (newest on top) and sync to Firestore
-    setRecords(prev => [newRecord, ...prev]);
-    syncSaveVisit(newRecord);
+    const now = new Date();
+    let updatedVisit: VisitRecord = visit;
 
-    if (lowStockAlerts.length > 0) {
-      showToast(`Data tersimpan! Perhatian: Stok obat mulai menipis: ${lowStockAlerts.join(', ')}`, 'warning');
-    } else {
-      showToast(`Data kunjungan ${newRecord.visitorName} berhasil dicatat!`, 'success');
+    setRecords(prev => prev.map(r => {
+      if (r.id === id) {
+        const u: VisitRecord = {
+          ...r,
+          approvalStatus: 'approved',
+          approvedBy: adminUser?.name || 'Petugas UKS',
+          approvedAt: now.toISOString()
+        };
+        updatedVisit = u;
+        return u;
+      }
+      return r;
+    }));
+
+    syncSaveVisit(updatedVisit);
+    showToast(`Kunjungan "${visit.visitorName}" berhasil disetujui & stok obat telah diperbarui!`, 'success');
+    return { success: true };
+  };
+
+  // Reject Visit Record: Rejects fake/prank submission without deducting any medicine stock
+  const rejectVisitRecord = (id: string, reason?: string) => {
+    const visit = records.find(r => r.id === id);
+    if (!visit) {
+      return { success: false, error: 'Catatan kunjungan tidak ditemukan.' };
     }
 
+    let updatedVisit: VisitRecord = visit;
+
+    setRecords(prev => prev.map(r => {
+      if (r.id === id) {
+        const u: VisitRecord = {
+          ...r,
+          approvalStatus: 'rejected',
+          rejectedReason: reason || 'Pengajuan kunjungan ditolak oleh Petugas UKS'
+        };
+        updatedVisit = u;
+        return u;
+      }
+      return r;
+    }));
+
+    syncSaveVisit(updatedVisit);
+    showToast(`Pengajuan kunjungan "${visit.visitorName}" telah ditolak. Stok obat aman & tidak berkurang.`, 'info');
     return { success: true };
   };
 
@@ -1016,6 +1163,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setBedStatus,
         releaseBed,
         addVisitRecord,
+        approveVisitRecord,
+        rejectVisitRecord,
         deleteVisitRecord,
         updateVisitStatus,
         addMedicine,
@@ -1024,6 +1173,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         restockMedicine,
         importMedicinesFromExcel,
         resetToDefaultData,
+        pendingVisits,
+        approvedVisits,
         lowStockMedicines,
         outOfStockMedicines,
         todayVisits,

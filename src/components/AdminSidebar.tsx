@@ -36,7 +36,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     users, 
     schoolInfo,
     logoutAdmin, 
-    lowStockMedicines 
+    lowStockMedicines,
+    pendingVisits
   } = useUks();
 
   const [currentTime, setCurrentTime] = useState<string>('');
@@ -69,7 +70,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       id: 'dashboard' as AppTab,
       label: 'Dashboard',
       icon: LayoutDashboard,
-      description: 'Statistik & rekapitulasi pasien'
+      description: 'Statistik & rekapitulasi pasien',
+      badge: pendingVisits.length > 0 ? (
+        <span className="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-xs">
+          {pendingVisits.length} Verifikasi
+        </span>
+      ) : null
     },
     {
       id: 'inventory' as AppTab,

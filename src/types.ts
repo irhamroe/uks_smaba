@@ -33,6 +33,10 @@ export interface VisitRecord {
   temperature?: string; // e.g. "36.8"
   bloodPressure?: string; // e.g. "110/70"
   bedNumber?: string;
+  approvalStatus?: 'pending' | 'approved' | 'rejected';
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectedReason?: string;
 }
 
 export interface Medicine {

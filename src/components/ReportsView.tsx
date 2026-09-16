@@ -60,9 +60,11 @@ export const ReportsView: React.FC = () => {
 
   const monthName = MONTH_NAMES[selectedMonth];
 
-  // Filter records for selected month & year
+  // Filter records for selected month & year (only approved visits)
   const monthlyRecords = useMemo(() => {
     return records.filter(r => {
+      const isApproved = r.approvalStatus === 'approved' || !r.approvalStatus;
+      if (!isApproved) return false;
       const d = new Date(r.date);
       return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
     });

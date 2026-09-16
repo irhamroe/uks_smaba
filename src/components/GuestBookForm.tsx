@@ -643,7 +643,9 @@ export const GuestBookForm: React.FC = () => {
                   Kebutuhan Obat Pengunjung
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Stok obat akan otomatis berkurang dari inventaris UKS secara real-time.
+                  {isAdminLoggedIn 
+                    ? 'Stok obat akan otomatis berkurang dari inventaris UKS secara real-time.' 
+                    : 'Pengajuan obat akan diverifikasi terlebih dahulu oleh petugas UKS sebelum diserahkan.'}
                 </p>
               </div>
             </div>
@@ -847,10 +849,14 @@ export const GuestBookForm: React.FC = () => {
             </div>
 
             <h3 className="text-xl font-bold text-center text-slate-900 mb-1">
-              Data Kunjungan Berhasil Disimpan!
+              {isAdminLoggedIn 
+                ? 'Data Kunjungan Berhasil Disimpan!' 
+                : 'Pengajuan Kunjungan Berhasil Terkirim!'}
             </h3>
             <p className="text-sm text-center text-slate-500 mb-6">
-              Semoga lekas pulih dan sehat selalu untuk ananda / bapak / ibu.
+              {isAdminLoggedIn 
+                ? 'Semoga lekas pulih dan sehat selalu untuk ananda / bapak / ibu.' 
+                : 'Data kunjungan telah masuk ke antrean verifikasi petugas UKS. Pengambilan obat akan divalidasi oleh petugas.'}
             </p>
 
             {/* Receipt / Summary card */}

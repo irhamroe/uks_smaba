@@ -307,7 +307,10 @@ export const INITIAL_VISITS: VisitRecord[] = [
     notes: 'Kondisi berangsur membaik setelah istirahat 30 menit',
     finalStatus: 'Kembali ke Kelas / Mengajar',
     temperature: '36.7',
-    bedNumber: 'Ranjang 1'
+    bedNumber: 'Ranjang 1',
+    approvalStatus: 'approved',
+    approvedBy: 'Nita Rimayanti, S.Pd',
+    approvedAt: getDateOffset(0).timestamp
   },
   {
     id: 'vis-2',
@@ -333,7 +336,10 @@ export const INITIAL_VISITS: VisitRecord[] = [
     notes: 'Istirahat di ruang UKS selama 15 menit',
     finalStatus: 'Kembali ke Kelas / Mengajar',
     bloodPressure: '120/80',
-    bedNumber: 'Ranjang 2'
+    bedNumber: 'Ranjang 2',
+    approvalStatus: 'approved',
+    approvedBy: 'Moh. Irham Rozaqi, S.Kom, Gr.',
+    approvedAt: getDateOffset(0).timestamp
   },
   {
     id: 'vis-3',
@@ -357,7 +363,10 @@ export const INITIAL_VISITS: VisitRecord[] = [
       }
     ],
     notes: 'Luka telah dibersihkan dan diplester steril',
-    finalStatus: 'Kembali ke Kelas / Mengajar'
+    finalStatus: 'Kembali ke Kelas / Mengajar',
+    approvalStatus: 'approved',
+    approvedBy: 'Nita Rimayanti, S.Pd',
+    approvedAt: getDateOffset(0).timestamp
   },
   {
     id: 'vis-4',
@@ -382,7 +391,10 @@ export const INITIAL_VISITS: VisitRecord[] = [
     ],
     notes: 'Istirahat selama 1 jam pelajaran sampai kram mereda',
     finalStatus: 'Kembali ke Kelas / Mengajar',
-    bedNumber: 'Ranjang 3'
+    bedNumber: 'Ranjang 3',
+    approvalStatus: 'approved',
+    approvedBy: 'Amitha Mustika Damayanti, M.Pd',
+    approvedAt: getDateOffset(1).timestamp
   },
   {
     id: 'vis-5',
@@ -406,7 +418,10 @@ export const INITIAL_VISITS: VisitRecord[] = [
       }
     ],
     notes: 'Kram reda setelah 15 menit',
-    finalStatus: 'Kembali ke Kelas / Mengajar'
+    finalStatus: 'Kembali ke Kelas / Mengajar',
+    approvalStatus: 'approved',
+    approvedBy: 'Panji Penatas, S.Pd',
+    approvedAt: getDateOffset(2).timestamp
   },
   {
     id: 'vis-6',
@@ -432,7 +447,10 @@ export const INITIAL_VISITS: VisitRecord[] = [
     notes: 'Orang tua datang menjemput ke UKS pukul 09:30',
     finalStatus: 'Izin Pulang / Dijemput',
     temperature: '38.8',
-    bedNumber: 'Ranjang 1'
+    bedNumber: 'Ranjang 1',
+    approvalStatus: 'approved',
+    approvedBy: 'Nita Rimayanti, S.Pd',
+    approvedAt: getDateOffset(3).timestamp
   }
 ];
 
