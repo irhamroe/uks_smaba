@@ -23,6 +23,7 @@ import {
 import { useUks } from '../context/UksContext';
 import { Medicine } from '../types';
 import { downloadMedicineExcelTemplate, parseMedicineExcelFile } from '../utils/excelHelper';
+import { ConfirmModal } from './ConfirmModal';
 
 interface MedicineInventoryProps {
   restockTargetId?: string | null;
@@ -52,6 +53,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
+  const [deletingMedicine, setDeletingMedicine] = useState<Medicine | null>(null);
   const [quickRestockItem, setQuickRestockItem] = useState<Medicine | null>(() => {
     if (restockTargetId) {
       return medicines.find(m => m.id === restockTargetId) || null;
@@ -530,12 +532,8 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              if (confirm(`Hapus obat "${med.name}" dari inventaris UKS?`)) {
-                                deleteMedicine(med.id);
-                              }
-                            }}
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            onClick={() => setDeletingMedicine(med)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
                             title="Hapus obat"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1062,7 +1060,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                   type="button"
                   disabled={parsedImportList.length === 0}
                   onClick={handleConfirmImport}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Impor Sekarang ({parsedImportList.length} Obat)
                 </button>
@@ -1071,6 +1069,30 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modern Delete Medicine Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deletingMedicine}
+        title={`Hapus Obat "${deletingMedicine?.name || ''}"?`}
+        message="Obat ini akan dihapus permanen dari master inventaris UKS SMAN 1 Batu."
+        details={deletingMedicine ? [
+          { label: 'Nama Obat', value: deletingMedicine.name },
+          { label: 'Kategori', value: deletingMedicine.category },
+          { label: 'Stok Saat Ini', value: `${deletingMedicine.stock} ${deletingMedicine.unit}` },
+          { label: 'Batas Minimum', value: `${deletingMedicine.minStock} ${deletingMedicine.unit}` },
+          { label: 'Lokasi', value: deletingMedicine.location || 'Lemari Obat' }
+        ] : []}
+        confirmLabel="Hapus Obat"
+        cancelLabel="Batal"
+        type="danger"
+        onConfirm={() => {
+          if (deletingMedicine) {
+            deleteMedicine(deletingMedicine.id);
+            setDeletingMedicine(null);
+          }
+        }}
+        onCancel={() => setDeletingMedicine(null)}
+      />
     </div>
   );
 };

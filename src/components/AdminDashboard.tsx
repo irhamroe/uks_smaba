@@ -25,6 +25,7 @@ import {
 import { useUks } from '../context/UksContext';
 import { VisitRecord, VisitorRole, VisitStatus } from '../types';
 import { STUDENT_CLASSES } from '../data/initialData';
+import { ConfirmModal } from './ConfirmModal';
 
 interface AdminDashboardProps {
   onOpenRestockModal: (medicineId?: string) => void;
@@ -55,6 +56,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
 
   // Selected visit for detail modal
   const [selectedVisit, setSelectedVisit] = useState<VisitRecord | null>(null);
+
+  // Selected visit for delete confirmation modal
+  const [deletingVisit, setDeletingVisit] = useState<VisitRecord | null>(null);
 
   // Today ISO string
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -716,13 +720,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (confirm(`Yakin ingin menghapus catatan kunjungan ${record.visitorName}?`)) {
-                              deleteVisitRecord(record.id);
-                            }
-                          }}
-                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                          title="Hapus Catatan"
+                          onClick={() => setDeletingVisit(record)}
+                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                          title="Hapus Catatan Kunjungan"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -924,7 +924,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
               <button
                 type="button"
                 onClick={() => setSelectedVisit(null)}
-                className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50"
+                className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
               >
                 Tutup
               </button>
@@ -932,6 +932,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
           </div>
         </div>
       )}
+
+      {/* Modern Confirmation Modal for Delete Visit */}
+      <ConfirmModal
+        isOpen={!!deletingVisit}
+        title={`Hapus Catatan Kunjungan ${deletingVisit?.visitorName || ''}?`}
+        message="Data riwayat kunjungan ini akan dihapus secara permanen dari sistem dan cloud database UKS."
+        details={deletingVisit ? [
+          { label: 'Nama Pengunjung', value: deletingVisit.visitorName },
+          { label: 'Status / Kelas', value: `${deletingVisit.role.toUpperCase()} - ${deletingVisit.classOrPosition}` },
+          { label: 'Waktu Kunjungan', value: `${deletingVisit.date} (${deletingVisit.time})` },
+          { label: 'Keluhan', value: deletingVisit.complaint }
+        ] : []}
+        confirmLabel="Hapus Kunjungan"
+        cancelLabel="Batal"
+        type="danger"
+        onConfirm={() => {
+          if (deletingVisit) {
+            deleteVisitRecord(deletingVisit.id);
+            setDeletingVisit(null);
+          }
+        }}
+        onCancel={() => setDeletingVisit(null)}
+      />
     </div>
   );
 };
