@@ -104,95 +104,31 @@ interface UksContextType {
 const UksContext = createContext<UksContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  VISITS: 'uks_sman1batu_visits_v1',
-  MEDICINES: 'uks_sman1batu_medicines_v1',
-  RESTOCK: 'uks_sman1batu_restock_v1',
-  ADMIN_SESSION: 'uks_sman1batu_admin_session_v1',
-  USERS: 'uks_sman1batu_users_v1',
-  BEDS: 'uks_sman1batu_beds_v1',
-  SCHOOL_INFO: 'uks_sman1batu_school_info_v1'
+  ADMIN_SESSION: 'uks_sman1batu_admin_session_v1'
 };
 
 export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Load beds
-  const [beds, setBeds] = useState<UksBed[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.BEDS);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error loading beds from localStorage:', e);
-    }
-    return INITIAL_BEDS;
-  });
-
-  // Save beds on change
+  // Proactively clear legacy localStorage keys so all devices use cloud database
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.BEDS, JSON.stringify(beds));
-    } catch (e) {
-      console.error('Error saving beds to localStorage:', e);
+      localStorage.removeItem('uks_sman1batu_visits_v1');
+      localStorage.removeItem('uks_sman1batu_medicines_v1');
+      localStorage.removeItem('uks_sman1batu_restock_v1');
+      localStorage.removeItem('uks_sman1batu_users_v1');
+      localStorage.removeItem('uks_sman1batu_beds_v1');
+      localStorage.removeItem('uks_sman1batu_school_info_v1');
+    } catch {
+      // Ignore
     }
-  }, [beds]);
+  }, []);
 
-  // Load users
-  const [users, setUsers] = useState<AdminUser[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((u: AdminUser) => ({
-            ...u,
-            role: (u.role === 'Pembina Utama UKS' || !u.role) ? 'Koordinator UKS' : u.role
-          }));
-        }
-      }
-    } catch (e) {
-      console.error('Error loading users from localStorage:', e);
-    }
-    return INITIAL_ADMIN_USERS;
-  });
-
-  // Save users on change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-    } catch (e) {
-      console.error('Error saving users to localStorage:', e);
-    }
-  }, [users]);
-
-  // Load school info
-  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.SCHOOL_INFO);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (
-          !parsed.email || 
-          parsed.email === 'uks@sman1batu.sch.id' || 
-          parsed.email.includes('@yahoo@yahoo') || 
-          parsed.email === 'sman1batu@yahoo' ||
-          (parsed.email.match(/@/g) || []).length > 1
-        ) {
-          parsed.email = 'sman1batu@yahoo.com';
-        }
-        return { ...SCHOOL_INFO, ...parsed, email: parsed.email || 'sman1batu@yahoo.com' };
-      }
-    } catch (e) {
-      console.error('Error loading school info from localStorage:', e);
-    }
-    return SCHOOL_INFO;
-  });
-
-  // Save school info on change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SCHOOL_INFO, JSON.stringify(schoolInfo));
-    } catch (e) {
-      console.error('Error saving school info to localStorage:', e);
-    }
-  }, [schoolInfo]);
+  // Online Cloud-Driven State
+  const [beds, setBeds] = useState<UksBed[]>(INITIAL_BEDS);
+  const [users, setUsers] = useState<AdminUser[]>(INITIAL_ADMIN_USERS);
+  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(SCHOOL_INFO);
+  const [records, setRecords] = useState<VisitRecord[]>(INITIAL_VISITS);
+  const [medicines, setMedicines] = useState<Medicine[]>(INITIAL_MEDICINES);
+  const [restockLogs, setRestockLogs] = useState<RestockLog[]>([]);
 
   const updateSchoolInfo = (updates: Partial<SchoolInfo>) => {
     const updated = { ...schoolInfo, ...updates };
@@ -204,11 +140,6 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const resetSchoolInfo = () => {
     setSchoolInfo(SCHOOL_INFO);
     syncSaveSchoolInfo(SCHOOL_INFO);
-    try {
-      localStorage.removeItem(STORAGE_KEYS.SCHOOL_INFO);
-    } catch (e) {
-      console.error('Error resetting school info:', e);
-    }
     showToast('Identitas sekolah dikembalikan ke pengaturan standar.', 'info');
   };
 
@@ -221,10 +152,10 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return users[0] || null;
   }, [users]);
 
-  // Load admin session
+  // Load admin session from sessionStorage/localStorage
   const [adminUser, setAdminUser] = useState<AdminUser | null>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.ADMIN_SESSION);
+      const saved = sessionStorage.getItem(STORAGE_KEYS.ADMIN_SESSION) || localStorage.getItem(STORAGE_KEYS.ADMIN_SESSION);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed) {
@@ -235,46 +166,13 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       }
     } catch (e) {
-      console.error('Error loading admin session from localStorage:', e);
+      console.error('Error loading admin session:', e);
     }
     return null;
   });
 
   const isAdminLoggedIn = !!adminUser;
   const [pendingTab, setPendingTab] = useState<AppTab | null>(null);
-
-  // Load initial visits
-  const [records, setRecords] = useState<VisitRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.VISITS);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error loading visits from localStorage:', e);
-    }
-    return INITIAL_VISITS;
-  });
-
-  // Load initial medicines
-  const [medicines, setMedicines] = useState<Medicine[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.MEDICINES);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error loading medicines from localStorage:', e);
-    }
-    return INITIAL_MEDICINES;
-  });
-
-  // Load restock logs
-  const [restockLogs, setRestockLogs] = useState<RestockLog[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.RESTOCK);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error loading restock logs:', e);
-    }
-    return [];
-  });
 
   const [activeTab, setActiveTab] = useState<AppTab>('guestbook');
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -950,6 +848,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               description: item.description || result[targetIndex].description,
               lastUpdated: new Date().toISOString()
             };
+            syncSaveMedicine(result[targetIndex]);
             updated++;
           }
         } else {
@@ -961,6 +860,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           };
           result.push(newMed);
           currentMap.set(key, newMed);
+          syncSaveMedicine(newMed);
           added++;
         }
       });
@@ -976,9 +876,6 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setRecords(INITIAL_VISITS);
     setMedicines(INITIAL_MEDICINES);
     setRestockLogs([]);
-    localStorage.removeItem(STORAGE_KEYS.VISITS);
-    localStorage.removeItem(STORAGE_KEYS.MEDICINES);
-    localStorage.removeItem(STORAGE_KEYS.RESTOCK);
     showToast('Data berhasil diatur ulang ke data awal demonstrasi UKS SMAN 1 Batu.', 'info');
   };
 
