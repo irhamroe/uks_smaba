@@ -28,7 +28,7 @@ export const AdminLoginView: React.FC = () => {
       case 'inventory':
         return 'Manajemen Stok Obat & Farmasi';
       case 'reports':
-        return 'Laporan & Arsip Bulanan PDF/Excel';
+        return 'Laporan Rekapitulasi & Arsip UKS';
       default:
         return 'Menu Manajemen UKS';
     }

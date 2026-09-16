@@ -166,14 +166,14 @@ export const ReportsView: React.FC = () => {
               <Printer className="w-5 h-5 text-emerald-300" />
             </div>
             <h3 className="text-lg font-bold tracking-tight">
-              Cetak Dokumen Laporan Resmi
+              Cetak Laporan UKS
             </h3>
             <p className="text-xs text-emerald-100/90 mt-1 max-w-sm">
-              Laporan resmi ber-Kop Surat {schoolInfo.name || schoolInfo.shortName}, nomor arsip, ringkasan statistik, tabel kunjungan, sisa stok, dan kolom tanda tangan {koordinatorUks?.role || 'Koordinator UKS'} & Kepala Sekolah.
+              Cetak dokumen laporan resmi ber-kop surat {schoolInfo.name || schoolInfo.shortName}, nomor arsip, ringkasan statistik, tabel kunjungan, sisa stok, dan kolom tanda tangan {koordinatorUks?.role || 'Koordinator UKS'} & Kepala Sekolah.
             </p>
           </div>
 
-          <div className="pt-6 flex flex-wrap items-center gap-2.5">
+          <div className="pt-6">
             <button
               type="button"
               id="btn-print-report"
@@ -182,16 +182,6 @@ export const ReportsView: React.FC = () => {
             >
               <Printer className="w-4 h-4 text-emerald-700" />
               Cetak Laporan ({monthName} {selectedYear})
-            </button>
-            <button
-              type="button"
-              id="btn-export-pdf"
-              onClick={handleExportPdf}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-white/15 hover:bg-white/25 text-white font-semibold px-3.5 py-2.5 rounded-xl text-xs backdrop-blur-xs transition cursor-pointer"
-              title="Unduh file PDF langsung ke perangkat"
-            >
-              <Download className="w-3.5 h-3.5 text-emerald-200" />
-              Unduh PDF
             </button>
           </div>
         </div>

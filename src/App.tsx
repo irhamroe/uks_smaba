@@ -83,7 +83,7 @@ const AppContent: React.FC = () => {
       case 'inventory':
         return { title: 'Manajemen Inventaris Stok Obat & Farmasi', category: 'Pengelolaan Farmasi' };
       case 'reports':
-        return { title: 'Laporan & Arsip Bulanan Kunjungan UKS', category: 'Ekspor Dokumen' };
+        return { title: 'Laporan Rekapitulasi & Arsip UKS', category: 'Laporan' };
       case 'users':
         return { title: 'Manajemen Pengguna & Hak Akses', category: 'Pengaturan Admin' };
       case 'guestbook':
