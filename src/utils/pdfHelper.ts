@@ -261,7 +261,7 @@ export function generateMonthlyReportPdfDoc(
 
   // Left signature: Kepala Sekolah
   doc.text('Mengetahui,', 20, signY + 5);
-  doc.text(`Kepala ${school.name || school.shortName || 'Sekolah'}`, 20, signY + 10);
+  doc.text(`Kepala ${school.shortName || 'SMAN 1 Batu'}`, 20, signY + 10);
   doc.setFont('helvetica', 'bold');
   doc.text(school.schoolPrincipal || 'Kepala Sekolah', 20, signY + 26);
   doc.setFont('helvetica', 'normal');

@@ -473,7 +473,7 @@ export const SchoolSettings: React.FC = () => {
                 <div className="pt-3 grid grid-cols-2 text-center text-[10px] gap-2 border-t border-slate-100">
                   <div>
                     <p className="text-slate-500">Mengetahui,</p>
-                    <p className="font-semibold text-slate-800">Kepala {formData.shortName || 'Sekolah'}</p>
+                    <p className="font-semibold text-slate-800">Kepala {formData.shortName || 'SMAN 1 Batu'}</p>
                     <div className="h-10"></div>
                     <p className="font-bold text-slate-900">{formData.schoolPrincipal || 'Nama Kepala Sekolah'}</p>
                     <p className="text-[9px] text-slate-500">NIP. {formData.schoolPrincipalNip || '-'}</p>

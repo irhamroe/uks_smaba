@@ -357,8 +357,8 @@ export const ReportsView: React.FC = () => {
                     <th className="py-2.5 px-3">Kelas/Jabatan</th>
                     <th className="py-2.5 px-3">Keluhan</th>
                     <th className="py-2.5 px-3">Obat Diberikan</th>
-                    <th className="py-2.5 px-3">Petugas</th>
                     <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3">Petugas</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[11px]">
@@ -381,8 +381,8 @@ export const ReportsView: React.FC = () => {
                             ? r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity})`).join(', ')
                             : '-'}
                         </td>
-                        <td className="py-2 px-3 font-semibold text-emerald-800">{r.approvedBy || r.handledBy || 'Petugas UKS'}</td>
                         <td className="py-2 px-3 font-medium">{r.finalStatus}</td>
+                        <td className="py-2 px-3 font-semibold text-emerald-800">{r.approvedBy || r.handledBy || 'Petugas UKS'}</td>
                       </tr>
                     ))
                   )}
@@ -401,7 +401,7 @@ export const ReportsView: React.FC = () => {
             <div className="grid grid-cols-2 text-center text-xs">
               <div className="p-4 rounded-xl border border-dashed border-slate-200">
                 <p className="text-slate-600">Mengetahui,</p>
-                <p className="font-semibold text-slate-800">Kepala {schoolInfo.name || schoolInfo.shortName}</p>
+                <p className="font-semibold text-slate-800">Kepala {schoolInfo.shortName || 'SMAN 1 Batu'}</p>
                 <div className="h-16 flex items-center justify-center text-[10px] text-slate-300 italic">
                   (Tanda Tangan & Stempel)
                 </div>

@@ -606,9 +606,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                 <th className="py-3 px-4">Keluhan & Gejala</th>
                 <th className="py-3 px-4">Tindakan UKS</th>
                 <th className="py-3 px-4">Obat Diberikan</th>
-                <th className="py-3 px-4">Petugas</th>
                 <th className="py-3 px-4">Status Kunjungan</th>
                 <th className="py-3 px-4">Status Verifikasi</th>
+                <th className="py-3 px-4">Petugas</th>
                 <th className="py-3 px-4 text-center">Aksi</th>
               </tr>
             </thead>
@@ -693,25 +693,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                         )}
                       </td>
 
-                      {/* Petugas Penangan / Penyetuju */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
-                            {(record.approvedBy || record.handledBy || (isPending ? '?' : 'P')).charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-800 text-xs">
-                              {record.approvedBy || record.handledBy || (isPending ? 'Menunggu Verifikasi' : 'Petugas UKS')}
-                            </div>
-                            {record.approvedAt && (
-                              <div className="text-[10px] text-slate-400">
-                                {new Date(record.approvedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
                       {/* Status Kunjungan */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${record.finalStatus === 'Kembali ke Kelas / Mengajar'
@@ -744,6 +725,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                             Disetujui
                           </span>
                         )}
+                      </td>
+
+                      {/* Petugas Penangan / Penyetuju */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
+                            {(record.approvedBy || record.handledBy || (isPending ? '?' : 'P')).charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-800 text-xs">
+                              {record.approvedBy || record.handledBy || (isPending ? 'Menunggu Verifikasi' : 'Petugas UKS')}
+                            </div>
+                            {record.approvedAt && (
+                              <div className="text-[10px] text-slate-400">
+                                {new Date(record.approvedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </td>
 
                       {/* Aksi */}
