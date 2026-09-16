@@ -33,9 +33,10 @@ export const subscribeToVisits = (onUpdate: (data: VisitRecord[]) => void, onErr
       snapshot.forEach((d) => {
         records.push({ ...(d.data() as VisitRecord), id: d.id });
       });
-      // Sort newest first
       records.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      onUpdate(records);
+      if (records.length > 0) {
+        onUpdate(records);
+      }
     },
     (err) => {
       console.warn('Firestore visits subscription error (using local state):', err);
@@ -52,7 +53,9 @@ export const subscribeToMedicines = (onUpdate: (data: Medicine[]) => void, onErr
       snapshot.forEach((d) => {
         items.push({ ...(d.data() as Medicine), id: d.id });
       });
-      onUpdate(items);
+      if (items.length > 0) {
+        onUpdate(items);
+      }
     },
     (err) => {
       console.warn('Firestore medicines subscription error (using local state):', err);
@@ -69,7 +72,9 @@ export const subscribeToUsers = (onUpdate: (data: AdminUser[]) => void, onError?
       snapshot.forEach((d) => {
         users.push({ ...(d.data() as AdminUser), id: d.id });
       });
-      onUpdate(users);
+      if (users.length > 0) {
+        onUpdate(users);
+      }
     },
     (err) => {
       console.warn('Firestore users subscription error (using local state):', err);
@@ -83,7 +88,10 @@ export const subscribeToSchoolInfo = (onUpdate: (data: SchoolInfo) => void, onEr
     doc(db, COLLECTIONS.CONFIG, DOCS.SCHOOL_INFO), 
     (docSnap) => {
       if (docSnap.exists()) {
-        onUpdate(docSnap.data() as SchoolInfo);
+        const info = docSnap.data() as SchoolInfo;
+        if (info && info.name) {
+          onUpdate(info);
+        }
       }
     },
     (err) => {
@@ -101,7 +109,9 @@ export const subscribeToBeds = (onUpdate: (data: UksBed[]) => void, onError?: (e
       snapshot.forEach((d) => {
         beds.push({ ...(d.data() as UksBed), id: d.id });
       });
-      onUpdate(beds);
+      if (beds.length > 0) {
+        onUpdate(beds);
+      }
     },
     (err) => {
       console.warn('Firestore beds subscription error (using local state):', err);

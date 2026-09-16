@@ -104,31 +104,132 @@ interface UksContextType {
 const UksContext = createContext<UksContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  ADMIN_SESSION: 'uks_sman1batu_admin_session_v1'
+  VISITS: 'uks_sman1batu_visits_v2',
+  MEDICINES: 'uks_sman1batu_medicines_v2',
+  RESTOCK: 'uks_sman1batu_restock_v2',
+  ADMIN_SESSION: 'uks_sman1batu_admin_session_v2',
+  USERS: 'uks_sman1batu_users_v2',
+  BEDS: 'uks_sman1batu_beds_v2',
+  SCHOOL_INFO: 'uks_sman1batu_school_info_v2'
 };
 
 export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Proactively clear legacy localStorage keys so all devices use cloud database
+  // Beds state with local cache + cloud sync
+  const [beds, setBeds] = useState<UksBed[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.BEDS);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Fallback
+    }
+    return INITIAL_BEDS;
+  });
+
   useEffect(() => {
     try {
-      localStorage.removeItem('uks_sman1batu_visits_v1');
-      localStorage.removeItem('uks_sman1batu_medicines_v1');
-      localStorage.removeItem('uks_sman1batu_restock_v1');
-      localStorage.removeItem('uks_sman1batu_users_v1');
-      localStorage.removeItem('uks_sman1batu_beds_v1');
-      localStorage.removeItem('uks_sman1batu_school_info_v1');
+      localStorage.setItem(STORAGE_KEYS.BEDS, JSON.stringify(beds));
     } catch {
       // Ignore
     }
-  }, []);
+  }, [beds]);
 
-  // Online Cloud-Driven State
-  const [beds, setBeds] = useState<UksBed[]>(INITIAL_BEDS);
-  const [users, setUsers] = useState<AdminUser[]>(INITIAL_ADMIN_USERS);
-  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(SCHOOL_INFO);
-  const [records, setRecords] = useState<VisitRecord[]>(INITIAL_VISITS);
-  const [medicines, setMedicines] = useState<Medicine[]>(INITIAL_MEDICINES);
-  const [restockLogs, setRestockLogs] = useState<RestockLog[]>([]);
+  // Users state with local cache + cloud sync
+  const [users, setUsers] = useState<AdminUser[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.USERS);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // Fallback
+    }
+    return INITIAL_ADMIN_USERS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    } catch {
+      // Ignore
+    }
+  }, [users]);
+
+  // School info state with local cache + cloud sync
+  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SCHOOL_INFO);
+      if (saved) return { ...SCHOOL_INFO, ...JSON.parse(saved) };
+    } catch {
+      // Fallback
+    }
+    return SCHOOL_INFO;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SCHOOL_INFO, JSON.stringify(schoolInfo));
+    } catch {
+      // Ignore
+    }
+  }, [schoolInfo]);
+
+  // Visits state with local cache + cloud sync
+  const [records, setRecords] = useState<VisitRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.VISITS);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Fallback
+    }
+    return INITIAL_VISITS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(records));
+    } catch {
+      // Ignore
+    }
+  }, [records]);
+
+  // Medicines state with local cache + cloud sync
+  const [medicines, setMedicines] = useState<Medicine[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.MEDICINES);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Fallback
+    }
+    return INITIAL_MEDICINES;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.MEDICINES, JSON.stringify(medicines));
+    } catch {
+      // Ignore
+    }
+  }, [medicines]);
+
+  // Restock logs
+  const [restockLogs, setRestockLogs] = useState<RestockLog[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.RESTOCK);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Fallback
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.RESTOCK, JSON.stringify(restockLogs));
+    } catch {
+      // Ignore
+    }
+  }, [restockLogs]);
 
   const updateSchoolInfo = (updates: Partial<SchoolInfo>) => {
     const updated = { ...schoolInfo, ...updates };
