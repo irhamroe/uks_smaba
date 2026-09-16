@@ -11,10 +11,12 @@ import {
   syncDeleteVisit,
   syncSaveMedicine,
   syncDeleteMedicine,
+  syncReplaceAllMedicines,
   syncSaveUser,
   syncDeleteUser,
   syncSaveSchoolInfo,
   syncSaveBed,
+  syncDeleteBed,
   seedInitialFirestoreData
 } from '../services/firestoreService';
 
@@ -110,7 +112,8 @@ const STORAGE_KEYS = {
   ADMIN_SESSION: 'uks_sman1batu_admin_session_v2',
   USERS: 'uks_sman1batu_users_v2',
   BEDS: 'uks_sman1batu_beds_v2',
-  SCHOOL_INFO: 'uks_sman1batu_school_info_v2'
+  SCHOOL_INFO: 'uks_sman1batu_school_info_v2',
+  INITIALIZED: 'uks_sman1batu_initialized_v2'
 };
 
 export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -118,10 +121,12 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [beds, setBeds] = useState<UksBed[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.BEDS);
-      if (saved) return JSON.parse(saved);
+      if (saved !== null) return JSON.parse(saved);
     } catch {
       // Fallback
     }
+    const isInit = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
+    if (isInit) return [];
     return INITIAL_BEDS;
   });
 
@@ -137,7 +142,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [users, setUsers] = useState<AdminUser[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed.filter((u: any) => u.username?.toLowerCase() !== 'admin' && u.id !== 'usr-admin');
@@ -162,7 +167,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SCHOOL_INFO);
-      if (saved) return { ...SCHOOL_INFO, ...JSON.parse(saved) };
+      if (saved !== null) return { ...SCHOOL_INFO, ...JSON.parse(saved) };
     } catch {
       // Fallback
     }
@@ -181,10 +186,12 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [records, setRecords] = useState<VisitRecord[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.VISITS);
-      if (saved) return JSON.parse(saved);
+      if (saved !== null) return JSON.parse(saved);
     } catch {
       // Fallback
     }
+    const isInit = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
+    if (isInit) return [];
     return INITIAL_VISITS;
   });
 
@@ -200,10 +207,12 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [medicines, setMedicines] = useState<Medicine[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.MEDICINES);
-      if (saved) return JSON.parse(saved);
+      if (saved !== null) return JSON.parse(saved);
     } catch {
       // Fallback
     }
+    const isInit = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
+    if (isInit) return [];
     return INITIAL_MEDICINES;
   });
 
@@ -219,7 +228,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [restockLogs, setRestockLogs] = useState<RestockLog[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.RESTOCK);
-      if (saved) return JSON.parse(saved);
+      if (saved !== null) return JSON.parse(saved);
     } catch {
       // Fallback
     }
@@ -284,21 +293,26 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Seed and Listen to Firebase Firestore Realtime Updates
   useEffect(() => {
     seedInitialFirestoreData();
+    try {
+      localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
+    } catch {
+      // Ignore
+    }
 
     const unsubVisits = subscribeToVisits((newVisits) => {
-      if (newVisits && newVisits.length > 0) {
+      if (Array.isArray(newVisits)) {
         setRecords(newVisits);
       }
     });
 
     const unsubMedicines = subscribeToMedicines((newMeds) => {
-      if (newMeds && newMeds.length > 0) {
+      if (Array.isArray(newMeds)) {
         setMedicines(newMeds);
       }
     });
 
     const unsubUsers = subscribeToUsers((newUsers) => {
-      if (newUsers && newUsers.length > 0) {
+      if (Array.isArray(newUsers) && newUsers.length > 0) {
         setUsers(newUsers);
       }
     });
@@ -310,7 +324,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
 
     const unsubBeds = subscribeToBeds((newBeds) => {
-      if (newBeds && newBeds.length > 0) {
+      if (Array.isArray(newBeds)) {
         setBeds(newBeds);
       }
     });
@@ -612,7 +626,16 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: false, error: 'Ranjang sedang digunakan pasien.' };
     }
 
-    setBeds(prev => prev.filter(b => b.id !== id));
+    setBeds(prev => {
+      const filtered = prev.filter(b => b.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.BEDS, JSON.stringify(filtered));
+      } catch (e) {
+        console.error(e);
+      }
+      return filtered;
+    });
+    syncDeleteBed(id);
     showToast(`Ranjang "${bedToDelete.name}" berhasil dihapus dari UKS.`, 'info');
     return { success: true };
   };
@@ -647,31 +670,6 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
     showToast(`Ranjang "${bedName}" telah dikosongkan dan siap digunakan kembali.`, 'success');
   };
-
-  // Sync to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(records));
-    } catch (e) {
-      console.error('Failed to save visits:', e);
-    }
-  }, [records]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.MEDICINES, JSON.stringify(medicines));
-    } catch (e) {
-      console.error('Failed to save medicines:', e);
-    }
-  }, [medicines]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.RESTOCK, JSON.stringify(restockLogs));
-    } catch (e) {
-      console.error('Failed to save restock logs:', e);
-    }
-  }, [restockLogs]);
 
   const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
     setToast({
@@ -812,7 +810,15 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const deleteVisitRecord = (id: string) => {
-    setRecords(prev => prev.filter(r => r.id !== id));
+    setRecords(prev => {
+      const filtered = prev.filter(r => r.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(filtered));
+      } catch (e) {
+        console.error(e);
+      }
+      return filtered;
+    });
     syncDeleteVisit(id);
     showToast('Data kunjungan berhasil dihapus.', 'info');
   };
@@ -859,7 +865,15 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteMedicine = (id: string) => {
     const target = medicines.find(m => m.id === id);
-    setMedicines(prev => prev.filter(m => m.id !== id));
+    setMedicines(prev => {
+      const filtered = prev.filter(m => m.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.MEDICINES, JSON.stringify(filtered));
+      } catch (e) {
+        console.error(e);
+      }
+      return filtered;
+    });
     syncDeleteMedicine(id);
     showToast(`Obat "${target?.name || ''}" telah dihapus dari inventaris.`, 'info');
   };
@@ -898,12 +912,14 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     let updated = 0;
 
     if (mode === 'replace') {
+      const oldIds = medicines.map(m => m.id);
       const newItems: Medicine[] = list.map((item, idx) => ({
         ...item,
         id: `med-import-${Date.now()}-${idx}`,
         lastUpdated: new Date().toISOString()
       }));
       setMedicines(newItems);
+      syncReplaceAllMedicines(oldIds, newItems);
       added = newItems.length;
       showToast(`Berhasil mengganti seluruh daftar obat (${added} item) dari file Excel.`, 'success');
       return { added, updated: 0 };
@@ -962,6 +978,9 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setRecords(INITIAL_VISITS);
     setMedicines(INITIAL_MEDICINES);
     setRestockLogs([]);
+    
+    INITIAL_VISITS.forEach(v => syncSaveVisit(v));
+    INITIAL_MEDICINES.forEach(m => syncSaveMedicine(m));
     showToast('Data berhasil diatur ulang ke data awal demonstrasi UKS SMAN 1 Batu.', 'info');
   };
 

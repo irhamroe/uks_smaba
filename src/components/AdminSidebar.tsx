@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Pill, 
+  Bed,
   FileSpreadsheet, 
   Users, 
   ClipboardList, 
@@ -70,6 +71,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       label: 'Dashboard',
       icon: LayoutDashboard,
       description: 'Statistik & rekapitulasi pasien'
+    },
+    {
+      id: 'beds' as AppTab,
+      label: 'Fasilitas Ranjang',
+      icon: Bed,
+      description: 'Status kamar & ranjang istirahat'
     },
     {
       id: 'inventory' as AppTab,

@@ -64,6 +64,7 @@ export interface AdminUser {
   name: string;
   role: string;
   nip?: string;
+  email?: string;
   phone?: string;
   isActive?: boolean;
   createdAt?: string;
@@ -92,7 +93,7 @@ export interface SchoolInfo {
   logoUrl?: string;
 }
 
-export type AppTab = 'guestbook' | 'dashboard' | 'inventory' | 'reports' | 'users' | 'login';
+export type AppTab = 'guestbook' | 'dashboard' | 'inventory' | 'reports' | 'users' | 'beds' | 'login';
 
 export interface FilterOptions {
   dateRange: 'all' | 'today' | 'week' | 'month' | 'custom';

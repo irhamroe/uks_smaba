@@ -21,7 +21,8 @@ const COLLECTIONS = {
 };
 
 const DOCS = {
-  SCHOOL_INFO: 'school_info'
+  SCHOOL_INFO: 'school_info',
+  SYSTEM_META: 'system_metadata'
 };
 
 // ======================= REALTIME SUBSCRIPTIONS =======================
@@ -35,9 +36,8 @@ export const subscribeToVisits = (onUpdate: (data: VisitRecord[]) => void, onErr
         records.push({ ...(d.data() as VisitRecord), id: d.id });
       });
       records.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      if (records.length > 0) {
-        onUpdate(records);
-      }
+      // Always notify listener with the latest records array (including empty array)
+      onUpdate(records);
     },
     (err) => {
       console.warn('Firestore visits subscription error (using local state):', err);
@@ -54,9 +54,8 @@ export const subscribeToMedicines = (onUpdate: (data: Medicine[]) => void, onErr
       snapshot.forEach((d) => {
         items.push({ ...(d.data() as Medicine), id: d.id });
       });
-      if (items.length > 0) {
-        onUpdate(items);
-      }
+      // Always notify listener with the latest medicines array (including empty array)
+      onUpdate(items);
     },
     (err) => {
       console.warn('Firestore medicines subscription error (using local state):', err);
@@ -114,9 +113,8 @@ export const subscribeToBeds = (onUpdate: (data: UksBed[]) => void, onError?: (e
       snapshot.forEach((d) => {
         beds.push({ ...(d.data() as UksBed), id: d.id });
       });
-      if (beds.length > 0) {
-        onUpdate(beds);
-      }
+      // Always notify listener with the latest beds array (including empty array)
+      onUpdate(beds);
     },
     (err) => {
       console.warn('Firestore beds subscription error (using local state):', err);
@@ -161,6 +159,21 @@ export const syncDeleteMedicine = async (medId: string) => {
   }
 };
 
+export const syncReplaceAllMedicines = async (oldMedIds: string[], newMeds: Medicine[]) => {
+  try {
+    const batch = writeBatch(db);
+    oldMedIds.forEach(id => {
+      batch.delete(doc(db, COLLECTIONS.MEDICINES, id));
+    });
+    newMeds.forEach(m => {
+      batch.set(doc(db, COLLECTIONS.MEDICINES, m.id), m);
+    });
+    await batch.commit();
+  } catch (err) {
+    console.error('Failed to replace medicines in Firestore:', err);
+  }
+};
+
 // Users
 export const syncSaveUser = async (user: AdminUser) => {
   try {
@@ -197,6 +210,14 @@ export const syncSaveBed = async (bed: UksBed) => {
   }
 };
 
+export const syncDeleteBed = async (bedId: string) => {
+  try {
+    await deleteDoc(doc(db, COLLECTIONS.BEDS, bedId));
+  } catch (err) {
+    console.error('Failed to delete bed from Firestore:', err);
+  }
+};
+
 // ======================= INITIAL SEEDING HELPER =======================
 
 export const seedInitialFirestoreData = async () => {
@@ -209,6 +230,14 @@ export const seedInitialFirestoreData = async () => {
       // Ignore if not present
     }
 
+    // 2. Check if Firestore has ALREADY been seeded at least once
+    // If already seeded, NEVER re-seed even if collections are empty (e.g. user intentionally deleted all records)
+    const metaSnap = await getDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SYSTEM_META));
+    if (metaSnap.exists() && metaSnap.data()?.isSeeded) {
+      return;
+    }
+
+    // First time ever initialization:
     const medSnap = await getDocs(collection(db, COLLECTIONS.MEDICINES));
     if (medSnap.empty) {
       console.log('Seeding initial medicines to Firestore...');
@@ -256,6 +285,12 @@ export const seedInitialFirestoreData = async () => {
     if (!schoolSnap.exists()) {
       await setDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SCHOOL_INFO), SCHOOL_INFO);
     }
+
+    // Mark as seeded in Firestore config so subsequent page refreshes never re-seed
+    await setDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SYSTEM_META), {
+      isSeeded: true,
+      seededAt: new Date().toISOString()
+    });
 
     console.log('Firestore initialization complete!');
   } catch (err) {
