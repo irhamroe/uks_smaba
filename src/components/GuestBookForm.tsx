@@ -620,7 +620,7 @@ export const GuestBookForm: React.FC = () => {
                 className="bs-form-select w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-base sm:text-sm text-slate-800 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 transition font-semibold appearance-none pr-10"
               >
                 <option value="Kembali ke Kelas / Mengajar">Kembali ke Kelas / Mengajar</option>
-                <option value="Sedang Istirahat di UKS">Sedang Istirahat di UKS</option>
+                <option value="Istirahat di UKS">Istirahat di UKS</option>
                 <option value="Izin Pulang / Dijemput">Izin Pulang / Dijemput Orang Tua</option>
                 <option value="Rujukan ke Puskesmas/RS">Rujukan ke Puskesmas / Rumah Sakit</option>
               </select>

@@ -155,7 +155,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
       const d = new Date(r.date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     }).length;
-    const activeRestingCount = approvedList.filter(r => r.finalStatus === 'Sedang Istirahat di UKS').length;
+    const activeRestingCount = approvedList.filter(r => r.finalStatus === 'Istirahat di UKS' || r.finalStatus === 'Sedang Istirahat di UKS').length;
     const totalMedicinesDosed = approvedList.reduce((acc, r) =>
       acc + r.medicinesGiven.reduce((sub, m) => sub + m.quantity, 0), 0
     );
@@ -697,13 +697,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${record.finalStatus === 'Kembali ke Kelas / Mengajar'
                           ? 'bg-emerald-100 text-emerald-800'
-                          : record.finalStatus === 'Sedang Istirahat di UKS'
+                          : (record.finalStatus === 'Istirahat di UKS' || record.finalStatus === 'Sedang Istirahat di UKS')
                             ? 'bg-amber-100 text-amber-800 animate-pulse'
                             : record.finalStatus === 'Izin Pulang / Dijemput'
                               ? 'bg-indigo-100 text-indigo-800'
                               : 'bg-red-100 text-red-800'
                           }`}>
-                          {record.finalStatus}
+                          {record.finalStatus === 'Sedang Istirahat di UKS' ? 'Istirahat di UKS' : record.finalStatus}
                         </span>
                       </td>
 

@@ -3,6 +3,7 @@ export type Gender = 'L' | 'P';
 
 export type VisitStatus = 
   | 'Kembali ke Kelas / Mengajar'
+  | 'Istirahat di UKS'
   | 'Sedang Istirahat di UKS'
   | 'Izin Pulang / Dijemput'
   | 'Rujukan ke Puskesmas/RS';

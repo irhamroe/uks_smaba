@@ -687,7 +687,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     // Check if bed is currently occupied by active resting patient
     const isOccupied = records.some(
-      r => r.finalStatus === 'Sedang Istirahat di UKS' && r.bedNumber === bedToDelete.name
+      r => (r.finalStatus === 'Istirahat di UKS' || r.finalStatus === 'Sedang Istirahat di UKS') && r.bedNumber === bedToDelete.name
     );
 
     if (isOccupied) {
@@ -722,7 +722,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const releaseBed = (bedName: string) => {
     // Find active patient on this bed and complete rest
     const activePatient = records.find(
-      r => r.finalStatus === 'Sedang Istirahat di UKS' && r.bedNumber === bedName
+      r => (r.finalStatus === 'Istirahat di UKS' || r.finalStatus === 'Sedang Istirahat di UKS') && r.bedNumber === bedName
     );
 
     if (activePatient) {
@@ -787,7 +787,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [records, todayStr]);
 
   const activePatients = useMemo(() => {
-    return records.filter(r => r.finalStatus === 'Sedang Istirahat di UKS' && (r.approvalStatus === 'approved' || !r.approvalStatus));
+    return records.filter(r => (r.finalStatus === 'Istirahat di UKS' || r.finalStatus === 'Sedang Istirahat di UKS') && (r.approvalStatus === 'approved' || !r.approvalStatus));
   }, [records]);
 
   // Add Visit Record & Real-time stock reduction (Only for Admin; Public submissions go to pending queue)

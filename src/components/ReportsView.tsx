@@ -357,14 +357,13 @@ export const ReportsView: React.FC = () => {
                     <th className="py-2.5 px-3">Kelas/Jabatan</th>
                     <th className="py-2.5 px-3">Keluhan</th>
                     <th className="py-2.5 px-3">Obat Diberikan</th>
-                    <th className="py-2.5 px-3">Status</th>
-                    <th className="py-2.5 px-3">Petugas</th>
+                    <th className="py-2.5 px-3">Tindakan</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[11px]">
                   {monthlyRecords.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-6 text-center text-slate-400">
+                      <td colSpan={7} className="py-6 text-center text-slate-400">
                         Belum ada data kunjungan yang tercatat pada bulan {monthName} {selectedYear}.
                       </td>
                     </tr>
@@ -381,8 +380,7 @@ export const ReportsView: React.FC = () => {
                             ? r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity})`).join(', ')
                             : '-'}
                         </td>
-                        <td className="py-2 px-3 font-medium">{r.finalStatus}</td>
-                        <td className="py-2 px-3 font-semibold text-emerald-800">{r.approvedBy || r.handledBy || 'Petugas UKS'}</td>
+                        <td className="py-2 px-3 font-medium text-slate-800">{r.actionTaken || '-'}</td>
                       </tr>
                     ))
                   )}

@@ -115,44 +115,40 @@ export function generateMonthlyReportPdfDoc(
     `${v.date}\n${v.time}`,
     `${v.visitorName}\n(${v.classOrPosition})`,
     v.complaint,
-    v.actionTaken,
     v.medicinesGiven.length > 0
       ? v.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join('\n')
       : 'Tanpa obat',
-    v.approvedBy || v.handledBy || 'Petugas UKS',
-    v.finalStatus
+    v.actionTaken
   ]);
 
   autoTable(doc, {
     startY: 85,
-    head: [['No', 'Tgl / Jam', 'Nama & Kelas/Jabatan', 'Keluhan', 'Tindakan', 'Obat Diberikan', 'Petugas', 'Status Akhir']],
-    body: visitRows.length > 0 ? visitRows : [['-', '-', 'Belum ada kunjungan tercatat pada periode ini', '-', '-', '-', '-', '-']],
+    head: [['No', 'Tgl / Jam', 'Nama & Kelas/Jabatan', 'Keluhan', 'Obat Diberikan', 'Tindakan']],
+    body: visitRows.length > 0 ? visitRows : [['-', '-', 'Belum ada kunjungan tercatat pada periode ini', '-', '-', '-']],
     headStyles: {
       fillColor: [16, 149, 120], // Teal 600
       textColor: 255,
-      fontSize: 7.5,
+      fontSize: 8,
       fontStyle: 'bold',
       halign: 'center',
       valign: 'middle'
     },
     bodyStyles: {
-      fontSize: 7,
+      fontSize: 7.5,
       textColor: [30, 41, 59],
       valign: 'top',
-      cellPadding: 2
+      cellPadding: 2.5
     },
     alternateRowStyles: {
       fillColor: [248, 250, 252]
     },
     columnStyles: {
-      0: { cellWidth: 7, halign: 'center' },
-      1: { cellWidth: 18 },
-      2: { cellWidth: 32, fontStyle: 'bold' },
-      3: { cellWidth: 30 },
-      4: { cellWidth: 28 },
-      5: { cellWidth: 26 },
-      6: { cellWidth: 23 },
-      7: { cellWidth: 18, halign: 'center' }
+      0: { cellWidth: 8, halign: 'center' },
+      1: { cellWidth: 22 },
+      2: { cellWidth: 38, fontStyle: 'bold' },
+      3: { cellWidth: 38 },
+      4: { cellWidth: 36 },
+      5: { cellWidth: 40 }
     },
     theme: 'grid',
     margin: { left: 14, right: 14 }

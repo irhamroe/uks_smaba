@@ -57,7 +57,7 @@ export const BedManagement: React.FC = () => {
   const restingPatientsMap = useMemo(() => {
     const map: Record<string, typeof records[0]> = {};
     records
-      .filter(r => r.finalStatus === 'Sedang Istirahat di UKS' && r.bedNumber)
+      .filter(r => (r.finalStatus === 'Istirahat di UKS' || r.finalStatus === 'Sedang Istirahat di UKS') && r.bedNumber)
       .forEach(r => {
         if (r.bedNumber) {
           map[r.bedNumber] = r;
