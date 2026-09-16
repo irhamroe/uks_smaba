@@ -481,20 +481,17 @@ export const UserManagement: React.FC = () => {
                             <Edit3 className="w-4 h-4" />
                           </button>
 
-                          {/* Delete User */}
-                          <button
-                            type="button"
-                            disabled={isCurrent}
-                            onClick={() => setUserToDelete(user)}
-                            className={`p-2 rounded-xl border border-slate-200 transition ${
-                              isCurrent 
-                                ? 'text-slate-300 cursor-not-allowed opacity-50' 
-                                : 'text-slate-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200'
-                            }`}
-                            title={isCurrent ? 'Tidak bisa menghapus akun sendiri' : 'Hapus Pengguna'}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {/* Delete User (Koordinator UKS Nita tidak ada tombol hapus, user lain ada) */}
+                          {user.username.toLowerCase() === 'nita' || user.role.toLowerCase().includes('koordinator') ? null : (
+                            <button
+                              type="button"
+                              onClick={() => setUserToDelete(user)}
+                              className="p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition cursor-pointer"
+                              title={isCurrent ? 'Hapus Akun Ini (Akan otomatis keluar)' : 'Hapus Pengguna'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

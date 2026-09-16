@@ -70,7 +70,11 @@ export const subscribeToUsers = (onUpdate: (data: AdminUser[]) => void, onError?
     (snapshot) => {
       const users: AdminUser[] = [];
       snapshot.forEach((d) => {
-        users.push({ ...(d.data() as AdminUser), id: d.id });
+        const u = { ...(d.data() as AdminUser), id: d.id };
+        // Exclude legacy/duplicate admin account
+        if (u.username?.toLowerCase() !== 'admin' && u.id !== 'usr-admin') {
+          users.push(u);
+        }
       });
       if (users.length > 0) {
         onUpdate(users);
@@ -196,6 +200,14 @@ export const syncSaveBed = async (bed: UksBed) => {
 
 export const seedInitialFirestoreData = async () => {
   try {
+    // 1. Clean up legacy/duplicate admin documents if any
+    try {
+      await deleteDoc(doc(db, COLLECTIONS.USERS, 'usr-admin'));
+      await deleteDoc(doc(db, COLLECTIONS.USERS, 'admin'));
+    } catch {
+      // Ignore if not present
+    }
+
     const medSnap = await getDocs(collection(db, COLLECTIONS.MEDICINES));
     if (medSnap.empty) {
       console.log('Seeding initial medicines to Firestore...');
@@ -216,7 +228,7 @@ export const seedInitialFirestoreData = async () => {
       await batch.commit();
     }
 
-    // Always ensure initial admin accounts exist in Firestore
+    // Always ensure the 7 official admin accounts exist in Firestore
     for (const u of INITIAL_ADMIN_USERS) {
       const uid = u.id || u.username;
       await setDoc(doc(db, COLLECTIONS.USERS, uid), { ...u, id: uid }, { merge: true });

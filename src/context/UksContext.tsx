@@ -139,7 +139,10 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const cleaned = parsed.filter((u: any) => u.username?.toLowerCase() !== 'admin' && u.id !== 'usr-admin');
+          if (cleaned.length > 0) return cleaned;
+        }
       }
     } catch {
       // Fallback
@@ -344,7 +347,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // 1. Check in registered users list
     const matchedUser = users.find(u => 
       u.username.toLowerCase() === trimmedUser && 
-      (u.password === trimmedPass || (!u.password && trimmedPass === 'admin') || (trimmedUser === 'admin' && trimmedPass === 'admin'))
+      (u.password === trimmedPass || (!u.password && trimmedPass === 'smabasehat'))
     );
 
     if (matchedUser) {
@@ -381,32 +384,6 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: true };
     }
 
-    // 2. Fallback for demo admin credentials
-    if (trimmedUser === 'admin' && trimmedPass === 'admin') {
-      const defaultAdmin: AdminUser = {
-        id: 'usr-admin',
-        username: 'admin',
-        name: 'Nita Rimayanti, S.Pd',
-        role: 'Koordinator UKS',
-        nip: '19860728 200903 2 005',
-        email: 'sman1batu@yahoo.com',
-        isActive: true
-      };
-
-      setAdminUser(defaultAdmin);
-      try {
-        localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify(defaultAdmin));
-      } catch (e) {
-        console.error('Failed to save admin session:', e);
-      }
-
-      showToast('Login berhasil sebagai Administrator UKS SMAN 1 Batu.', 'success');
-      const destination = pendingTab || 'dashboard';
-      setPendingTab(null);
-      setActiveTab(destination);
-      return { success: true };
-    }
-
     return {
       success: false,
       error: 'Username atau password yang Anda masukkan tidak sesuai.'
@@ -437,7 +414,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ...userData,
       id: `usr-${Date.now()}`,
       username: trimmedUser,
-      password: userData.password?.trim() || 'admin123',
+      password: userData.password?.trim() || 'smabasehat',
       isActive: userData.isActive !== undefined ? userData.isActive : true,
       createdAt: new Date().toISOString().split('T')[0]
     };
@@ -503,9 +480,10 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: false, error: 'Pengguna tidak ditemukan.' };
     }
 
-    if (adminUser && (adminUser.id === id || adminUser.username.toLowerCase() === userToDelete.username.toLowerCase())) {
-      showToast('Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.', 'warning');
-      return { success: false, error: 'Tidak dapat menghapus akun yang sedang aktif.' };
+    // Protection for Koordinator UKS (Nita Rimayanti)
+    if (userToDelete.username.toLowerCase() === 'nita' || userToDelete.role.toLowerCase().includes('koordinator')) {
+      showToast('Akun Koordinator UKS (Nita Rimayanti) adalah akun utama dan tidak dapat dihapus.', 'warning');
+      return { success: false, error: 'Akun Koordinator UKS tidak dapat dihapus.' };
     }
 
     if (users.length <= 1) {
@@ -515,7 +493,15 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     setUsers(prev => prev.filter(u => u.id !== id));
     syncDeleteUser(id);
-    showToast(`Pengguna "${userToDelete.name}" berhasil dihapus dari sistem.`, 'info');
+
+    // If deleted the active logged in user, logout smoothly
+    if (adminUser && (adminUser.id === id || adminUser.username.toLowerCase() === userToDelete.username.toLowerCase())) {
+      logoutAdmin();
+      showToast(`Akun "${userToDelete.name}" berhasil dihapus. Anda telah keluar dari sesi.`, 'info');
+    } else {
+      showToast(`Pengguna "${userToDelete.name}" berhasil dihapus dari sistem.`, 'info');
+    }
+
     return { success: true };
   };
 

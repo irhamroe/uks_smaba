@@ -43,6 +43,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     name: 'Nita Rimayanti, S.Pd',
     role: 'Koordinator UKS',
     nip: '19860728 200903 2 005',
+    phone: '081234567890',
     isActive: true,
     createdAt: '2025-01-01'
   },
@@ -53,6 +54,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     name: 'Moh. Irham Rozaki, S.Kom, Gr.',
     role: 'Pembina UKS',
     nip: '19891021 202221 1 017',
+    phone: '085655306033',
     isActive: true,
     createdAt: '2025-01-01'
   },
@@ -63,6 +65,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     name: 'Amitha Mustika Damayanti, M.Pd',
     role: 'Pembina UKS',
     nip: '19920219 202321 2 039',
+    phone: '082187271650',
     isActive: true,
     createdAt: '2025-01-01'
   },
@@ -73,6 +76,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     name: 'Ahmad Muhajir R, S.Pd',
     role: 'Pembina UKS',
     nip: '19820826 202221 1 011',
+    phone: '081931895675',
     isActive: true,
     createdAt: '2025-01-01'
   },
@@ -83,6 +87,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     name: 'Ribkha Ayu Adiningtyas, S.Pd',
     role: 'Pembina UKS',
     nip: '19920322 202521 2 115',
+    phone: '081283038032',
     isActive: true,
     createdAt: '2025-01-01'
   },
@@ -93,6 +98,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     name: 'Panji Penatas, S.Pd',
     role: 'Pembina UKS',
     nip: '19900608 202521 1 127',
+    phone: '0895337139132',
     isActive: true,
     createdAt: '2025-01-01'
   },
@@ -103,16 +109,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     name: 'Rindy Antika Sari',
     role: 'Staf Administrasi UKS',
     nip: '19880502 202521 2 111',
-    isActive: true,
-    createdAt: '2025-01-01'
-  },
-  {
-    id: 'usr-admin',
-    username: 'admin',
-    password: 'admin',
-    name: 'Nita Rimayanti, S.Pd',
-    role: 'Koordinator UKS',
-    nip: '19860728 200903 2 005',
+    phone: '081249903049',
     isActive: true,
     createdAt: '2025-01-01'
   }
