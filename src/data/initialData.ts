@@ -51,7 +51,7 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     id: 'usr-2',
     username: 'irham',
     password: 'smabasehat',
-    name: 'Moh. Irham Rozaki, S.Kom, Gr.',
+    name: 'Moh. Irham Rozaqi, S.Kom, Gr.',
     role: 'Pembina UKS',
     nip: '19891021 202221 1 017',
     phone: '085655306033',

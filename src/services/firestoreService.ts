@@ -2,6 +2,7 @@ import {
   collection, 
   doc, 
   setDoc, 
+  getDoc,
   deleteDoc, 
   onSnapshot, 
   getDocs, 
@@ -228,10 +229,16 @@ export const seedInitialFirestoreData = async () => {
       await batch.commit();
     }
 
-    // Always ensure the 7 official admin accounts exist in Firestore
-    for (const u of INITIAL_ADMIN_USERS) {
-      const uid = u.id || u.username;
-      await setDoc(doc(db, COLLECTIONS.USERS, uid), { ...u, id: uid }, { merge: true });
+    // Seed initial users ONLY if users collection is empty
+    const userSnap = await getDocs(collection(db, COLLECTIONS.USERS));
+    if (userSnap.empty) {
+      console.log('Seeding initial users to Firestore...');
+      const batch = writeBatch(db);
+      INITIAL_ADMIN_USERS.forEach((u) => {
+        const uid = u.id || u.username;
+        batch.set(doc(db, COLLECTIONS.USERS, uid), { ...u, id: uid });
+      });
+      await batch.commit();
     }
 
     const bedSnap = await getDocs(collection(db, COLLECTIONS.BEDS));
@@ -244,7 +251,12 @@ export const seedInitialFirestoreData = async () => {
       await batch.commit();
     }
 
-    await setDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SCHOOL_INFO), SCHOOL_INFO, { merge: true });
+    // Seed school info ONLY if not exists yet
+    const schoolSnap = await getDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SCHOOL_INFO));
+    if (!schoolSnap.exists()) {
+      await setDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SCHOOL_INFO), SCHOOL_INFO);
+    }
+
     console.log('Firestore initialization complete!');
   } catch (err) {
     console.warn('Initial seeding skipped or Firestore offline:', err);
