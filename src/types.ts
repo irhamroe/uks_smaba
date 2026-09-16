@@ -41,11 +41,14 @@ export interface VisitRecord {
   rejectedReason?: string;
 }
 
+export type MedicineUsageType = 'single_dose' | 'multi_dose';
+
 export interface Medicine {
   id: string;
   name: string;
   category: string;
   unit: string; // Tablet, Kapsul, Botol, Sachet, Strip, Tube, Pcs
+  usageType?: MedicineUsageType; // 'single_dose' (tablet/sachet) vs 'multi_dose' (minyak/rivanol/betadine/salep)
   stock: number;
   minStock: number;
   expiryDate?: string; // YYYY-MM-DD

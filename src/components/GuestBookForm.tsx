@@ -107,6 +107,8 @@ export const GuestBookForm: React.FC = () => {
     const available = medicines.find(m => m.stock > 0 && !medicinesGiven.some(mg => mg.medicineId === m.id));
     if (!available) return;
 
+    const isMulti = available.usageType === 'multi_dose' || ((available.unit === 'Botol' || available.unit === 'Tube') && available.usageType !== 'single_dose');
+
     setMedicinesGiven(prev => [
       ...prev,
       {
@@ -114,7 +116,7 @@ export const GuestBookForm: React.FC = () => {
         medicineName: available.name,
         quantity: 1,
         unit: available.unit,
-        dosageNotes: '1 dosis sesudah makan'
+        dosageNotes: isMulti ? 'Oleskan / teteskan secukupnya di ruang UKS' : '1 dosis sesudah makan'
       }
     ]);
   };
@@ -123,6 +125,8 @@ export const GuestBookForm: React.FC = () => {
     const selected = medicines.find(m => m.id === medicineId);
     if (!selected) return;
 
+    const isMulti = selected.usageType === 'multi_dose' || ((selected.unit === 'Botol' || selected.unit === 'Tube') && selected.usageType !== 'single_dose');
+
     setMedicinesGiven(prev => {
       const copy = [...prev];
       copy[index] = {
@@ -130,7 +134,10 @@ export const GuestBookForm: React.FC = () => {
         medicineId: selected.id,
         medicineName: selected.name,
         unit: selected.unit,
-        quantity: Math.min(copy[index].quantity, Math.max(1, selected.stock))
+        quantity: isMulti ? 1 : Math.min(copy[index].quantity, Math.max(1, selected.stock)),
+        dosageNotes: isMulti 
+          ? (copy[index].dosageNotes?.includes('makan') ? 'Oleskan / teteskan secukupnya di ruang UKS' : copy[index].dosageNotes || 'Oleskan / teteskan secukupnya di ruang UKS')
+          : (copy[index].dosageNotes?.includes('Oleskan') ? '1 tablet/dosis sesudah makan' : copy[index].dosageNotes || '1 dosis sesudah makan')
       };
       return copy;
     });
@@ -690,6 +697,7 @@ export const GuestBookForm: React.FC = () => {
                   const currentMedObj = medicines.find(m => m.id === medRow.medicineId);
                   const isOutOfStock = currentMedObj && currentMedObj.stock === 0;
                   const isLowStock = currentMedObj && currentMedObj.stock <= currentMedObj.minStock;
+                  const isMultiDose = currentMedObj && (currentMedObj.usageType === 'multi_dose' || ((currentMedObj.unit === 'Botol' || currentMedObj.unit === 'Tube') && currentMedObj.usageType !== 'single_dose'));
 
                   return (
                     <div
@@ -698,23 +706,33 @@ export const GuestBookForm: React.FC = () => {
                     >
                       {/* Medicine Dropdown */}
                       <div className="flex-1 w-full">
-                        <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wide mb-1">
-                          Nama Obat Tersedia
-                        </label>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wide">
+                            Nama Obat Tersedia
+                          </label>
+                          {isMultiDose && (
+                            <span className="bg-sky-50 text-sky-700 border border-sky-200 px-1.5 py-0.2 rounded text-[10px] font-bold">
+                              🧴 Pemakaian Bersama di UKS
+                            </span>
+                          )}
+                        </div>
                         <select
                           value={medRow.medicineId}
                           onChange={(e) => handleUpdateMedicineRow(index, e.target.value)}
                           className="bs-form-select w-full min-h-[44px] text-base sm:text-sm font-semibold text-slate-800 bg-white border border-slate-300 rounded-xl p-2.5 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20"
                         >
-                          {medicines.map(m => (
-                            <option
-                              key={m.id}
-                              value={m.id}
-                              disabled={m.stock === 0}
-                            >
-                              {m.name} — Stok: {m.stock} {m.unit} {m.stock === 0 ? '(HABIS)' : m.stock <= m.minStock ? '(MENIPIS)' : ''}
-                            </option>
-                          ))}
+                          {medicines.map(m => {
+                            const isMulti = m.usageType === 'multi_dose' || ((m.unit === 'Botol' || m.unit === 'Tube') && m.usageType !== 'single_dose');
+                            return (
+                              <option
+                                key={m.id}
+                                value={m.id}
+                                disabled={m.stock === 0}
+                              >
+                                {m.name} — Stok: {m.stock} {m.unit} {isMulti ? '(Multi-Pakai)' : ''} {m.stock === 0 ? '(HABIS)' : m.stock <= m.minStock ? '(MENIPIS)' : ''}
+                              </option>
+                            );
+                          })}
                         </select>
                         {currentMedObj && (
                           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
@@ -727,6 +745,11 @@ export const GuestBookForm: React.FC = () => {
                             }`}>
                               Sisa Stok: {currentMedObj.stock} {currentMedObj.unit}
                             </span>
+                            {isMultiDose && (
+                              <span className="text-[11px] text-sky-700 font-medium">
+                                (Stok botol utuh, dioles/diteteskan)
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>

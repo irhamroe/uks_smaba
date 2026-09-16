@@ -91,6 +91,7 @@ interface UksContextType {
   updateMedicine: (id: string, updates: Partial<Omit<Medicine, 'id'>>) => void;
   deleteMedicine: (id: string) => void;
   restockMedicine: (id: string, quantity: number, note?: string) => void;
+  consumeMultiDoseBottle: (id: string) => void;
   importMedicinesFromExcel: (list: Omit<Medicine, 'id' | 'lastUpdated'>[], mode: 'merge' | 'replace') => { added: number; updated: number };
   resetToDefaultData: () => void;
   
@@ -820,11 +821,21 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (!found) {
             return { success: false, error: `Obat "${usage.medicineName}" tidak ditemukan dalam sistem.` };
           }
-          if (found.stock < usage.quantity) {
-            return {
-              success: false,
-              error: `Stok obat "${found.name}" tidak mencukupi! Tersedia: ${found.stock} ${found.unit}, diminta: ${usage.quantity} ${found.unit}.`
-            };
+          const isMultiDose = found.usageType === 'multi_dose' || (found.unit?.toLowerCase().includes('botol') && found.usageType !== 'single_dose');
+          if (isMultiDose) {
+            if (found.stock <= 0) {
+              return {
+                success: false,
+                error: `Stok botol/tube "${found.name}" di UKS kosong (0 ${found.unit})! Harap lakukan restock botol baru terlebih dahulu.`
+              };
+            }
+          } else {
+            if (found.stock < usage.quantity) {
+              return {
+                success: false,
+                error: `Stok obat "${found.name}" tidak mencukupi! Tersedia: ${found.stock} ${found.unit}, diminta: ${usage.quantity} ${found.unit}.`
+              };
+            }
           }
         }
       }
@@ -861,6 +872,11 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updatedMeds = updatedMeds.map(med => {
           const used = data.medicinesGiven.find(u => u.medicineId === med.id);
           if (used) {
+            const isMultiDose = med.usageType === 'multi_dose' || (med.unit?.toLowerCase().includes('botol') && med.usageType !== 'single_dose');
+            // Multi-dose item: do not deduct stock per visit
+            if (isMultiDose) {
+              return med;
+            }
             const newStock = Math.max(0, med.stock - used.quantity);
             if (newStock <= med.minStock) {
               lowStockAlerts.push(`${med.name} (Sisa: ${newStock} ${med.unit})`);
@@ -936,11 +952,21 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (!found) {
           return { success: false, error: `Obat "${usage.medicineName}" tidak ditemukan dalam master inventaris.` };
         }
-        if (found.stock < usage.quantity) {
-          return {
-            success: false,
-            error: `Stok obat "${found.name}" tidak mencukupi! Tersedia: ${found.stock} ${found.unit}, diminta: ${usage.quantity} ${found.unit}.`
-          };
+        const isMultiDose = found.usageType === 'multi_dose' || (found.unit?.toLowerCase().includes('botol') && found.usageType !== 'single_dose');
+        if (isMultiDose) {
+          if (found.stock <= 0) {
+            return {
+              success: false,
+              error: `Stok botol/tube "${found.name}" di UKS kosong (0 ${found.unit})! Harap lakukan restock botol baru.`
+            };
+          }
+        } else {
+          if (found.stock < usage.quantity) {
+            return {
+              success: false,
+              error: `Stok obat "${found.name}" tidak mencukupi! Tersedia: ${found.stock} ${found.unit}, diminta: ${usage.quantity} ${found.unit}.`
+            };
+          }
         }
       }
 
@@ -951,6 +977,11 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       updatedMeds = updatedMeds.map(med => {
         const used = visit.medicinesGiven.find(u => u.medicineId === med.id);
         if (used) {
+          const isMultiDose = med.usageType === 'multi_dose' || (med.unit?.toLowerCase().includes('botol') && med.usageType !== 'single_dose');
+          if (isMultiDose) {
+            // Multi-dose item: do not deduct bottle stock
+            return med;
+          }
           const newStock = Math.max(0, med.stock - used.quantity);
           if (newStock <= med.minStock) {
             lowStockAlerts.push(`${med.name} (Sisa: ${newStock} ${med.unit})`);
@@ -991,7 +1022,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
 
     syncSaveVisit(updatedVisit);
-    showToast(`Kunjungan "${visit.visitorName}" berhasil disetujui & stok obat telah diperbarui!`, 'success');
+    showToast(`Kunjungan "${visit.visitorName}" berhasil disetujui & data inventaris sinkron!`, 'success');
     return { success: true };
   };
 
@@ -1117,6 +1148,28 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast(`Stok "${target.name}" berhasil ditambah +${quantity} ${target.unit}. Total sekarang: ${newStock} ${target.unit}.`, 'success');
   };
 
+  // Consume 1 bottle/tube of multi-dose medicine when completely finished
+  const consumeMultiDoseBottle = (id: string) => {
+    const target = medicines.find(m => m.id === id);
+    if (!target) return;
+
+    if (target.stock <= 0) {
+      showToast(`Stok "${target.name}" sudah 0 ${target.unit}. Silakan lakukan restock terlebih dahulu.`, 'warning');
+      return;
+    }
+
+    const newStock = Math.max(0, target.stock - 1);
+    const updatedMed = {
+      ...target,
+      stock: newStock,
+      lastUpdated: new Date().toISOString()
+    };
+    setMedicines(prev => prev.map(m => m.id === id ? updatedMed : m));
+    syncSaveMedicine(updatedMed);
+
+    showToast(`1 ${target.unit} "${target.name}" ditandai habis. Sisa stok di UKS: ${newStock} ${target.unit}.`, newStock <= target.minStock ? 'warning' : 'success');
+  };
+
   const importMedicinesFromExcel = (
     list: Omit<Medicine, 'id' | 'lastUpdated'>[],
     mode: 'merge' | 'replace'
@@ -1157,6 +1210,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               stock: result[targetIndex].stock + item.stock, // Add incoming stock
               category: item.category || result[targetIndex].category,
               unit: item.unit || result[targetIndex].unit,
+              usageType: item.usageType || result[targetIndex].usageType,
               minStock: item.minStock || result[targetIndex].minStock,
               expiryDate: item.expiryDate || result[targetIndex].expiryDate,
               location: item.location || result[targetIndex].location,
@@ -1237,6 +1291,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateMedicine,
         deleteMedicine,
         restockMedicine,
+        consumeMultiDoseBottle,
         importMedicinesFromExcel,
         resetToDefaultData,
         pendingVisits,

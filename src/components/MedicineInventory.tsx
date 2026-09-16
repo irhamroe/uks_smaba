@@ -1,4 +1,3 @@
-import React, { useState, useMemo, useRef } from 'react';
 import { 
   Pill, 
   Plus, 
@@ -18,10 +17,12 @@ import {
   Info,
   Layers,
   ArrowUpRight,
-  ShieldAlert
+  ShieldAlert,
+  Droplets,
+  PackageOpen
 } from 'lucide-react';
 import { useUks } from '../context/UksContext';
-import { Medicine } from '../types';
+import { Medicine, MedicineUsageType } from '../types';
 import { downloadMedicineExcelTemplate, parseMedicineExcelFile } from '../utils/excelHelper';
 import { ConfirmModal } from './ConfirmModal';
 
@@ -40,6 +41,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
     updateMedicine, 
     deleteMedicine, 
     restockMedicine,
+    consumeMultiDoseBottle,
     importMedicinesFromExcel,
     lowStockMedicines,
     outOfStockMedicines
@@ -54,6 +56,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [deletingMedicine, setDeletingMedicine] = useState<Medicine | null>(null);
+  const [finishingBottleItem, setFinishingBottleItem] = useState<Medicine | null>(null);
   const [quickRestockItem, setQuickRestockItem] = useState<Medicine | null>(() => {
     if (restockTargetId) {
       return medicines.find(m => m.id === restockTargetId) || null;
@@ -66,6 +69,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
   const [formName, setFormName] = useState('');
   const [formCategory, setFormCategory] = useState('Analgesik & Antipiretik');
   const [formUnit, setFormUnit] = useState('Tablet');
+  const [formUsageType, setFormUsageType] = useState<MedicineUsageType>('single_dose');
   const [formStock, setFormStock] = useState<number>(20);
   const [formMinStock, setFormMinStock] = useState<number>(10);
   const [formExpiryDate, setFormExpiryDate] = useState('');
@@ -153,6 +157,10 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
     setFormName(med.name);
     setFormCategory(med.category);
     setFormUnit(med.unit);
+    setFormUsageType(
+      med.usageType || 
+      (med.unit === 'Botol' || med.unit === 'Tube' || med.category.toLowerCase().includes('luar') ? 'multi_dose' : 'single_dose')
+    );
     setFormStock(med.stock);
     setFormMinStock(med.minStock);
     setFormExpiryDate(med.expiryDate || '');
@@ -166,6 +174,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
     setFormName('');
     setFormCategory('Analgesik & Antipiretik');
     setFormUnit('Tablet');
+    setFormUsageType('single_dose');
     setFormStock(20);
     setFormMinStock(10);
     setFormExpiryDate('2027-12-31');
@@ -184,6 +193,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
         name: formName.trim(),
         category: formCategory.trim(),
         unit: formUnit.trim(),
+        usageType: formUsageType,
         stock: formStock,
         minStock: formMinStock,
         expiryDate: formExpiryDate.trim(),
@@ -196,6 +206,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
         name: formName.trim(),
         category: formCategory.trim(),
         unit: formUnit.trim(),
+        usageType: formUsageType,
         stock: formStock,
         minStock: formMinStock,
         expiryDate: formExpiryDate.trim(),
@@ -444,11 +455,25 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                   const todayStr = new Date().toISOString().split('T')[0];
                   const isExpired = med.expiryDate && med.expiryDate < todayStr;
 
+                  const isMultiDose = med.usageType === 'multi_dose' || ((med.unit === 'Botol' || med.unit === 'Tube') && med.usageType !== 'single_dose');
+
                   return (
                     <tr key={med.id} className="hover:bg-slate-50/70 transition">
                       {/* Nama Obat */}
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 text-sm">{med.name}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="font-bold text-slate-900 text-sm">{med.name}</div>
+                          {isMultiDose ? (
+                            <span className="bg-sky-50 text-sky-700 border border-sky-200 px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 flex items-center gap-1" title="Pemakaian bersama di UKS (botol tidak berkurang per pasien)">
+                              <Droplets className="w-3 h-3 text-sky-500" />
+                              Multi-Pakai
+                            </span>
+                          ) : (
+                            <span className="bg-slate-50 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0" title="Stok berkurang otomatis tiap pasien">
+                              Per Dosis
+                            </span>
+                          )}
+                        </div>
                         {med.description && (
                           <div className="text-slate-400 text-[11px] max-w-xs truncate">{med.description}</div>
                         )}
@@ -469,6 +494,9 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                           </span>
                           <span className="text-slate-400 text-xs font-normal">{med.unit}</span>
                         </div>
+                        {isMultiDose && (
+                          <div className="text-[10px] text-sky-600 font-medium">Botol/Tube UKS</div>
+                        )}
                       </td>
 
                       {/* Batas Aman */}
@@ -514,6 +542,18 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                       {/* Aksi */}
                       <td className="py-3 px-4 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center gap-1">
+                          {isMultiDose && (
+                            <button
+                              type="button"
+                              onClick={() => setFinishingBottleItem(med)}
+                              disabled={med.stock <= 0}
+                              className="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 disabled:opacity-40 disabled:hover:bg-sky-50 rounded-lg text-[11px] font-bold border border-sky-200 transition flex items-center gap-1"
+                              title="Tandai 1 botol/tube habis terpakai di UKS"
+                            >
+                              <Droplets className="w-3 h-3 text-sky-600" />
+                              -1 Botol Habis
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => setQuickRestockItem(med)}
@@ -681,7 +721,15 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                   </label>
                   <select
                     value={formUnit}
-                    onChange={(e) => setFormUnit(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormUnit(val);
+                      if (val === 'Botol' || val === 'Tube') {
+                        setFormUsageType('multi_dose');
+                      } else {
+                        setFormUsageType('single_dose');
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:border-emerald-500 text-sm bg-white"
                   >
                     <option value="Tablet">Tablet</option>
@@ -693,6 +741,64 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                     <option value="Pcs">Pcs</option>
                     <option value="Roll">Roll</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Tipe Penggunaan Obat (Opsi A & C) */}
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1.5">
+                  Tipe Pemakaian Obat di UKS <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <label 
+                    className={`p-2.5 rounded-xl border cursor-pointer flex items-start gap-2.5 transition ${
+                      formUsageType === 'single_dose' 
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-950 ring-1 ring-emerald-500/30' 
+                        : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60 text-slate-700'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="formUsageType"
+                      value="single_dose"
+                      checked={formUsageType === 'single_dose'}
+                      onChange={() => setFormUsageType('single_dose')}
+                      className="mt-0.5 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <div>
+                      <div className="font-bold text-xs flex items-center gap-1">
+                        <span>💊 Habis Sekali Pakai</span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                        Tablet, Kapsul, Sachet, Plester. Stok berkurang otomatis tiap pasien.
+                      </div>
+                    </div>
+                  </label>
+
+                  <label 
+                    className={`p-2.5 rounded-xl border cursor-pointer flex items-start gap-2.5 transition ${
+                      formUsageType === 'multi_dose' 
+                        ? 'bg-sky-50 border-sky-500 text-sky-950 ring-1 ring-sky-500/30' 
+                        : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60 text-slate-700'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="formUsageType"
+                      value="multi_dose"
+                      checked={formUsageType === 'multi_dose'}
+                      onChange={() => setFormUsageType('multi_dose')}
+                      className="mt-0.5 text-sky-600 focus:ring-sky-500"
+                    />
+                    <div>
+                      <div className="font-bold text-xs flex items-center gap-1 text-sky-950">
+                        <span>🧴 Pemakaian Ruangan</span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                        Minyak, Betadine, Rivanol, Salep. Stok botol dikurangi manual saat habis.
+                      </div>
+                    </div>
+                  </label>
                 </div>
               </div>
 
@@ -1092,6 +1198,29 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
           }
         }}
         onCancel={() => setDeletingMedicine(null)}
+      />
+
+      {/* Konfirmasi 1 Botol Habis (Multi-Dose Medicine) */}
+      <ConfirmModal
+        isOpen={!!finishingBottleItem}
+        title={`Tandai 1 ${finishingBottleItem?.unit || 'Botol'} Habis?`}
+        message={`Apakah 1 ${finishingBottleItem?.unit || 'botol'} "${finishingBottleItem?.name || ''}" sudah habis terpakai di ruang UKS dan ingin mengurangi stoknya sebanyak 1 ${finishingBottleItem?.unit || 'botol'}?`}
+        details={finishingBottleItem ? [
+          { label: 'Nama Obat', value: finishingBottleItem.name },
+          { label: 'Stok Saat Ini', value: `${finishingBottleItem.stock} ${finishingBottleItem.unit}` },
+          { label: 'Stok Setelah Dikurangi', value: `${Math.max(0, finishingBottleItem.stock - 1)} ${finishingBottleItem.unit}` },
+          { label: 'Tipe Obat', value: 'Pemakaian Ruangan (Multi-Pakai)' }
+        ] : []}
+        confirmLabel={`Ya, Kurangi 1 ${finishingBottleItem?.unit || 'Botol'}`}
+        cancelLabel="Batal"
+        type="warning"
+        onConfirm={() => {
+          if (finishingBottleItem) {
+            consumeMultiDoseBottle(finishingBottleItem.id);
+            setFinishingBottleItem(null);
+          }
+        }}
+        onCancel={() => setFinishingBottleItem(null)}
       />
     </div>
   );

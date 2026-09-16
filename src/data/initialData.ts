@@ -121,6 +121,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Paracetamol 500mg',
     category: 'Analgesik & Antipiretik',
     unit: 'Tablet',
+    usageType: 'single_dose',
     stock: 8, // Below minStock (15) -> Trigger low stock warning!
     minStock: 15,
     expiryDate: '2027-05-12',
@@ -133,6 +134,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Antasida Doen',
     category: 'Saluran Pencernaan',
     unit: 'Tablet Kunyah',
+    usageType: 'single_dose',
     stock: 24,
     minStock: 10,
     expiryDate: '2026-11-20',
@@ -145,6 +147,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Promag',
     category: 'Saluran Pencernaan',
     unit: 'Tablet',
+    usageType: 'single_dose',
     stock: 5, // Below minStock (10) -> Low stock warning!
     minStock: 10,
     expiryDate: '2027-02-14',
@@ -157,11 +160,12 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Minyak Kayu Putih 60ml',
     category: 'Obat Luar & Terapi',
     unit: 'Botol',
+    usageType: 'multi_dose',
     stock: 6,
     minStock: 5,
     expiryDate: '2028-01-10',
     location: 'Meja Periksa / P3K',
-    description: 'Meredakan mual, kembung, pusing, dan menghangatkan tubuh',
+    description: 'Meredakan mual, kembung, pusing, dan menghangatkan tubuh (Pemakaian bersama)',
     lastUpdated: new Date().toISOString()
   },
   {
@@ -169,11 +173,12 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Betadine / Povidone Iodine 30ml',
     category: 'Antiseptik Luka',
     unit: 'Botol',
+    usageType: 'multi_dose',
     stock: 4, // Below minStock (5) -> Low stock warning!
     minStock: 5,
     expiryDate: '2027-08-30',
     location: 'Kotak P3K Utama',
-    description: 'Cairan antiseptik untuk pembersih dan pengering luka luar',
+    description: 'Cairan antiseptik untuk pembersih dan pengering luka luar (Pemakaian bersama)',
     lastUpdated: new Date().toISOString()
   },
   {
@@ -181,6 +186,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Oralit 200ml',
     category: 'Rehidrasi Cairan',
     unit: 'Sachet',
+    usageType: 'single_dose',
     stock: 18,
     minStock: 10,
     expiryDate: '2027-03-25',
@@ -193,6 +199,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Tolak Angin Cair',
     category: 'Herbal & Masuk Angin',
     unit: 'Sachet',
+    usageType: 'single_dose',
     stock: 35,
     minStock: 15,
     expiryDate: '2026-12-05',
@@ -205,11 +212,12 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Counterpain Salep 15g',
     category: 'Salep Pereda Nyeri',
     unit: 'Tube',
+    usageType: 'multi_dose',
     stock: 7,
     minStock: 5,
     expiryDate: '2027-09-18',
     location: 'Kotak P3K Lapangan Olahraga',
-    description: 'Meredakan nyeri otot, pegal, memar, dan cedera terkilir',
+    description: 'Meredakan nyeri otot, pegal, memar, dan cedera terkilir (Pemakaian bersama)',
     lastUpdated: new Date().toISOString()
   },
   {
@@ -217,6 +225,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Hansaplast / Plester Luka Elastis',
     category: 'Alat Medis P3K',
     unit: 'Pcs',
+    usageType: 'single_dose',
     stock: 45,
     minStock: 20,
     expiryDate: '2028-10-01',
@@ -229,6 +238,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Kasa Steril 16x16cm',
     category: 'Alat Medis P3K',
     unit: 'Pcs',
+    usageType: 'single_dose',
     stock: 22,
     minStock: 10,
     expiryDate: '2028-06-15',
@@ -241,6 +251,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Cetirizine 10mg',
     category: 'Antialergi',
     unit: 'Tablet',
+    usageType: 'single_dose',
     stock: 12,
     minStock: 10,
     expiryDate: '2027-04-10',
@@ -253,6 +264,7 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Sangobion Kapsul',
     category: 'Vitamin & Tambah Darah',
     unit: 'Kapsul',
+    usageType: 'single_dose',
     stock: 14,
     minStock: 10,
     expiryDate: '2027-01-20',
@@ -265,11 +277,12 @@ export const INITIAL_MEDICINES: Medicine[] = [
     name: 'Rivanol 100ml',
     category: 'Antiseptik Luka',
     unit: 'Botol',
+    usageType: 'multi_dose',
     stock: 3, // Below minStock (5) -> Low stock warning!
     minStock: 5,
     expiryDate: '2027-07-11',
     location: 'Meja Tindakan UKS',
-    description: 'Cairan pencuci luka basah dan kompres bengkak/nanah',
+    description: 'Cairan pencuci luka basah dan kompres bengkak/nanah (Pemakaian bersama)',
     lastUpdated: new Date().toISOString()
   }
 ];
