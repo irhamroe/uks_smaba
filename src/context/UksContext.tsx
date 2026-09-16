@@ -1,6 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { Medicine, VisitRecord, RestockLog, MedicineUsage, AppTab, AdminUser, UksBed, SchoolInfo } from '../types';
 import { INITIAL_MEDICINES, INITIAL_VISITS, INITIAL_ADMIN_USERS, INITIAL_BEDS, SCHOOL_INFO } from '../data/initialData';
+import { 
+  subscribeToVisits, 
+  subscribeToMedicines, 
+  subscribeToUsers, 
+  subscribeToSchoolInfo, 
+  subscribeToBeds,
+  syncSaveVisit,
+  syncDeleteVisit,
+  syncSaveMedicine,
+  syncDeleteMedicine,
+  syncSaveUser,
+  syncDeleteUser,
+  syncSaveSchoolInfo,
+  syncSaveBed,
+  seedInitialFirestoreData
+} from '../services/firestoreService';
 
 interface ToastState {
   id: string;
@@ -179,12 +195,15 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [schoolInfo]);
 
   const updateSchoolInfo = (updates: Partial<SchoolInfo>) => {
-    setSchoolInfo(prev => ({ ...prev, ...updates }));
+    const updated = { ...schoolInfo, ...updates };
+    setSchoolInfo(updated);
+    syncSaveSchoolInfo(updated);
     showToast('Identitas sekolah berhasil diperbarui.', 'success');
   };
 
   const resetSchoolInfo = () => {
     setSchoolInfo(SCHOOL_INFO);
+    syncSaveSchoolInfo(SCHOOL_INFO);
     try {
       localStorage.removeItem(STORAGE_KEYS.SCHOOL_INFO);
     } catch (e) {
@@ -260,6 +279,49 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [activeTab, setActiveTab] = useState<AppTab>('guestbook');
   const [toast, setToast] = useState<ToastState | null>(null);
 
+  // Seed and Listen to Firebase Firestore Realtime Updates
+  useEffect(() => {
+    seedInitialFirestoreData();
+
+    const unsubVisits = subscribeToVisits((newVisits) => {
+      if (newVisits && newVisits.length > 0) {
+        setRecords(newVisits);
+      }
+    });
+
+    const unsubMedicines = subscribeToMedicines((newMeds) => {
+      if (newMeds && newMeds.length > 0) {
+        setMedicines(newMeds);
+      }
+    });
+
+    const unsubUsers = subscribeToUsers((newUsers) => {
+      if (newUsers && newUsers.length > 0) {
+        setUsers(newUsers);
+      }
+    });
+
+    const unsubSchool = subscribeToSchoolInfo((newSchool) => {
+      if (newSchool && newSchool.name) {
+        setSchoolInfo(newSchool);
+      }
+    });
+
+    const unsubBeds = subscribeToBeds((newBeds) => {
+      if (newBeds && newBeds.length > 0) {
+        setBeds(newBeds);
+      }
+    });
+
+    return () => {
+      unsubVisits();
+      unsubMedicines();
+      unsubUsers();
+      unsubSchool();
+      unsubBeds();
+    };
+  }, []);
+
   const navigateToTab = (tab: AppTab) => {
     if (tab === 'guestbook' || tab === 'login') {
       setActiveTab(tab);
@@ -312,43 +374,44 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error('Failed to save admin session:', e);
       }
 
-      // Automatically open dashboard upon admin login
+      showToast(`Selamat datang kembali, ${matchedUser.name}! (${matchedUser.role})`, 'success');
+      
+      const destination = pendingTab || 'dashboard';
       setPendingTab(null);
-      setActiveTab('dashboard');
-      showToast(`Selamat datang kembali, ${sessionUser.name}! Anda berhasil masuk sebagai ${sessionUser.role}.`, 'success');
+      setActiveTab(destination);
       return { success: true };
     }
 
     // 2. Fallback for demo admin credentials
-    const isFallbackAdmin = (trimmedUser === 'admin' || trimmedUser === 'uksadmin') && 
-      (trimmedPass === 'admin' || trimmedPass === 'admin123' || trimmedPass === 'adminuks');
-
-    if (isFallbackAdmin) {
-      const fallbackUser: AdminUser = {
-        id: 'usr-1',
-        username: trimmedUser,
-        name: SCHOOL_INFO.headOfUks || 'Hj. Sri Rahayu, S.Pd., M.Kes',
+    if (trimmedUser === 'admin' && trimmedPass === 'admin') {
+      const defaultAdmin: AdminUser = {
+        id: 'usr-admin',
+        username: 'admin',
+        name: 'Hj. Sri Rahayu, S.Pd., M.Kes',
         role: 'Koordinator UKS',
-        nip: SCHOOL_INFO.headOfUksNip || '19760812 200212 2 003',
+        nip: '19760812 200212 2 003',
+        email: 'sman1batu@yahoo.com',
+        phone: '081234567890',
         isActive: true
       };
 
-      setAdminUser(fallbackUser);
+      setAdminUser(defaultAdmin);
       try {
-        localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify(fallbackUser));
+        localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify(defaultAdmin));
       } catch (e) {
         console.error('Failed to save admin session:', e);
       }
 
+      showToast('Login berhasil sebagai Administrator UKS SMAN 1 Batu.', 'success');
+      const destination = pendingTab || 'dashboard';
       setPendingTab(null);
-      setActiveTab('dashboard');
-      showToast(`Selamat datang, ${fallbackUser.name}! Anda berhasil masuk sebagai Admin UKS.`, 'success');
+      setActiveTab(destination);
       return { success: true };
     }
 
-    return { 
-      success: false, 
-      error: 'Username atau password tidak cocok. Silakan coba lagi.' 
+    return {
+      success: false,
+      error: 'Username atau password yang Anda masukkan tidak sesuai.'
     };
   };
 
@@ -358,22 +421,18 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       localStorage.removeItem(STORAGE_KEYS.ADMIN_SESSION);
     } catch (e) {
-      console.error('Failed to remove admin session:', e);
+      console.error('Failed to clear admin session:', e);
     }
     setActiveTab('guestbook');
-    showToast('Anda telah keluar dari sesi Administrator UKS.', 'info');
+    showToast('Anda telah berhasil keluar dari sesi admin.', 'info');
   };
 
+  // User Management Actions
   const addUser = (userData: Omit<AdminUser, 'id' | 'createdAt'>) => {
     const trimmedUser = userData.username.trim().toLowerCase();
-    if (!trimmedUser) {
-      return { success: false, error: 'Username tidak boleh kosong.' };
-    }
-    if (!userData.name.trim()) {
-      return { success: false, error: 'Nama pengguna tidak boleh kosong.' };
-    }
+    
     if (users.some(u => u.username.toLowerCase() === trimmedUser)) {
-      return { success: false, error: `Username "${trimmedUser}" sudah digunakan. Silakan pilih username lain.` };
+      return { success: false, error: `Username "${trimmedUser}" sudah digunakan.` };
     }
 
     const newUser: AdminUser = {
@@ -386,6 +445,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     setUsers(prev => [newUser, ...prev]);
+    syncSaveUser(newUser);
     showToast(`Pengguna baru "${newUser.name}" (${newUser.role}) berhasil ditambahkan.`, 'success');
     return { success: true };
   };
@@ -403,14 +463,18 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
 
+    let updatedUserObj: AdminUser = existing;
     setUsers(prev => prev.map(u => {
       if (u.id === id) {
         const updated = { ...u, ...updates };
         if (updates.username) updated.username = updates.username.trim().toLowerCase();
+        updatedUserObj = updated;
         return updated;
       }
       return u;
     }));
+
+    syncSaveUser(updatedUserObj);
 
     // If currently logged in user was updated, refresh session
     if (adminUser && (adminUser.id === id || adminUser.username.toLowerCase() === existing.username.toLowerCase())) {
@@ -452,6 +516,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
 
     setUsers(prev => prev.filter(u => u.id !== id));
+    syncDeleteUser(id);
     showToast(`Pengguna "${userToDelete.name}" berhasil dihapus dari sistem.`, 'info');
     return { success: true };
   };
@@ -466,7 +531,9 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
 
     const newStatus = !user.isActive;
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, isActive: newStatus } : u));
+    const updatedUser = { ...user, isActive: newStatus };
+    setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+    syncSaveUser(updatedUser);
     showToast(
       `Status akun "${user.name}" diubah menjadi ${newStatus ? 'Aktif' : 'Nonaktif'}.`,
       newStatus ? 'success' : 'info'
@@ -484,7 +551,9 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: false, error: 'Pengguna tidak ditemukan.' };
     }
 
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, password: trimmed } : u));
+    const updatedUser = { ...user, password: trimmed };
+    setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+    syncSaveUser(updatedUser);
     showToast(`Password untuk pengguna "${user.name}" (${user.username}) berhasil direset.`, 'success');
     return { success: true };
   };
@@ -511,6 +580,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     setBeds(prev => [...prev, newBed]);
+    syncSaveBed(newBed);
     showToast(`Ranjang "${newBed.name}" berhasil ditambahkan ke inventaris UKS.`, 'success');
     return { success: true };
   };
@@ -528,7 +598,16 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
 
-    setBeds(prev => prev.map(b => (b.id === id ? { ...b, ...updates } : b)));
+    let updatedBedObj = existing;
+    setBeds(prev => prev.map(b => {
+      if (b.id === id) {
+        const u = { ...b, ...updates };
+        updatedBedObj = u;
+        return u;
+      }
+      return b;
+    }));
+    syncSaveBed(updatedBedObj);
     showToast(`Data ranjang "${updates.name || existing.name}" berhasil diperbarui.`, 'success');
     return { success: true };
   };
@@ -558,7 +637,9 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const bed = beds.find(b => b.id === id);
     if (!bed) return;
 
-    setBeds(prev => prev.map(b => (b.id === id ? { ...b, status } : b)));
+    const updated = { ...bed, status };
+    setBeds(prev => prev.map(b => (b.id === id ? updated : b)));
+    syncSaveBed(updated);
     showToast(`Status "${bed.name}" diubah menjadi "${status}".`, 'info');
   };
 
@@ -572,7 +653,14 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateVisitStatus(activePatient.id, 'Kembali ke Kelas / Mengajar');
     }
 
-    setBeds(prev => prev.map(b => (b.name === bedName ? { ...b, status: 'Tersedia' } : b)));
+    setBeds(prev => prev.map(b => {
+      if (b.name === bedName) {
+        const updated = { ...b, status: 'Tersedia' as const };
+        syncSaveBed(updated);
+        return updated;
+      }
+      return b;
+    }));
     showToast(`Ranjang "${bedName}" telah dikosongkan dan siap digunakan kembali.`, 'success');
   };
 
@@ -713,19 +801,22 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (newStock <= med.minStock) {
             lowStockAlerts.push(`${med.name} (Sisa: ${newStock} ${med.unit})`);
           }
-          return {
+          const updatedMedObj = {
             ...med,
             stock: newStock,
             lastUpdated: new Date().toISOString()
           };
+          syncSaveMedicine(updatedMedObj);
+          return updatedMedObj;
         }
         return med;
       });
       setMedicines(updatedMeds);
     }
 
-    // Add to records (newest on top)
+    // Add to records (newest on top) and sync to Firestore
     setRecords(prev => [newRecord, ...prev]);
+    syncSaveVisit(newRecord);
 
     if (lowStockAlerts.length > 0) {
       showToast(`Data tersimpan! Perhatian: Stok obat mulai menipis: ${lowStockAlerts.join(', ')}`, 'warning');
@@ -738,11 +829,19 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteVisitRecord = (id: string) => {
     setRecords(prev => prev.filter(r => r.id !== id));
+    syncDeleteVisit(id);
     showToast('Data kunjungan berhasil dihapus.', 'info');
   };
 
   const updateVisitStatus = (id: string, status: VisitRecord['finalStatus']) => {
-    setRecords(prev => prev.map(r => r.id === id ? { ...r, finalStatus: status } : r));
+    setRecords(prev => prev.map(r => {
+      if (r.id === id) {
+        const updated = { ...r, finalStatus: status };
+        syncSaveVisit(updated);
+        return updated;
+      }
+      return r;
+    }));
     showToast('Status kunjungan berhasil diperbarui.', 'success');
   };
 
@@ -754,21 +853,30 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       lastUpdated: new Date().toISOString()
     };
     setMedicines(prev => [newMed, ...prev]);
+    syncSaveMedicine(newMed);
     showToast(`Obat "${data.name}" berhasil ditambahkan ke inventaris.`, 'success');
   };
 
   const updateMedicine = (id: string, updates: Partial<Omit<Medicine, 'id'>>) => {
-    setMedicines(prev => prev.map(m => m.id === id ? {
-      ...m,
-      ...updates,
-      lastUpdated: new Date().toISOString()
-    } : m));
+    setMedicines(prev => prev.map(m => {
+      if (m.id === id) {
+        const updated = {
+          ...m,
+          ...updates,
+          lastUpdated: new Date().toISOString()
+        };
+        syncSaveMedicine(updated);
+        return updated;
+      }
+      return m;
+    }));
     showToast('Data obat berhasil diperbarui.', 'success');
   };
 
   const deleteMedicine = (id: string) => {
     const target = medicines.find(m => m.id === id);
     setMedicines(prev => prev.filter(m => m.id !== id));
+    syncDeleteMedicine(id);
     showToast(`Obat "${target?.name || ''}" telah dihapus dari inventaris.`, 'info');
   };
 
@@ -777,11 +885,13 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!target) return;
 
     const newStock = target.stock + quantity;
-    setMedicines(prev => prev.map(m => m.id === id ? {
-      ...m,
+    const updatedMed = {
+      ...target,
       stock: newStock,
       lastUpdated: new Date().toISOString()
-    } : m));
+    };
+    setMedicines(prev => prev.map(m => m.id === id ? updatedMed : m));
+    syncSaveMedicine(updatedMed);
 
     const newLog: RestockLog = {
       id: `restock-${Date.now()}`,
