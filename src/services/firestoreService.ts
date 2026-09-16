@@ -206,15 +206,10 @@ export const seedInitialFirestoreData = async () => {
       await batch.commit();
     }
 
-    const userSnap = await getDocs(collection(db, COLLECTIONS.USERS));
-    if (userSnap.empty) {
-      console.log('Seeding initial users to Firestore...');
-      const batch = writeBatch(db);
-      INITIAL_ADMIN_USERS.forEach((u) => {
-        const uid = u.id || u.username;
-        batch.set(doc(db, COLLECTIONS.USERS, uid), { ...u, id: uid });
-      });
-      await batch.commit();
+    // Always ensure initial admin accounts exist in Firestore
+    for (const u of INITIAL_ADMIN_USERS) {
+      const uid = u.id || u.username;
+      await setDoc(doc(db, COLLECTIONS.USERS, uid), { ...u, id: uid }, { merge: true });
     }
 
     const bedSnap = await getDocs(collection(db, COLLECTIONS.BEDS));

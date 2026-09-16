@@ -68,6 +68,15 @@ export const INITIAL_ADMIN_USERS: AdminUser[] = [
     phone: '085712348899',
     isActive: true,
     createdAt: '2025-02-01'
+  },
+  {
+    id: 'usr-4',
+    username: 'nita',
+    password: 'smabasehat',
+    name: 'Nita',
+    role: 'Pembina UKS',
+    isActive: true,
+    createdAt: '2025-02-15'
   }
 ];
 
