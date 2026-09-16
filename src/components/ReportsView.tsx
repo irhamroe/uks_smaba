@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useUks } from '../context/UksContext';
 import { exportMonthlyReportToExcel } from '../utils/excelHelper';
-import { exportMonthlyReportToPdf } from '../utils/pdfHelper';
+import { exportMonthlyReportToPdf, printMonthlyReport } from '../utils/pdfHelper';
 
 const MONTH_NAMES = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -96,7 +96,11 @@ export const ReportsView: React.FC = () => {
     };
   }, [monthlyRecords]);
 
-  // Export handlers
+  // Print & Export handlers
+  const handlePrintReport = () => {
+    printMonthlyReport(monthName, selectedYear, monthlyRecords, medicines, schoolInfo, koordinatorUks);
+  };
+
   const handleExportPdf = () => {
     exportMonthlyReportToPdf(monthName, selectedYear, monthlyRecords, medicines, schoolInfo, koordinatorUks);
   };
@@ -120,7 +124,7 @@ export const ReportsView: React.FC = () => {
             </span>
           </div>
           <p className="text-sm text-slate-500 mt-1">
-            Ekspor rekapitulasi data kunjungan dan pergerakan stok farmasi ke format PDF (cetak berkop surat) atau Excel (.xlsx).
+            Cetak rekapitulasi dokumen resmi UKS ber-kop surat atau ekspor data ke format Excel (.xlsx).
           </p>
         </div>
 
@@ -153,31 +157,41 @@ export const ReportsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Action Export Cards */}
+      {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* PDF Export Card */}
+        {/* Print Report Card */}
         <div className="bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden flex flex-col justify-between">
           <div>
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-3">
-              <FileText className="w-5 h-5 text-emerald-300" />
+              <Printer className="w-5 h-5 text-emerald-300" />
             </div>
             <h3 className="text-lg font-bold tracking-tight">
-              Ekspor Laporan Resmi ke PDF
+              Cetak Dokumen Laporan Resmi
             </h3>
             <p className="text-xs text-emerald-100/90 mt-1 max-w-sm">
-              Laporan PDF dilengkapi Kop Surat Resmi {schoolInfo.name || schoolInfo.shortName}, nomor arsip, ringkasan statistik, tabel kunjungan, sisa stok, dan kolom tanda tangan {koordinatorUks?.role || 'Koordinator UKS'} & Kepala Sekolah.
+              Laporan resmi ber-Kop Surat {schoolInfo.name || schoolInfo.shortName}, nomor arsip, ringkasan statistik, tabel kunjungan, sisa stok, dan kolom tanda tangan {koordinatorUks?.role || 'Koordinator UKS'} & Kepala Sekolah.
             </p>
           </div>
 
-          <div className="pt-6">
+          <div className="pt-6 flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              id="btn-print-report"
+              onClick={handlePrintReport}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-950 font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition cursor-pointer"
+            >
+              <Printer className="w-4 h-4 text-emerald-700" />
+              Cetak Laporan ({monthName} {selectedYear})
+            </button>
             <button
               type="button"
               id="btn-export-pdf"
               onClick={handleExportPdf}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-950 font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-white/15 hover:bg-white/25 text-white font-semibold px-3.5 py-2.5 rounded-xl text-xs backdrop-blur-xs transition cursor-pointer"
+              title="Unduh file PDF langsung ke perangkat"
             >
-              <Download className="w-4 h-4 text-emerald-700" />
-              Unduh Laporan PDF ({monthName} {selectedYear})
+              <Download className="w-3.5 h-3.5 text-emerald-200" />
+              Unduh PDF
             </button>
           </div>
         </div>
@@ -281,16 +295,27 @@ export const ReportsView: React.FC = () => {
 
       {/* Official Letterhead Preview Box */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+        <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-emerald-700" />
+            <Building2 className="w-4 h-4 text-emerald-700 shrink-0" />
             <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Pratinjau Dokumen Laporan UKS {schoolInfo.shortName} — Periode {monthName} {selectedYear}
             </span>
           </div>
-          <span className="text-[11px] text-slate-500">
-            {monthlyRecords.length} kunjungan terdata
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] text-slate-500">
+              {monthlyRecords.length} kunjungan terdata
+            </span>
+            <button
+              type="button"
+              id="btn-print-preview-header"
+              onClick={handlePrintReport}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              Cetak Laporan
+            </button>
+          </div>
         </div>
 
         <div className="p-6 sm:p-8 max-w-4xl mx-auto space-y-6 text-slate-800 font-sans">
@@ -342,13 +367,14 @@ export const ReportsView: React.FC = () => {
                     <th className="py-2.5 px-3">Kelas/Jabatan</th>
                     <th className="py-2.5 px-3">Keluhan</th>
                     <th className="py-2.5 px-3">Obat Diberikan</th>
+                    <th className="py-2.5 px-3">Petugas</th>
                     <th className="py-2.5 px-3">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-[11px]">
                   {monthlyRecords.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-6 text-center text-slate-400">
+                      <td colSpan={8} className="py-6 text-center text-slate-400">
                         Belum ada data kunjungan yang tercatat pada bulan {monthName} {selectedYear}.
                       </td>
                     </tr>
@@ -365,6 +391,7 @@ export const ReportsView: React.FC = () => {
                             ? r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity})`).join(', ')
                             : '-'}
                         </td>
+                        <td className="py-2 px-3 font-semibold text-emerald-800">{r.approvedBy || r.handledBy || 'Petugas UKS'}</td>
                         <td className="py-2 px-3 font-medium">{r.finalStatus}</td>
                       </tr>
                     ))

@@ -36,6 +36,7 @@ export interface VisitRecord {
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   approvedBy?: string;
   approvedAt?: string;
+  handledBy?: string;
   rejectedReason?: string;
 }
 

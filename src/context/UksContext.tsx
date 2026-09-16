@@ -304,21 +304,74 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // Ignore
     }
 
-    const unsubVisits = subscribeToVisits((newVisits) => {
-      if (Array.isArray(newVisits)) {
-        setRecords(newVisits);
+    const unsubVisits = subscribeToVisits((cloudVisits) => {
+      if (Array.isArray(cloudVisits)) {
+        setRecords(prevLocal => {
+          // If cloud has no visits and local has items, push local to cloud
+          if (cloudVisits.length === 0) {
+            if (prevLocal.length > 0) {
+              prevLocal.forEach(v => syncSaveVisit(v));
+              return prevLocal;
+            }
+            return [];
+          }
+
+          // Merge: Map cloud records by ID
+          const cloudMap = new Map(cloudVisits.map(v => [v.id, v]));
+
+          // Retain any locally-created records that haven't synced to cloud yet
+          const localOnly = prevLocal.filter(v => !cloudMap.has(v.id));
+
+          // If local-only records exist, push them to Firestore so they are never lost
+          if (localOnly.length > 0) {
+            localOnly.forEach(v => syncSaveVisit(v));
+          }
+
+          const merged = [...cloudVisits, ...localOnly];
+          merged.sort((a, b) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp || a.date).getTime());
+
+          try {
+            localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(merged));
+          } catch (e) {
+            console.error('Failed to sync merged visits to localStorage:', e);
+          }
+
+          return merged;
+        });
       }
     });
 
-    const unsubMedicines = subscribeToMedicines((newMeds) => {
-      if (Array.isArray(newMeds)) {
-        setMedicines(newMeds);
+    const unsubMedicines = subscribeToMedicines((cloudMeds) => {
+      if (Array.isArray(cloudMeds) && cloudMeds.length > 0) {
+        setMedicines(prevLocal => {
+          const cloudMap = new Map(cloudMeds.map(m => [m.id, m]));
+          const localOnly = prevLocal.filter(m => !cloudMap.has(m.id));
+          if (localOnly.length > 0) {
+            localOnly.forEach(m => syncSaveMedicine(m));
+          }
+          const merged = [...cloudMeds, ...localOnly];
+          try {
+            localStorage.setItem(STORAGE_KEYS.MEDICINES, JSON.stringify(merged));
+          } catch (e) {}
+          return merged;
+        });
       }
     });
 
-    const unsubUsers = subscribeToUsers((newUsers) => {
-      if (Array.isArray(newUsers) && newUsers.length > 0) {
-        setUsers(newUsers);
+    const unsubUsers = subscribeToUsers((cloudUsers) => {
+      if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
+        setUsers(prevLocal => {
+          const cloudMap = new Map(cloudUsers.map(u => [u.id, u]));
+          const localOnly = prevLocal.filter(u => !cloudMap.has(u.id));
+          if (localOnly.length > 0) {
+            localOnly.forEach(u => syncSaveUser(u));
+          }
+          const merged = [...cloudUsers, ...localOnly];
+          try {
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(merged));
+          } catch (e) {}
+          return merged;
+        });
       }
     });
 
@@ -328,9 +381,20 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     });
 
-    const unsubBeds = subscribeToBeds((newBeds) => {
-      if (Array.isArray(newBeds)) {
-        setBeds(newBeds);
+    const unsubBeds = subscribeToBeds((cloudBeds) => {
+      if (Array.isArray(cloudBeds) && cloudBeds.length > 0) {
+        setBeds(prevLocal => {
+          const cloudMap = new Map(cloudBeds.map(b => [b.id, b]));
+          const localOnly = prevLocal.filter(b => !cloudMap.has(b.id));
+          if (localOnly.length > 0) {
+            localOnly.forEach(b => syncSaveBed(b));
+          }
+          const merged = [...cloudBeds, ...localOnly];
+          try {
+            localStorage.setItem(STORAGE_KEYS.BEDS, JSON.stringify(merged));
+          } catch (e) {}
+          return merged;
+        });
       }
     });
 
@@ -785,6 +849,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         bedNumber: data.bedNumber,
         approvalStatus: 'approved',
         approvedBy: adminUser?.name || 'Petugas UKS',
+        handledBy: adminUser?.name || 'Petugas UKS',
         approvedAt: now.toISOString()
       };
 
@@ -916,6 +981,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           ...r,
           approvalStatus: 'approved',
           approvedBy: adminUser?.name || 'Petugas UKS',
+          handledBy: adminUser?.name || 'Petugas UKS',
           approvedAt: now.toISOString()
         };
         updatedVisit = u;

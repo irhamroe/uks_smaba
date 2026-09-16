@@ -180,6 +180,7 @@ export function exportMonthlyReportToExcel(
     'Obat Yang Diberikan': v.medicinesGiven.length > 0 
       ? v.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join('; ')
       : 'Tidak butuh obat',
+    'Petugas UKS': v.approvedBy || v.handledBy || 'Petugas UKS',
     'Suhu (°C)': v.temperature || '-',
     'Tensi Darah': v.bloodPressure || '-',
     'Status Akhir': v.finalStatus,
@@ -198,6 +199,7 @@ export function exportMonthlyReportToExcel(
     { wch: 32 }, // Keluhan
     { wch: 35 }, // Tindakan
     { wch: 35 }, // Obat
+    { wch: 25 }, // Petugas
     { wch: 10 }, // Suhu
     { wch: 12 }, // Tensi
     { wch: 25 }, // Status

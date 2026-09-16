@@ -3,14 +3,14 @@ import autoTable from 'jspdf-autotable';
 import { Medicine, VisitRecord, SchoolInfo, AdminUser } from '../types';
 import { SCHOOL_INFO as DEFAULT_SCHOOL_INFO } from '../data/initialData';
 
-export function exportMonthlyReportToPdf(
+export function generateMonthlyReportPdfDoc(
   monthName: string,
   year: number,
   visits: VisitRecord[],
   medicines: Medicine[],
   customSchoolInfo?: SchoolInfo,
   customKoordinator?: AdminUser | null
-): void {
+): jsPDF {
   const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
   const koordinator = customKoordinator || {
     name: 'Koordinator UKS',
@@ -119,13 +119,14 @@ export function exportMonthlyReportToPdf(
     v.medicinesGiven.length > 0
       ? v.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join('\n')
       : 'Tanpa obat',
+    v.approvedBy || v.handledBy || 'Petugas UKS',
     v.finalStatus
   ]);
 
   autoTable(doc, {
     startY: 85,
-    head: [['No', 'Tgl / Jam', 'Nama & Kelas/Jabatan', 'Keluhan', 'Tindakan', 'Obat Diberikan', 'Status Akhir']],
-    body: visitRows.length > 0 ? visitRows : [['-', '-', 'Belum ada kunjungan tercatat pada periode ini', '-', '-', '-', '-']],
+    head: [['No', 'Tgl / Jam', 'Nama & Kelas/Jabatan', 'Keluhan', 'Tindakan', 'Obat Diberikan', 'Petugas', 'Status Akhir']],
+    body: visitRows.length > 0 ? visitRows : [['-', '-', 'Belum ada kunjungan tercatat pada periode ini', '-', '-', '-', '-', '-']],
     headStyles: {
       fillColor: [16, 149, 120], // Teal 600
       textColor: 255,
@@ -140,48 +141,64 @@ export function exportMonthlyReportToPdf(
       valign: 'top',
       cellPadding: 2
     },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
+    },
     columnStyles: {
-      0: { cellWidth: 8, halign: 'center' },
-      1: { cellWidth: 20 },
-      2: { cellWidth: 32 },
-      3: { cellWidth: 34 },
-      4: { cellWidth: 34 },
-      5: { cellWidth: 30 },
-      6: { cellWidth: 24 }
+      0: { cellWidth: 7, halign: 'center' },
+      1: { cellWidth: 18 },
+      2: { cellWidth: 32, fontStyle: 'bold' },
+      3: { cellWidth: 30 },
+      4: { cellWidth: 28 },
+      5: { cellWidth: 26 },
+      6: { cellWidth: 23 },
+      7: { cellWidth: 18, halign: 'center' }
     },
     theme: 'grid',
     margin: { left: 14, right: 14 }
   });
 
-  // Calculate position after first table
-  const finalY = (doc as any).lastAutoTable?.finalY || 140;
+  // 5. Tabel Rekap Stok Obat
+  const afterVisitY = (doc as any).lastAutoTable?.finalY || 160;
+  let startMedY = afterVisitY + 8;
 
-  // 5. Tabel Sisa Stok Obat
-  const medStartY = finalY + 10 > 240 ? 15 : finalY + 8;
-  if (finalY + 10 > 240) {
+  // Check if we need a new page for medicines
+  if (startMedY > 230) {
     doc.addPage();
+    startMedY = 20;
   }
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(15, 23, 42);
-  doc.text('B. Rekapitulasi Sisa Persediaan Obat UKS', 14, medStartY);
+  doc.text('B. Rekapitulasi Stok & Penggunaan Obat', 14, startMedY);
 
-  const medRows = medicines.map((m, i) => [
-    (i + 1).toString(),
-    m.name,
-    m.category,
-    `${m.stock} ${m.unit}`,
-    `${m.minStock} ${m.unit}`,
-    m.stock === 0 ? 'HABIS' : m.stock <= m.minStock ? 'MENIPIS' : 'AMAN',
-    m.expiryDate || '-',
-    m.location || 'Lemari UKS'
-  ]);
+  const medRows = medicines.map((m, i) => {
+    // Calculate total used this month
+    const totalUsed = visits.reduce((acc, v) => {
+      const found = v.medicinesGiven.find(item => item.medicineId === m.id || item.medicineName.toLowerCase() === m.name.toLowerCase());
+      return acc + (found ? found.quantity : 0);
+    }, 0);
+
+    const isLow = m.stock <= m.minStock;
+    const statusText = isLow ? `KRITIS (Sisa ${m.stock} ${m.unit})` : 'Aman';
+
+    return [
+      (i + 1).toString(),
+      m.name,
+      m.category,
+      `${m.stock} ${m.unit}`,
+      `${m.minStock} ${m.unit}`,
+      `${totalUsed} ${m.unit}`,
+      statusText,
+      m.expiryDate || '-'
+    ];
+  });
 
   autoTable(doc, {
-    startY: medStartY + 3,
-    head: [['No', 'Nama Obat', 'Kategori', 'Sisa Stok', 'Min. Stok', 'Kondisi', 'Exp. Date', 'Lokasi']],
-    body: medRows,
+    startY: startMedY + 3,
+    head: [['No', 'Nama Obat', 'Kategori', 'Sisa Stok', 'Batas Min', 'Terpakai Bln Ini', 'Status Stok', 'Kedaluwarsa']],
+    body: medRows.length > 0 ? medRows : [['-', '-', '-', '-', '-', '-', '-', '-']],
     headStyles: {
       fillColor: [30, 41, 59], // Slate 800
       textColor: 255,
@@ -193,7 +210,11 @@ export function exportMonthlyReportToPdf(
     bodyStyles: {
       fontSize: 7,
       textColor: [30, 41, 59],
-      cellPadding: 1.8
+      valign: 'middle',
+      cellPadding: 2
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
     },
     columnStyles: {
       0: { cellWidth: 8, halign: 'center' },
@@ -201,9 +222,9 @@ export function exportMonthlyReportToPdf(
       2: { cellWidth: 30 },
       3: { cellWidth: 20, halign: 'center' },
       4: { cellWidth: 18, halign: 'center' },
-      5: { cellWidth: 18, halign: 'center' },
+      5: { cellWidth: 22, halign: 'center' },
       6: { cellWidth: 22, halign: 'center' },
-      7: { cellWidth: 28 }
+      7: { cellWidth: 22, halign: 'center' }
     },
     theme: 'grid',
     margin: { left: 14, right: 14 }
@@ -246,7 +267,42 @@ export function exportMonthlyReportToPdf(
   doc.setFont('helvetica', 'normal');
   doc.text(school.schoolPrincipalNip && school.schoolPrincipalNip !== '-' ? `NIP. ${school.schoolPrincipalNip}` : 'NIP. -', 20, signY + 30);
 
-  // Save PDF
+  return doc;
+}
+
+export function exportMonthlyReportToPdf(
+  monthName: string,
+  year: number,
+  visits: VisitRecord[],
+  medicines: Medicine[],
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): void {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = generateMonthlyReportPdfDoc(monthName, year, visits, medicines, customSchoolInfo, customKoordinator);
   const safeFilename = (school.shortName || 'UKS').replace(/[^a-zA-Z0-9_-]/g, '_');
   doc.save(`Laporan_UKS_${safeFilename}_${monthName}_${year}.pdf`);
+}
+
+export function printMonthlyReport(
+  monthName: string,
+  year: number,
+  visits: VisitRecord[],
+  medicines: Medicine[],
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): void {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = generateMonthlyReportPdfDoc(monthName, year, visits, medicines, customSchoolInfo, customKoordinator);
+  
+  // Trigger auto print and open PDF viewer window
+  doc.autoPrint();
+  const blobUrl = doc.output('bloburl');
+  const printWindow = window.open(blobUrl, '_blank');
+  
+  // If popup blocker intervened, fallback to saving the PDF file
+  if (!printWindow) {
+    const safeFilename = (school.shortName || 'UKS').replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`Laporan_UKS_${safeFilename}_${monthName}_${year}.pdf`);
+  }
 }

@@ -606,6 +606,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                 <th className="py-3 px-4">Keluhan & Gejala</th>
                 <th className="py-3 px-4">Tindakan UKS</th>
                 <th className="py-3 px-4">Obat Diberikan</th>
+                <th className="py-3 px-4">Petugas</th>
                 <th className="py-3 px-4">Status Kunjungan</th>
                 <th className="py-3 px-4">Status Verifikasi</th>
                 <th className="py-3 px-4 text-center">Aksi</th>
@@ -614,7 +615,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
             <tbody className="divide-y divide-slate-100">
               {filteredRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400">
+                  <td colSpan={10} className="py-12 text-center text-slate-400">
                     <p className="font-medium text-sm">Tidak ada data kunjungan yang cocok.</p>
                     <p className="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau ubah filter status.</p>
                   </td>
@@ -690,6 +691,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                         ) : (
                           <span className="text-slate-400 italic text-[11px]">Tanpa obat</span>
                         )}
+                      </td>
+
+                      {/* Petugas Penangan / Penyetuju */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
+                            {(record.approvedBy || record.handledBy || (isPending ? '?' : 'P')).charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-800 text-xs">
+                              {record.approvedBy || record.handledBy || (isPending ? 'Menunggu Verifikasi' : 'Petugas UKS')}
+                            </div>
+                            {record.approvedAt && (
+                              <div className="text-[10px] text-slate-400">
+                                {new Date(record.approvedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </td>
 
                       {/* Status Kunjungan */}
@@ -853,7 +873,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
             </div>
 
             <div className="py-4 space-y-3.5 text-xs">
-              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                 <div>
                   <span className="text-slate-500 font-medium">Nama Pengunjung:</span>
                   <div className="font-bold text-slate-900 text-sm">{selectedVisit.visitorName}</div>
@@ -871,6 +891,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                   </div>
                 </div>
                 <div>
+                  <span className="text-slate-500 font-medium">Petugas Penangan:</span>
+                  <div className="font-bold text-emerald-800">
+                    {selectedVisit.approvedBy || selectedVisit.handledBy || (selectedVisit.approvalStatus === 'pending' ? 'Menunggu Petugas' : 'Petugas UKS')}
+                  </div>
+                </div>
+                <div className="sm:col-span-2">
                   <span className="text-slate-500 font-medium">Status Verifikasi:</span>
                   <div className="font-bold">
                     {selectedVisit.approvalStatus === 'pending' ? (
@@ -878,7 +904,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                     ) : selectedVisit.approvalStatus === 'rejected' ? (
                       <span className="text-rose-600">Ditolak ({selectedVisit.rejectedReason || 'Oleh Petugas'})</span>
                     ) : (
-                      <span className="text-emerald-600">Disetujui ({selectedVisit.approvedBy || 'Petugas UKS'})</span>
+                      <span className="text-emerald-600">Disetujui oleh {selectedVisit.approvedBy || selectedVisit.handledBy || 'Petugas UKS'}</span>
                     )}
                   </div>
                 </div>

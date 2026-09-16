@@ -90,7 +90,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
     {
       id: 'reports' as AppTab,
-      label: 'Laporan PDF / Excel',
+      label: 'Laporan',
       icon: FileSpreadsheet,
       description: 'Rekap bulanan & arsip resmi'
     },
