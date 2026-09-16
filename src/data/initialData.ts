@@ -38,45 +38,83 @@ export const INITIAL_BEDS: UksBed[] = [
 export const INITIAL_ADMIN_USERS: AdminUser[] = [
   {
     id: 'usr-1',
-    username: 'admin',
-    password: 'admin',
-    name: 'Hj. Sri Rahayu, S.Pd., M.Kes',
+    username: 'nita',
+    password: 'smabasehat',
+    name: 'Nita Rimayanti, S.Pd',
     role: 'Koordinator UKS',
-    nip: '19760812 200212 2 003',
-    phone: '081234567890',
+    nip: '19860728 200903 2 005',
     isActive: true,
     createdAt: '2025-01-01'
   },
   {
     id: 'usr-2',
-    username: 'pembina',
-    password: 'pembina123',
-    name: 'Rina Novita, S.Pd',
+    username: 'irham',
+    password: 'smabasehat',
+    name: 'Moh. Irham Rozaki, S.Kom, Gr.',
     role: 'Pembina UKS',
-    nip: '19881105 201402 2 001',
-    phone: '082198765432',
+    nip: '19891021 202221 1 017',
     isActive: true,
-    createdAt: '2025-01-10'
+    createdAt: '2025-01-01'
   },
   {
     id: 'usr-3',
-    username: 'staf',
-    password: 'staf123',
-    name: 'Bima Aditya Pratama',
-    role: 'Staf Administrasi UKS',
-    nip: '19950314 202012 1 004',
-    phone: '085712348899',
+    username: 'mitha',
+    password: 'smabasehat',
+    name: 'Amitha Mustika Damayanti, M.Pd',
+    role: 'Pembina UKS',
+    nip: '19920219 202321 2 039',
     isActive: true,
-    createdAt: '2025-02-01'
+    createdAt: '2025-01-01'
   },
   {
     id: 'usr-4',
-    username: 'nita',
+    username: 'muhajir',
     password: 'smabasehat',
-    name: 'Nita',
+    name: 'Ahmad Muhajir R, S.Pd',
     role: 'Pembina UKS',
+    nip: '19820826 202221 1 011',
     isActive: true,
-    createdAt: '2025-02-15'
+    createdAt: '2025-01-01'
+  },
+  {
+    id: 'usr-5',
+    username: 'ribkha',
+    password: 'smabasehat',
+    name: 'Ribkha Ayu Adiningtyas, S.Pd',
+    role: 'Pembina UKS',
+    nip: '19920322 202521 2 115',
+    isActive: true,
+    createdAt: '2025-01-01'
+  },
+  {
+    id: 'usr-6',
+    username: 'panji',
+    password: 'smabasehat',
+    name: 'Panji Penatas, S.Pd',
+    role: 'Pembina UKS',
+    nip: '19900608 202521 1 127',
+    isActive: true,
+    createdAt: '2025-01-01'
+  },
+  {
+    id: 'usr-7',
+    username: 'rindy',
+    password: 'smabasehat',
+    name: 'Rindy Antika Sari',
+    role: 'Staf Administrasi UKS',
+    nip: '19880502 202521 2 111',
+    isActive: true,
+    createdAt: '2025-01-01'
+  },
+  {
+    id: 'usr-admin',
+    username: 'admin',
+    password: 'admin',
+    name: 'Nita Rimayanti, S.Pd',
+    role: 'Koordinator UKS',
+    nip: '19860728 200903 2 005',
+    isActive: true,
+    createdAt: '2025-01-01'
   }
 ];
 

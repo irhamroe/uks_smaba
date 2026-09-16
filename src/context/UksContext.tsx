@@ -386,11 +386,10 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const defaultAdmin: AdminUser = {
         id: 'usr-admin',
         username: 'admin',
-        name: 'Hj. Sri Rahayu, S.Pd., M.Kes',
+        name: 'Nita Rimayanti, S.Pd',
         role: 'Koordinator UKS',
-        nip: '19760812 200212 2 003',
+        nip: '19860728 200903 2 005',
         email: 'sman1batu@yahoo.com',
-        phone: '081234567890',
         isActive: true
       };
 
