@@ -9,19 +9,43 @@ import {
   writeBatch 
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { VisitRecord, Medicine, AdminUser, SchoolInfo } from '../types';
+import { VisitRecord, Medicine, AdminUser, SchoolInfo, RestockLog } from '../types';
 import { INITIAL_VISITS, INITIAL_MEDICINES, INITIAL_ADMIN_USERS, SCHOOL_INFO } from '../data/initialData';
 
 const COLLECTIONS = {
   VISITS: 'visits',
   MEDICINES: 'medicines',
   USERS: 'users',
+  RESTOCK: 'restock_logs',
   CONFIG: 'config'
 };
 
 const DOCS = {
   SCHOOL_INFO: 'school_info',
   SYSTEM_META: 'system_metadata'
+};
+
+/**
+ * Pembersih objek rekursif untuk menghapus properti dengan nilai `undefined`
+ * agar Firestore tidak menolak payload (Firestore melempar error jika ada field undefined).
+ */
+export const cleanFirestoreData = <T extends Record<string, any>>(obj: T): T => {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  const result: any = Array.isArray(obj) ? [] : {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        result[key] = cleanFirestoreData(value);
+      } else if (Array.isArray(value)) {
+        result[key] = value.map(item => (typeof item === 'object' && item !== null ? cleanFirestoreData(item) : item));
+      } else {
+        result[key] = value;
+      }
+    }
+  }
+  return result;
 };
 
 // ======================= REALTIME SUBSCRIPTIONS =======================
@@ -34,12 +58,12 @@ export const subscribeToVisits = (onUpdate: (data: VisitRecord[]) => void, onErr
       snapshot.forEach((d) => {
         records.push({ ...(d.data() as VisitRecord), id: d.id });
       });
-      records.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      records.sort((a, b) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp || a.date).getTime());
       // Always notify listener with the latest records array (including empty array)
       onUpdate(records);
     },
     (err) => {
-      console.warn('Firestore visits subscription error (using local state):', err);
+      console.warn('Firestore visits subscription error:', err);
       if (onError) onError(err);
     }
   );
@@ -57,7 +81,7 @@ export const subscribeToMedicines = (onUpdate: (data: Medicine[]) => void, onErr
       onUpdate(items);
     },
     (err) => {
-      console.warn('Firestore medicines subscription error (using local state):', err);
+      console.warn('Firestore medicines subscription error:', err);
       if (onError) onError(err);
     }
   );
@@ -80,7 +104,25 @@ export const subscribeToUsers = (onUpdate: (data: AdminUser[]) => void, onError?
       }
     },
     (err) => {
-      console.warn('Firestore users subscription error (using local state):', err);
+      console.warn('Firestore users subscription error:', err);
+      if (onError) onError(err);
+    }
+  );
+};
+
+export const subscribeToRestockLogs = (onUpdate: (data: RestockLog[]) => void, onError?: (error: unknown) => void) => {
+  return onSnapshot(
+    collection(db, COLLECTIONS.RESTOCK),
+    (snapshot) => {
+      const logs: RestockLog[] = [];
+      snapshot.forEach((d) => {
+        logs.push({ ...(d.data() as RestockLog), id: d.id });
+      });
+      logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      onUpdate(logs);
+    },
+    (err) => {
+      console.warn('Firestore restock logs subscription error:', err);
       if (onError) onError(err);
     }
   );
@@ -98,46 +140,55 @@ export const subscribeToSchoolInfo = (onUpdate: (data: SchoolInfo) => void, onEr
       }
     },
     (err) => {
-      console.warn('Firestore schoolInfo subscription error (using local state):', err);
+      console.warn('Firestore schoolInfo subscription error:', err);
       if (onError) onError(err);
     }
   );
 };
-
 
 // ======================= CRUD OPERATIONS =======================
 
 // Visits
 export const syncSaveVisit = async (visit: VisitRecord) => {
   try {
-    await setDoc(doc(db, COLLECTIONS.VISITS, visit.id), visit);
+    const cleanPayload = cleanFirestoreData(visit);
+    await setDoc(doc(db, COLLECTIONS.VISITS, visit.id), cleanPayload);
+    return { success: true };
   } catch (err) {
     console.error('Failed to sync visit to Firestore:', err);
+    return { success: false, error: err };
   }
 };
 
 export const syncDeleteVisit = async (visitId: string) => {
   try {
     await deleteDoc(doc(db, COLLECTIONS.VISITS, visitId));
+    return { success: true };
   } catch (err) {
     console.error('Failed to delete visit from Firestore:', err);
+    return { success: false, error: err };
   }
 };
 
 // Medicines
 export const syncSaveMedicine = async (med: Medicine) => {
   try {
-    await setDoc(doc(db, COLLECTIONS.MEDICINES, med.id), med);
+    const cleanPayload = cleanFirestoreData(med);
+    await setDoc(doc(db, COLLECTIONS.MEDICINES, med.id), cleanPayload);
+    return { success: true };
   } catch (err) {
     console.error('Failed to sync medicine to Firestore:', err);
+    return { success: false, error: err };
   }
 };
 
 export const syncDeleteMedicine = async (medId: string) => {
   try {
     await deleteDoc(doc(db, COLLECTIONS.MEDICINES, medId));
+    return { success: true };
   } catch (err) {
     console.error('Failed to delete medicine from Firestore:', err);
+    return { success: false, error: err };
   }
 };
 
@@ -148,11 +199,26 @@ export const syncReplaceAllMedicines = async (oldMedIds: string[], newMeds: Medi
       batch.delete(doc(db, COLLECTIONS.MEDICINES, id));
     });
     newMeds.forEach(m => {
-      batch.set(doc(db, COLLECTIONS.MEDICINES, m.id), m);
+      const cleanM = cleanFirestoreData(m);
+      batch.set(doc(db, COLLECTIONS.MEDICINES, m.id), cleanM);
     });
     await batch.commit();
+    return { success: true };
   } catch (err) {
     console.error('Failed to replace medicines in Firestore:', err);
+    return { success: false, error: err };
+  }
+};
+
+// Restock Logs
+export const syncSaveRestockLog = async (log: RestockLog) => {
+  try {
+    const cleanPayload = cleanFirestoreData(log);
+    await setDoc(doc(db, COLLECTIONS.RESTOCK, log.id), cleanPayload);
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to sync restock log to Firestore:', err);
+    return { success: false, error: err };
   }
 };
 
@@ -160,26 +226,34 @@ export const syncReplaceAllMedicines = async (oldMedIds: string[], newMeds: Medi
 export const syncSaveUser = async (user: AdminUser) => {
   try {
     const userId = user.id || user.username;
-    await setDoc(doc(db, COLLECTIONS.USERS, userId), { ...user, id: userId });
+    const cleanPayload = cleanFirestoreData({ ...user, id: userId });
+    await setDoc(doc(db, COLLECTIONS.USERS, userId), cleanPayload);
+    return { success: true };
   } catch (err) {
     console.error('Failed to sync user to Firestore:', err);
+    return { success: false, error: err };
   }
 };
 
 export const syncDeleteUser = async (userId: string) => {
   try {
     await deleteDoc(doc(db, COLLECTIONS.USERS, userId));
+    return { success: true };
   } catch (err) {
     console.error('Failed to delete user from Firestore:', err);
+    return { success: false, error: err };
   }
 };
 
 // School Info
 export const syncSaveSchoolInfo = async (info: SchoolInfo) => {
   try {
-    await setDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SCHOOL_INFO), info);
+    const cleanPayload = cleanFirestoreData(info);
+    await setDoc(doc(db, COLLECTIONS.CONFIG, DOCS.SCHOOL_INFO), cleanPayload);
+    return { success: true };
   } catch (err) {
     console.error('Failed to sync schoolInfo to Firestore:', err);
+    return { success: false, error: err };
   }
 };
 

@@ -6,11 +6,13 @@ import {
   subscribeToMedicines, 
   subscribeToUsers, 
   subscribeToSchoolInfo, 
+  subscribeToRestockLogs,
   syncSaveVisit,
   syncDeleteVisit,
   syncSaveMedicine,
   syncDeleteMedicine,
   syncReplaceAllMedicines,
+  syncSaveRestockLog,
   syncSaveUser,
   syncDeleteUser,
   syncSaveSchoolInfo,
@@ -65,7 +67,6 @@ interface UksContextType {
     finalStatus: VisitRecord['finalStatus'];
     temperature?: string;
     bloodPressure?: string;
-    bedNumber?: string;
     customDate?: string;
     customTime?: string;
   }) => { success: boolean; error?: string };
@@ -101,130 +102,22 @@ interface UksContextType {
 const UksContext = createContext<UksContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  VISITS: 'uks_sman1batu_visits_v2',
-  MEDICINES: 'uks_sman1batu_medicines_v2',
-  RESTOCK: 'uks_sman1batu_restock_v2',
-  ADMIN_SESSION: 'uks_sman1batu_admin_session_v2',
-  USERS: 'uks_sman1batu_users_v2',
-  SCHOOL_INFO: 'uks_sman1batu_school_info_v2',
-  INITIALIZED: 'uks_sman1batu_initialized_v2'
+  ADMIN_SESSION: 'uks_sman1batu_admin_session_v2'
 };
 
 export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-
-  // Users state with local cache + cloud sync
-  const [users, setUsers] = useState<AdminUser[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-      if (saved !== null) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const cleaned = parsed.filter((u: any) => u.username?.toLowerCase() !== 'admin' && u.id !== 'usr-admin');
-          if (cleaned.length > 0) return cleaned;
-        }
-      }
-    } catch {
-      // Fallback
-    }
-    return INITIAL_ADMIN_USERS;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-    } catch {
-      // Ignore
-    }
-  }, [users]);
-
-  // School info state with local cache + cloud sync
-  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.SCHOOL_INFO);
-      if (saved !== null) return { ...SCHOOL_INFO, ...JSON.parse(saved) };
-    } catch {
-      // Fallback
-    }
-    return SCHOOL_INFO;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SCHOOL_INFO, JSON.stringify(schoolInfo));
-    } catch {
-      // Ignore
-    }
-  }, [schoolInfo]);
-
-  // Visits state with local cache + cloud sync
-  const [records, setRecords] = useState<VisitRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.VISITS);
-      if (saved !== null) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return parsed.filter(v => !['vis-1', 'vis-2', 'vis-3', 'vis-4', 'vis-5', 'vis-6'].includes(v.id));
-        }
-      }
-    } catch {
-      // Fallback
-    }
-    return [];
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(records));
-    } catch {
-      // Ignore
-    }
-  }, [records]);
-
-  // Medicines state with local cache + cloud sync
-  const [medicines, setMedicines] = useState<Medicine[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.MEDICINES);
-      if (saved !== null) return JSON.parse(saved);
-    } catch {
-      // Fallback
-    }
-    const isInit = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
-    if (isInit) return [];
-    return INITIAL_MEDICINES;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.MEDICINES, JSON.stringify(medicines));
-    } catch {
-      // Ignore
-    }
-  }, [medicines]);
-
-  // Restock logs
-  const [restockLogs, setRestockLogs] = useState<RestockLog[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.RESTOCK);
-      if (saved !== null) return JSON.parse(saved);
-    } catch {
-      // Fallback
-    }
-    return [];
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.RESTOCK, JSON.stringify(restockLogs));
-    } catch {
-      // Ignore
-    }
-  }, [restockLogs]);
+  // State aplikasi murni tersinkronisasi realtime dengan Cloud Firestore (Single Source of Truth)
+  const [users, setUsers] = useState<AdminUser[]>(INITIAL_ADMIN_USERS);
+  const [schoolInfo, setSchoolInfo] = useState<SchoolInfo>(SCHOOL_INFO);
+  const [records, setRecords] = useState<VisitRecord[]>([]);
+  const [medicines, setMedicines] = useState<Medicine[]>(INITIAL_MEDICINES);
+  const [restockLogs, setRestockLogs] = useState<RestockLog[]>([]);
 
   const updateSchoolInfo = (updates: Partial<SchoolInfo>) => {
     const updated = { ...schoolInfo, ...updates };
     setSchoolInfo(updated);
     syncSaveSchoolInfo(updated);
-    showToast('Identitas sekolah berhasil diperbarui.', 'success');
+    showToast('Identitas sekolah berhasil diperbarui di cloud database.', 'success');
   };
 
   const resetSchoolInfo = () => {
@@ -242,7 +135,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return users[0] || null;
   }, [users]);
 
-  // Load admin session from sessionStorage/localStorage
+  // Load admin session from sessionStorage/localStorage khusus sesi login perangkat ini
   const [adminUser, setAdminUser] = useState<AdminUser | null>(() => {
     try {
       const saved = sessionStorage.getItem(STORAGE_KEYS.ADMIN_SESSION) || localStorage.getItem(STORAGE_KEYS.ADMIN_SESSION);
@@ -267,18 +160,15 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [activeTab, setActiveTab] = useState<AppTab>('guestbook');
   const [toast, setToast] = useState<ToastState | null>(null);
 
-  // Seed and Listen to Firebase Firestore Realtime Updates
+  // Realtime Listeners ke Firebase Firestore Realtime Database
   useEffect(() => {
+    // Inisialisasi awal koleksi cloud jika belum ada
     seedInitialFirestoreData();
-    try {
-      localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
-    } catch {
-      // Ignore
-    }
 
+    // 1. Realtime Visits Subscription
     const unsubVisits = subscribeToVisits((cloudVisits) => {
       if (Array.isArray(cloudVisits)) {
-        // Otomatis bersihkan data dummy demonstrasi lama jika sempat ter-upload ke Firestore
+        // Otomatis bersihkan data dummy demonstrasi lama jika ada
         const dummyIds = ['vis-1', 'vis-2', 'vis-3', 'vis-4', 'vis-5', 'vis-6'];
         cloudVisits.forEach(v => {
           if (dummyIds.includes(v.id)) {
@@ -288,50 +178,32 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
         const cleanVisits = cloudVisits.filter(v => !dummyIds.includes(v.id));
         cleanVisits.sort((a, b) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp || a.date).getTime());
-
         setRecords(cleanVisits);
-        try {
-          localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(cleanVisits));
-        } catch (e) {
-          console.error('Failed to sync clean visits to localStorage:', e);
-        }
       }
     });
 
+    // 2. Realtime Medicines Subscription
     const unsubMedicines = subscribeToMedicines((cloudMeds) => {
       if (Array.isArray(cloudMeds) && cloudMeds.length > 0) {
-        setMedicines(prevLocal => {
-          const cloudMap = new Map(cloudMeds.map(m => [m.id, m]));
-          const localOnly = prevLocal.filter(m => !cloudMap.has(m.id));
-          if (localOnly.length > 0) {
-            localOnly.forEach(m => syncSaveMedicine(m));
-          }
-          const merged = [...cloudMeds, ...localOnly];
-          try {
-            localStorage.setItem(STORAGE_KEYS.MEDICINES, JSON.stringify(merged));
-          } catch (e) {}
-          return merged;
-        });
+        setMedicines(cloudMeds);
       }
     });
 
+    // 3. Realtime Users Subscription
     const unsubUsers = subscribeToUsers((cloudUsers) => {
       if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
-        setUsers(prevLocal => {
-          const cloudMap = new Map(cloudUsers.map(u => [u.id, u]));
-          const localOnly = prevLocal.filter(u => !cloudMap.has(u.id));
-          if (localOnly.length > 0) {
-            localOnly.forEach(u => syncSaveUser(u));
-          }
-          const merged = [...cloudUsers, ...localOnly];
-          try {
-            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(merged));
-          } catch (e) {}
-          return merged;
-        });
+        setUsers(cloudUsers);
       }
     });
 
+    // 4. Realtime Restock Logs Subscription
+    const unsubRestock = subscribeToRestockLogs((cloudLogs) => {
+      if (Array.isArray(cloudLogs)) {
+        setRestockLogs(cloudLogs);
+      }
+    });
+
+    // 5. Realtime School Info Subscription
     const unsubSchool = subscribeToSchoolInfo((newSchool) => {
       if (newSchool && newSchool.name) {
         setSchoolInfo(newSchool);
@@ -342,6 +214,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       unsubVisits();
       unsubMedicines();
       unsubUsers();
+      unsubRestock();
       unsubSchool();
     };
   }, []);
@@ -678,9 +551,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         medicinesGiven: data.needsMedicine ? data.medicinesGiven : [],
         notes: data.notes?.trim() || '',
         finalStatus: data.finalStatus,
-        temperature: data.temperature?.trim(),
-        bloodPressure: data.bloodPressure?.trim(),
-        bedNumber: data.bedNumber,
+        temperature: data.temperature?.trim() || '',
+        bloodPressure: data.bloodPressure?.trim() || '',
         approvalStatus: 'approved',
         approvedBy: adminUser?.name || 'Petugas UKS',
         handledBy: adminUser?.name || 'Petugas UKS',
@@ -721,9 +593,9 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       syncSaveVisit(newRecord);
 
       if (lowStockAlerts.length > 0) {
-        showToast(`Data tersimpan! Perhatian: Stok obat mulai menipis: ${lowStockAlerts.join(', ')}`, 'warning');
+        showToast(`Data tersimpan di cloud! Perhatian: Stok obat mulai menipis: ${lowStockAlerts.join(', ')}`, 'warning');
       } else {
-        showToast(`Data kunjungan ${newRecord.visitorName} berhasil dicatat!`, 'success');
+        showToast(`Data kunjungan ${newRecord.visitorName} berhasil dicatat & disinkronkan ke cloud!`, 'success');
       }
 
       return { success: true };
@@ -745,16 +617,15 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       medicinesGiven: data.needsMedicine ? data.medicinesGiven : [],
       notes: data.notes?.trim() || '',
       finalStatus: data.finalStatus,
-      temperature: data.temperature?.trim(),
-      bloodPressure: data.bloodPressure?.trim(),
-      bedNumber: data.bedNumber,
+      temperature: data.temperature?.trim() || '',
+      bloodPressure: data.bloodPressure?.trim() || '',
       approvalStatus: 'pending'
     };
 
     setRecords(prev => [newRecord, ...prev]);
     syncSaveVisit(newRecord);
 
-    showToast(`Pengajuan kunjungan ${newRecord.visitorName} berhasil dikirim dan menunggu verifikasi Petugas UKS.`, 'info');
+    showToast(`Pengajuan kunjungan ${newRecord.visitorName} berhasil dikirim ke database online dan menunggu verifikasi Petugas UKS.`, 'info');
     return { success: true };
   };
 
@@ -877,17 +748,9 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const deleteVisitRecord = (id: string) => {
-    setRecords(prev => {
-      const filtered = prev.filter(r => r.id !== id);
-      try {
-        localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(filtered));
-      } catch (e) {
-        console.error(e);
-      }
-      return filtered;
-    });
+    setRecords(prev => prev.filter(r => r.id !== id));
     syncDeleteVisit(id);
-    showToast('Data kunjungan berhasil dihapus.', 'info');
+    showToast('Data kunjungan berhasil dihapus dari cloud database.', 'info');
   };
 
   const updateVisitStatus = (id: string, status: VisitRecord['finalStatus']) => {
@@ -911,7 +774,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     setMedicines(prev => [newMed, ...prev]);
     syncSaveMedicine(newMed);
-    showToast(`Obat "${data.name}" berhasil ditambahkan ke inventaris.`, 'success');
+    showToast(`Obat "${data.name}" berhasil ditambahkan ke inventaris cloud.`, 'success');
   };
 
   const updateMedicine = (id: string, updates: Partial<Omit<Medicine, 'id'>>) => {
@@ -927,22 +790,14 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       return m;
     }));
-    showToast('Data obat berhasil diperbarui.', 'success');
+    showToast('Data obat berhasil diperbarui di cloud.', 'success');
   };
 
   const deleteMedicine = (id: string) => {
     const target = medicines.find(m => m.id === id);
-    setMedicines(prev => {
-      const filtered = prev.filter(m => m.id !== id);
-      try {
-        localStorage.setItem(STORAGE_KEYS.MEDICINES, JSON.stringify(filtered));
-      } catch (e) {
-        console.error(e);
-      }
-      return filtered;
-    });
+    setMedicines(prev => prev.filter(m => m.id !== id));
     syncDeleteMedicine(id);
-    showToast(`Obat "${target?.name || ''}" telah dihapus dari inventaris.`, 'info');
+    showToast(`Obat "${target?.name || ''}" telah dihapus dari cloud.`, 'info');
   };
 
   const restockMedicine = (id: string, quantity: number, note?: string) => {
@@ -967,6 +822,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       note: note || 'Penambahan stok manual'
     };
     setRestockLogs(prev => [newLog, ...prev]);
+    syncSaveRestockLog(newLog);
 
     showToast(`Stok "${target.name}" berhasil ditambah +${quantity} ${target.unit}. Total sekarang: ${newStock} ${target.unit}.`, 'success');
   };
