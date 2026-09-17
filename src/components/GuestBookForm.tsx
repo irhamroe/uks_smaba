@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  UserCheck, 
-  GraduationCap, 
-  Briefcase, 
-  Heart, 
-  Activity, 
-  Pill, 
-  Plus, 
-  Trash2, 
-  CheckCircle2, 
-  Bed, 
-  Thermometer, 
-  Gauge, 
+import {
+  UserCheck,
+  GraduationCap,
+  Briefcase,
+  Heart,
+  Activity,
+  Pill,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  Bed,
+  Thermometer,
+  Gauge,
   AlertCircle,
   AlertTriangle,
   FileText,
@@ -92,7 +92,7 @@ export const GuestBookForm: React.FC = () => {
     'Sakit Perut / Maag',
     'Kram Haid (Dismenore)',
     'Luka Lecet / Terkilir',
-    'Pingsan saat Upacara',
+    'Pingsan',
     'Sesak Napas / Asma',
     'Sakit Gigi',
     'Mata Merah / Iritasi',
@@ -117,7 +117,7 @@ export const GuestBookForm: React.FC = () => {
     }
 
     const trimmedTag = tag.trim().toLowerCase();
-    
+
     // Pisahkan teks saat ini berdasarkan pemisah koma
     const items = currentText
       .split(/,\s*/)
@@ -196,7 +196,7 @@ export const GuestBookForm: React.FC = () => {
         medicineName: selected.name,
         unit: selected.unit,
         quantity: isMulti ? 1 : Math.min(copy[index].quantity, Math.max(1, selected.stock)),
-        dosageNotes: isMulti 
+        dosageNotes: isMulti
           ? (copy[index].dosageNotes?.includes('makan') ? 'Oleskan / teteskan secukupnya di ruang UKS' : copy[index].dosageNotes || 'Oleskan / teteskan secukupnya di ruang UKS')
           : (copy[index].dosageNotes?.includes('Oleskan') ? '1 tablet/dosis sesudah makan' : copy[index].dosageNotes || '1 dosis sesudah makan')
       };
@@ -208,7 +208,7 @@ export const GuestBookForm: React.FC = () => {
     const medId = medicinesGiven[index]?.medicineId;
     const medObj = medicines.find(m => m.id === medId);
     const maxStock = medObj ? medObj.stock : 100;
-    
+
     const validQty = Math.max(1, Math.min(qty, maxStock));
     setMedicinesGiven(prev => {
       const copy = [...prev];
@@ -330,7 +330,7 @@ export const GuestBookForm: React.FC = () => {
       {/* Welcome Banner Card - Modern Bootstrap Jumbotron style */}
       <div className="mb-5 sm:mb-6 bg-gradient-to-br from-emerald-800 via-teal-800 to-emerald-900 text-white rounded-2xl p-5 sm:p-7 shadow-sm border border-emerald-700/50 relative overflow-hidden">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-        
+
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-1.5 bg-emerald-950/40 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold text-emerald-100 mb-2.5">
@@ -362,7 +362,7 @@ export const GuestBookForm: React.FC = () => {
 
       {/* Main Guest Book Form Card */}
       <form onSubmit={handleSubmit} className="bs-card p-4 sm:p-7 space-y-6">
-        
+
         {/* Error Alert if any */}
         {errorMessage && (
           <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 p-3.5 sm:p-4 rounded-xl text-sm animate-shake">
@@ -394,11 +394,10 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="role-btn-siswa"
                   onClick={() => handleRoleChange('siswa')}
-                  className={`flex items-center justify-center gap-1.5 min-h-[46px] py-2.5 px-2 rounded-xl border text-sm font-semibold transition cursor-pointer ${
-                    role === 'siswa'
+                  className={`flex items-center justify-center gap-1.5 min-h-[46px] py-2.5 px-2 rounded-xl border text-sm font-semibold transition cursor-pointer ${role === 'siswa'
                       ? 'bg-emerald-50 border-emerald-600 text-emerald-800 ring-2 ring-emerald-500/20 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50 bg-white'
-                  }`}
+                    }`}
                 >
                   <GraduationCap className="w-4 h-4 text-emerald-600" />
                   Siswa
@@ -408,11 +407,10 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="role-btn-guru"
                   onClick={() => handleRoleChange('guru')}
-                  className={`flex items-center justify-center gap-1.5 min-h-[46px] py-2.5 px-2 rounded-xl border text-sm font-semibold transition cursor-pointer ${
-                    role === 'guru'
+                  className={`flex items-center justify-center gap-1.5 min-h-[46px] py-2.5 px-2 rounded-xl border text-sm font-semibold transition cursor-pointer ${role === 'guru'
                       ? 'bg-emerald-50 border-emerald-600 text-emerald-800 ring-2 ring-emerald-500/20 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50 bg-white'
-                  }`}
+                    }`}
                 >
                   <Briefcase className="w-4 h-4 text-emerald-600" />
                   Guru
@@ -422,11 +420,10 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="role-btn-staf"
                   onClick={() => handleRoleChange('staf')}
-                  className={`flex items-center justify-center gap-1.5 min-h-[46px] py-2.5 px-2 rounded-xl border text-sm font-semibold transition cursor-pointer ${
-                    role === 'staf'
+                  className={`flex items-center justify-center gap-1.5 min-h-[46px] py-2.5 px-2 rounded-xl border text-sm font-semibold transition cursor-pointer ${role === 'staf'
                       ? 'bg-emerald-50 border-emerald-600 text-emerald-800 ring-2 ring-emerald-500/20 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50 bg-white'
-                  }`}
+                    }`}
                 >
                   <UserCheck className="w-4 h-4 text-emerald-600" />
                   Staf TU
@@ -444,11 +441,10 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="gender-btn-l"
                   onClick={() => setGender('L')}
-                  className={`min-h-[46px] py-2.5 px-3 rounded-xl border text-sm font-semibold transition cursor-pointer text-center ${
-                    gender === 'L'
+                  className={`min-h-[46px] py-2.5 px-3 rounded-xl border text-sm font-semibold transition cursor-pointer text-center ${gender === 'L'
                       ? 'bg-blue-50 border-blue-500 text-blue-800 ring-2 ring-blue-500/20 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50 bg-white'
-                  }`}
+                    }`}
                 >
                   Laki-laki
                 </button>
@@ -456,11 +452,10 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="gender-btn-p"
                   onClick={() => setGender('P')}
-                  className={`min-h-[46px] py-2.5 px-3 rounded-xl border text-sm font-semibold transition cursor-pointer text-center ${
-                    gender === 'P'
+                  className={`min-h-[46px] py-2.5 px-3 rounded-xl border text-sm font-semibold transition cursor-pointer text-center ${gender === 'P'
                       ? 'bg-pink-50 border-pink-500 text-pink-800 ring-2 ring-pink-500/20 shadow-xs'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50 bg-white'
-                  }`}
+                    }`}
                 >
                   Perempuan
                 </button>
@@ -581,11 +576,10 @@ export const GuestBookForm: React.FC = () => {
                     onClick={() => {
                       setComplaint(prev => toggleQuickTag(prev, sym));
                     }}
-                    className={`text-xs px-2.5 py-1.5 rounded-lg border transition font-medium cursor-pointer ${
-                      active
+                    className={`text-xs px-2.5 py-1.5 rounded-lg border transition font-medium cursor-pointer ${active
                         ? 'bg-emerald-100 border-emerald-400 text-emerald-800 font-semibold shadow-xs'
                         : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                    }`}
+                      }`}
                   >
                     {sym}
                   </button>
@@ -665,11 +659,10 @@ export const GuestBookForm: React.FC = () => {
                     onClick={() => {
                       setActionTaken(prev => toggleQuickTag(prev, act));
                     }}
-                    className={`text-xs px-2.5 py-1.5 min-h-[36px] rounded-lg border transition font-medium cursor-pointer ${
-                      active
+                    className={`text-xs px-2.5 py-1.5 min-h-[36px] rounded-lg border transition font-medium cursor-pointer ${active
                         ? 'bg-teal-100 border-teal-400 text-teal-800 font-semibold shadow-xs'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
+                      }`}
                   >
                     {act}
                   </button>
@@ -692,16 +685,14 @@ export const GuestBookForm: React.FC = () => {
         </div>
 
         {/* SECTION: Konfirmasi Riwayat Alergi Obat (Sebelum Kebutuhan Obat) */}
-        <div className={`rounded-2xl border p-4 sm:p-5 transition-all ${
-          hasDrugAllergy 
-            ? 'bg-rose-50/80 border-rose-300 ring-2 ring-rose-500/15' 
+        <div className={`rounded-2xl border p-4 sm:p-5 transition-all ${hasDrugAllergy
+            ? 'bg-rose-50/80 border-rose-300 ring-2 ring-rose-500/15'
             : 'bg-slate-50/80 border-slate-200'
-        }`}>
+          }`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-xs ${
-                hasDrugAllergy ? 'bg-rose-600 shadow-rose-500/30' : 'bg-slate-700'
-              }`}>
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-xs ${hasDrugAllergy ? 'bg-rose-600 shadow-rose-500/30' : 'bg-slate-700'
+                }`}>
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <div>
@@ -723,11 +714,10 @@ export const GuestBookForm: React.FC = () => {
                   setHasDrugAllergy(false);
                   setDrugAllergyDescription('');
                 }}
-                className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer text-center ${
-                  !hasDrugAllergy
+                className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer text-center ${!hasDrugAllergy
                     ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
                     : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 ✓ Tidak Ada Alergi
               </button>
@@ -736,11 +726,10 @@ export const GuestBookForm: React.FC = () => {
                 type="button"
                 id="allergy-btn-yes"
                 onClick={() => setHasDrugAllergy(true)}
-                className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer text-center ${
-                  hasDrugAllergy
+                className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer text-center ${hasDrugAllergy
                     ? 'bg-rose-600 border-rose-600 text-white shadow-xs'
                     : 'bg-white border-slate-300 text-slate-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700'
-                }`}
+                  }`}
               >
                 ⚠ Ada Alergi Obat
               </button>
@@ -780,8 +769,8 @@ export const GuestBookForm: React.FC = () => {
                   Kebutuhan Obat Pengunjung
                 </h3>
                 <p className="text-xs text-slate-500">
-                  {isAdminLoggedIn 
-                    ? 'Stok obat akan otomatis berkurang dari inventaris UKS secara real-time.' 
+                  {isAdminLoggedIn
+                    ? 'Stok obat akan otomatis berkurang dari inventaris UKS secara real-time.'
                     : 'Pengajuan obat akan diverifikasi terlebih dahulu oleh petugas UKS sebelum diserahkan.'}
                 </p>
               </div>
@@ -870,9 +859,8 @@ export const GuestBookForm: React.FC = () => {
                               Kategori: <strong className="text-slate-700">{currentMedObj.category}</strong>
                             </span>
                             <span className="text-slate-300">•</span>
-                            <span className={`font-semibold ${
-                              isOutOfStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-600'
-                            }`}>
+                            <span className={`font-semibold ${isOutOfStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-600'
+                              }`}>
                               Sisa Stok: {currentMedObj.stock} {currentMedObj.unit}
                             </span>
                             {isMultiDose && (
@@ -1034,13 +1022,13 @@ export const GuestBookForm: React.FC = () => {
             </div>
 
             <h3 className="text-xl font-bold text-center text-slate-900 mb-1">
-              {isAdminLoggedIn 
-                ? 'Data Kunjungan Berhasil Disimpan!' 
+              {isAdminLoggedIn
+                ? 'Data Kunjungan Berhasil Disimpan!'
                 : 'Pengajuan Kunjungan Berhasil Terkirim!'}
             </h3>
             <p className="text-sm text-center text-slate-500 mb-6">
-              {isAdminLoggedIn 
-                ? 'Semoga lekas pulih dan sehat selalu untuk ananda / bapak / ibu.' 
+              {isAdminLoggedIn
+                ? 'Semoga lekas pulih dan sehat selalu untuk ananda / bapak / ibu.'
                 : 'Data kunjungan telah masuk ke antrean verifikasi petugas UKS. Pengambilan obat akan divalidasi oleh petugas.'}
             </p>
 
@@ -1078,11 +1066,10 @@ export const GuestBookForm: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-500 font-medium">Riwayat Alergi Obat:</span>
-                <span className={`font-bold text-right max-w-[200px] truncate ${
-                  lastSubmitted.hasDrugAllergy ? 'text-rose-600' : 'text-emerald-700'
-                }`}>
-                  {lastSubmitted.hasDrugAllergy 
-                    ? `Ada (${lastSubmitted.drugAllergyDescription || 'Perlu Perhatian'})` 
+                <span className={`font-bold text-right max-w-[200px] truncate ${lastSubmitted.hasDrugAllergy ? 'text-rose-600' : 'text-emerald-700'
+                  }`}>
+                  {lastSubmitted.hasDrugAllergy
+                    ? `Ada (${lastSubmitted.drugAllergyDescription || 'Perlu Perhatian'})`
                     : 'Tidak Ada Alergi'}
                 </span>
               </div>
@@ -1099,11 +1086,10 @@ export const GuestBookForm: React.FC = () => {
                 type="button"
                 id="btn-modal-new-guest"
                 onClick={() => setShowSuccessModal(false)}
-                className={`py-2.5 px-4 rounded-xl font-semibold text-sm transition text-center ${
-                  isAdminLoggedIn
+                className={`py-2.5 px-4 rounded-xl font-semibold text-sm transition text-center ${isAdminLoggedIn
                     ? 'flex-1 border border-slate-300 hover:bg-slate-100 text-slate-700'
                     : 'w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'
-                }`}
+                  }`}
               >
                 {isAdminLoggedIn ? 'Isi Kunjungan Baru' : 'Selesai & Isi Kunjungan Baru'}
               </button>

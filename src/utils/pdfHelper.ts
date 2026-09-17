@@ -3,31 +3,8 @@ import autoTable from 'jspdf-autotable';
 import { Medicine, VisitRecord, SchoolInfo, AdminUser } from '../types';
 import { SCHOOL_INFO as DEFAULT_SCHOOL_INFO } from '../data/initialData';
 
-export function generateMonthlyReportPdfDoc(
-  monthName: string,
-  year: number,
-  visits: VisitRecord[],
-  medicines: Medicine[],
-  customSchoolInfo?: SchoolInfo,
-  customKoordinator?: AdminUser | null
-): jsPDF {
-  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
-  const koordinator = customKoordinator || {
-    name: 'Koordinator UKS',
-    nip: '-',
-    role: 'Koordinator UKS'
-  };
-
-  // Create PDF in portrait A4
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4'
-  });
-
-  const pageWidth = doc.internal.pageSize.getWidth();
-
-  // Draw Logo if available
+// Helper to draw official letterhead (Kop Surat)
+function drawLetterhead(doc: jsPDF, school: SchoolInfo, pageWidth: number): number {
   if (school.logoUrl) {
     try {
       doc.addImage(school.logoUrl, 'PNG', 14, 12, 20, 20);
@@ -71,130 +48,275 @@ export function generateMonthlyReportPdfDoc(
   doc.setLineWidth(0.2);
   doc.line(14, dividerY + 1, pageWidth - 14, dividerY + 1);
 
-  // 2. Judul Laporan
+  return dividerY + 3;
+}
+
+// Helper to draw single official signature (Koordinator UKS only)
+function drawKoordinatorSignature(
+  doc: jsPDF,
+  startY: number,
+  pageWidth: number,
+  school: SchoolInfo,
+  koordinator?: AdminUser | null
+): void {
+  let signY = startY + 10;
+  if (signY > 245) {
+    doc.addPage();
+    signY = 25;
+  }
+
+  const currentDateStr = new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date());
+
+  const user = koordinator || {
+    name: 'Koordinator UKS',
+    nip: '-',
+    role: 'Koordinator UKS'
+  };
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(30, 41, 59);
+
+  const city = school.city || 'Kota Batu';
+  doc.text(`${city}, ${currentDateStr}`, pageWidth - 70, signY);
+  doc.text(`${user.role || 'Koordinator UKS'},`, pageWidth - 70, signY + 5);
+  doc.setFont('helvetica', 'bold');
+  doc.text(user.name || 'Koordinator UKS', pageWidth - 70, signY + 26);
+  doc.setFont('helvetica', 'normal');
+  doc.text(user.nip && user.nip !== '-' ? `NIP. ${user.nip}` : 'NIP. -', pageWidth - 70, signY + 30);
+}
+
+// =========================================================================
+// 1. LAPORAN REKAP DAFTAR KUNJUNGAN
+// =========================================================================
+export function generateVisitsReportPdfDoc(
+  periodLabel: string,
+  visits: VisitRecord[],
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): jsPDF {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  const headerEndY = drawLetterhead(doc, school, pageWidth);
+
+  // Judul Laporan
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
-  doc.text('LAPORAN REKAPITULASI PELAYANAN & STOK OBAT', pageWidth / 2, dividerY + 9, { align: 'center' });
+  doc.text('LAPORAN REKAPITULASI DAFTAR KUNJUNGAN PASIEN UKS', pageWidth / 2, headerEndY + 6, { align: 'center' });
   
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9.5);
+  doc.setFontSize(9);
   doc.setTextColor(100, 116, 139);
-  doc.text(`Periode: ${monthName} ${year}`, pageWidth / 2, dividerY + 14, { align: 'center' });
+  doc.text(`Periode: ${periodLabel}`, pageWidth / 2, headerEndY + 11, { align: 'center' });
 
-  // 3. Ringkasan Singkat (Stats box)
+  // Stats Box
   const totalVisits = visits.length;
   const siswaVisits = visits.filter(v => v.role === 'siswa').length;
   const guruVisits = visits.filter(v => v.role !== 'siswa').length;
-  const totalMedDoses = visits.reduce((acc, v) => 
-    acc + v.medicinesGiven.reduce((sub, m) => sub + m.quantity, 0), 0
-  );
-  const lowStockCount = medicines.filter(m => m.stock <= m.minStock).length;
+  const withMeds = visits.filter(v => v.needsMedicine && v.medicinesGiven.length > 0).length;
+  const restInUks = visits.filter(v => v.finalStatus === 'Istirahat di UKS' || v.finalStatus === 'Sedang Istirahat di UKS').length;
 
+  const statsBoxY = headerEndY + 15;
   doc.setDrawColor(226, 232, 240);
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(14, 61, pageWidth - 28, 14, 2, 2, 'FD');
+  doc.roundedRect(14, statsBoxY, pageWidth - 28, 14, 2, 2, 'FD');
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
   doc.setTextColor(51, 65, 85);
-  doc.text(`Total Kunjungan: ${totalVisits} orang`, 18, 67);
-  doc.text(`Siswa: ${siswaVisits} | Guru/Staf: ${guruVisits}`, 18, 72);
+  doc.text(`Total Kunjungan: ${totalVisits} orang`, 18, statsBoxY + 5.5);
+  doc.text(`Siswa: ${siswaVisits} | Guru/Staf: ${guruVisits}`, 18, statsBoxY + 10.5);
 
-  doc.text(`Obat Terpakai: ${totalMedDoses} unit/butir`, 105, 67);
-  doc.text(`Obat Perlu Restock: ${lowStockCount} item`, 105, 72);
+  doc.text(`Diberikan Obat: ${withMeds} orang`, 110, statsBoxY + 5.5);
+  doc.text(`Istirahat di UKS: ${restInUks} orang`, 110, statsBoxY + 10.5);
 
-  // 4. Tabel Kunjungan Pasien
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(15, 23, 42);
-  doc.text('A. Rincian Data Kunjungan UKS', 14, 82);
-
+  // Table Kunjungan
   const visitRows = visits.map((v, i) => [
     (i + 1).toString(),
     `${v.date}\n${v.time}`,
-    `${v.visitorName}\n(${v.classOrPosition})`,
+    `${v.visitorName}\n(${v.classOrPosition}) [${v.gender}]`,
+    v.hasDrugAllergy ? `ADA ALERGI:\n${v.drugAllergyDescription || 'Ya'}` : 'Tidak Ada',
     v.complaint,
+    v.actionTaken || '-',
     v.medicinesGiven.length > 0
       ? v.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join('\n')
       : 'Tanpa obat',
-    v.actionTaken
+    v.finalStatus
   ]);
 
   autoTable(doc, {
-    startY: 85,
-    head: [['No', 'Tgl / Jam', 'Nama & Kelas/Jabatan', 'Keluhan', 'Obat Diberikan', 'Tindakan']],
-    body: visitRows.length > 0 ? visitRows : [['-', '-', 'Belum ada kunjungan tercatat pada periode ini', '-', '-', '-']],
+    startY: statsBoxY + 18,
+    head: [['No', 'Tgl / Jam', 'Nama & Kelas', 'Alergi Obat', 'Keluhan / Gejala', 'Tindakan UKS', 'Obat Diberikan', 'Status Akhir']],
+    body: visitRows.length > 0 ? visitRows : [['-', '-', 'Belum ada data kunjungan pada periode ini', '-', '-', '-', '-', '-']],
     headStyles: {
-      fillColor: [16, 149, 120], // Teal 600
+      fillColor: [16, 149, 120], // Teal/Emerald
       textColor: 255,
-      fontSize: 8,
+      fontSize: 7.5,
       fontStyle: 'bold',
       halign: 'center',
       valign: 'middle'
     },
     bodyStyles: {
-      fontSize: 7.5,
+      fontSize: 7,
       textColor: [30, 41, 59],
       valign: 'top',
-      cellPadding: 2.5
+      cellPadding: 2
     },
     alternateRowStyles: {
       fillColor: [248, 250, 252]
     },
     columnStyles: {
-      0: { cellWidth: 8, halign: 'center' },
-      1: { cellWidth: 22 },
-      2: { cellWidth: 38, fontStyle: 'bold' },
-      3: { cellWidth: 38 },
-      4: { cellWidth: 36 },
-      5: { cellWidth: 40 }
+      0: { cellWidth: 7, halign: 'center' },
+      1: { cellWidth: 20 },
+      2: { cellWidth: 32, fontStyle: 'bold' },
+      3: { cellWidth: 22 },
+      4: { cellWidth: 30 },
+      5: { cellWidth: 26 },
+      6: { cellWidth: 25 },
+      7: { cellWidth: 20 }
     },
     theme: 'grid',
     margin: { left: 14, right: 14 }
   });
 
-  // 5. Tabel Rekap Stok Obat
-  const afterVisitY = (doc as any).lastAutoTable?.finalY || 160;
-  let startMedY = afterVisitY + 8;
+  const finalY = (doc as any).lastAutoTable?.finalY || 180;
+  drawKoordinatorSignature(doc, finalY, pageWidth, school, customKoordinator);
 
-  // Check if we need a new page for medicines
-  if (startMedY > 230) {
-    doc.addPage();
-    startMedY = 20;
+  return doc;
+}
+
+export function exportVisitsReportToPdf(
+  periodLabel: string,
+  visits: VisitRecord[],
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): void {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = generateVisitsReportPdfDoc(periodLabel, visits, customSchoolInfo, customKoordinator);
+  const safeFilename = (school.shortName || 'UKS').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const safePeriod = periodLabel.replace(/[^a-zA-Z0-9_-]/g, '_');
+  doc.save(`Laporan_Kunjungan_UKS_${safeFilename}_${safePeriod}.pdf`);
+}
+
+export function printVisitsReport(
+  periodLabel: string,
+  visits: VisitRecord[],
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): void {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = generateVisitsReportPdfDoc(periodLabel, visits, customSchoolInfo, customKoordinator);
+  doc.autoPrint();
+  const blobUrl = doc.output('bloburl');
+  const printWindow = window.open(blobUrl, '_blank');
+  if (!printWindow) {
+    const safeFilename = (school.shortName || 'UKS').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safePeriod = periodLabel.replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`Laporan_Kunjungan_UKS_${safeFilename}_${safePeriod}.pdf`);
   }
+}
+
+// =========================================================================
+// 2. LAPORAN REKAP PENGGUNAAN & STOK OBAT
+// =========================================================================
+export function generateMedicineUsageReportPdfDoc(
+  periodLabel: string,
+  visits: VisitRecord[],
+  medicines: Medicine[],
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): jsPDF {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  const headerEndY = drawLetterhead(doc, school, pageWidth);
+
+  // Judul Laporan
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(15, 23, 42);
+  doc.text('LAPORAN REKAPITULASI PENGGUNAAN & STOK OBAT UKS', pageWidth / 2, headerEndY + 6, { align: 'center' });
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Periode: ${periodLabel}`, pageWidth / 2, headerEndY + 11, { align: 'center' });
+
+  // Stats Box
+  const totalDosesGiven = visits.reduce((acc, v) => 
+    acc + v.medicinesGiven.reduce((sub, m) => sub + m.quantity, 0), 0
+  );
+  const distinctMedsUsed = new Set(
+    visits.flatMap(v => v.medicinesGiven.map(m => m.medicineName.toLowerCase()))
+  ).size;
+  const criticalStockCount = medicines.filter(m => m.stock <= m.minStock).length;
+  const totalMedTypes = medicines.length;
+
+  const statsBoxY = headerEndY + 15;
+  doc.setDrawColor(226, 232, 240);
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(14, statsBoxY, pageWidth - 28, 14, 2, 2, 'FD');
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
+  doc.setFontSize(8.5);
+  doc.setTextColor(51, 65, 85);
+  doc.text(`Total Dosis Diberikan: ${totalDosesGiven} unit`, 18, statsBoxY + 5.5);
+  doc.text(`Jenis Obat Digunakan: ${distinctMedsUsed} macam`, 18, statsBoxY + 10.5);
+
+  doc.text(`Total Stok Obat di UKS: ${totalMedTypes} item`, 110, statsBoxY + 5.5);
+  doc.text(`Obat Kritis / Menipis: ${criticalStockCount} item`, 110, statsBoxY + 10.5);
+
+  // Table Rekap Obat
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
   doc.setTextColor(15, 23, 42);
-  doc.text('B. Rekapitulasi Stok & Penggunaan Obat', 14, startMedY);
+  doc.text('A. Rekapitulasi Pemakaian & Sisa Persediaan Obat', 14, statsBoxY + 20);
 
   const medRows = medicines.map((m, i) => {
-    // Calculate total used this month
     const totalUsed = visits.reduce((acc, v) => {
-      const found = v.medicinesGiven.find(item => item.medicineId === m.id || item.medicineName.toLowerCase() === m.name.toLowerCase());
+      const found = v.medicinesGiven.find(item => 
+        item.medicineId === m.id || item.medicineName.toLowerCase() === m.name.toLowerCase()
+      );
       return acc + (found ? found.quantity : 0);
     }, 0);
 
     const isLow = m.stock <= m.minStock;
-    const statusText = isLow ? `KRITIS (Sisa ${m.stock} ${m.unit})` : 'Aman';
+    const isOut = m.stock === 0;
+    const statusText = isOut ? 'HABIS' : isLow ? 'MENIPIS' : 'AMAN';
 
     return [
       (i + 1).toString(),
       m.name,
       m.category,
+      m.unit,
+      `${totalUsed} ${m.unit}`,
       `${m.stock} ${m.unit}`,
       `${m.minStock} ${m.unit}`,
-      `${totalUsed} ${m.unit}`,
       statusText,
       m.expiryDate || '-'
     ];
   });
 
   autoTable(doc, {
-    startY: startMedY + 3,
-    head: [['No', 'Nama Obat', 'Kategori', 'Sisa Stok', 'Batas Min', 'Terpakai Bln Ini', 'Status Stok', 'Kedaluwarsa']],
-    body: medRows.length > 0 ? medRows : [['-', '-', '-', '-', '-', '-', '-', '-']],
+    startY: statsBoxY + 23,
+    head: [['No', 'Nama Obat', 'Kategori', 'Satuan', 'Terpakai Periode Ini', 'Sisa Stok', 'Batas Min', 'Status', 'Kedaluwarsa']],
+    body: medRows.length > 0 ? medRows : [['-', '-', '-', '-', '-', '-', '-', '-', '-']],
     headStyles: {
       fillColor: [30, 41, 59], // Slate 800
       textColor: 255,
@@ -213,92 +335,115 @@ export function generateMonthlyReportPdfDoc(
       fillColor: [248, 250, 252]
     },
     columnStyles: {
-      0: { cellWidth: 8, halign: 'center' },
-      1: { cellWidth: 38 },
-      2: { cellWidth: 30 },
-      3: { cellWidth: 20, halign: 'center' },
-      4: { cellWidth: 18, halign: 'center' },
-      5: { cellWidth: 22, halign: 'center' },
-      6: { cellWidth: 22, halign: 'center' },
-      7: { cellWidth: 22, halign: 'center' }
+      0: { cellWidth: 7, halign: 'center' },
+      1: { cellWidth: 38, fontStyle: 'bold' },
+      2: { cellWidth: 28 },
+      3: { cellWidth: 16, halign: 'center' },
+      4: { cellWidth: 24, halign: 'center', fontStyle: 'bold' },
+      5: { cellWidth: 20, halign: 'center' },
+      6: { cellWidth: 16, halign: 'center' },
+      7: { cellWidth: 16, halign: 'center' },
+      8: { cellWidth: 17, halign: 'center' }
     },
     theme: 'grid',
     margin: { left: 14, right: 14 }
   });
 
-  // 6. Tanda Tangan
-  const afterMedY = (doc as any).lastAutoTable?.finalY || 220;
-  let signY = afterMedY + 12;
+  let afterMedTableY = (doc as any).lastAutoTable?.finalY || 160;
 
-  // If near bottom of page, add page for signatures
-  if (signY > 245) {
-    doc.addPage();
-    signY = 25;
+  // Table 2: Rincian Pasien Penerima Obat pada Periode Ini
+  const patientsWithMeds = visits.filter(v => v.needsMedicine && v.medicinesGiven.length > 0);
+  if (patientsWithMeds.length > 0) {
+    let table2StartY = afterMedTableY + 8;
+    if (table2StartY > 220) {
+      doc.addPage();
+      table2StartY = 20;
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('B. Rincian Distribusi Obat kepada Pasien / Pengunjung', 14, table2StartY);
+
+    const distRows = patientsWithMeds.map((v, i) => [
+      (i + 1).toString(),
+      `${v.date} ${v.time}`,
+      `${v.visitorName} (${v.classOrPosition})`,
+      v.complaint,
+      v.medicinesGiven.map(m => `${m.medicineName}: ${m.quantity} ${m.unit} ${m.dosageNotes ? `(${m.dosageNotes})` : ''}`).join('\n'),
+      v.approvedBy || v.handledBy || 'Petugas UKS'
+    ]);
+
+    autoTable(doc, {
+      startY: table2StartY + 3,
+      head: [['No', 'Tgl / Jam', 'Nama Pasien & Kelas', 'Keluhan', 'Obat & Aturan Pakai', 'Petugas']],
+      body: distRows,
+      headStyles: {
+        fillColor: [16, 149, 120], // Teal/Emerald
+        textColor: 255,
+        fontSize: 7.5,
+        fontStyle: 'bold',
+        halign: 'center',
+        valign: 'middle'
+      },
+      bodyStyles: {
+        fontSize: 7,
+        textColor: [30, 41, 59],
+        valign: 'top',
+        cellPadding: 2
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252]
+      },
+      columnStyles: {
+        0: { cellWidth: 7, halign: 'center' },
+        1: { cellWidth: 22 },
+        2: { cellWidth: 38, fontStyle: 'bold' },
+        3: { cellWidth: 35 },
+        4: { cellWidth: 50 },
+        5: { cellWidth: 30 }
+      },
+      theme: 'grid',
+      margin: { left: 14, right: 14 }
+    });
+
+    afterMedTableY = (doc as any).lastAutoTable?.finalY || afterMedTableY;
   }
 
-  const currentDateStr = new Intl.DateTimeFormat('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date());
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.setTextColor(30, 41, 59);
-
-  // Right signature: Koordinator UKS
-  const city = school.city || 'Kota Batu';
-  doc.text(`${city}, ${currentDateStr}`, pageWidth - 70, signY);
-  doc.text(`${koordinator.role || 'Koordinator UKS'},`, pageWidth - 70, signY + 5);
-  doc.setFont('helvetica', 'bold');
-  doc.text(koordinator.name || 'Koordinator UKS', pageWidth - 70, signY + 26);
-  doc.setFont('helvetica', 'normal');
-  doc.text(koordinator.nip && koordinator.nip !== '-' ? `NIP. ${koordinator.nip}` : 'NIP. -', pageWidth - 70, signY + 30);
-
-  // Left signature: Kepala Sekolah
-  doc.text('Mengetahui,', 20, signY + 5);
-  doc.text(`Kepala ${school.shortName || 'SMAN 1 Batu'}`, 20, signY + 10);
-  doc.setFont('helvetica', 'bold');
-  doc.text(school.schoolPrincipal || 'Kepala Sekolah', 20, signY + 26);
-  doc.setFont('helvetica', 'normal');
-  doc.text(school.schoolPrincipalNip && school.schoolPrincipalNip !== '-' ? `NIP. ${school.schoolPrincipalNip}` : 'NIP. -', 20, signY + 30);
+  drawKoordinatorSignature(doc, afterMedTableY, pageWidth, school, customKoordinator);
 
   return doc;
 }
 
-export function exportMonthlyReportToPdf(
-  monthName: string,
-  year: number,
+export function exportMedicineUsageReportToPdf(
+  periodLabel: string,
   visits: VisitRecord[],
   medicines: Medicine[],
   customSchoolInfo?: SchoolInfo,
   customKoordinator?: AdminUser | null
 ): void {
   const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
-  const doc = generateMonthlyReportPdfDoc(monthName, year, visits, medicines, customSchoolInfo, customKoordinator);
+  const doc = generateMedicineUsageReportPdfDoc(periodLabel, visits, medicines, customSchoolInfo, customKoordinator);
   const safeFilename = (school.shortName || 'UKS').replace(/[^a-zA-Z0-9_-]/g, '_');
-  doc.save(`Laporan_UKS_${safeFilename}_${monthName}_${year}.pdf`);
+  const safePeriod = periodLabel.replace(/[^a-zA-Z0-9_-]/g, '_');
+  doc.save(`Laporan_Penggunaan_Obat_UKS_${safeFilename}_${safePeriod}.pdf`);
 }
 
-export function printMonthlyReport(
-  monthName: string,
-  year: number,
+export function printMedicineUsageReport(
+  periodLabel: string,
   visits: VisitRecord[],
   medicines: Medicine[],
   customSchoolInfo?: SchoolInfo,
   customKoordinator?: AdminUser | null
 ): void {
   const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
-  const doc = generateMonthlyReportPdfDoc(monthName, year, visits, medicines, customSchoolInfo, customKoordinator);
-  
-  // Trigger auto print and open PDF viewer window
+  const doc = generateMedicineUsageReportPdfDoc(periodLabel, visits, medicines, customSchoolInfo, customKoordinator);
   doc.autoPrint();
   const blobUrl = doc.output('bloburl');
   const printWindow = window.open(blobUrl, '_blank');
-  
-  // If popup blocker intervened, fallback to saving the PDF file
   if (!printWindow) {
     const safeFilename = (school.shortName || 'UKS').replace(/[^a-zA-Z0-9_-]/g, '_');
-    doc.save(`Laporan_UKS_${safeFilename}_${monthName}_${year}.pdf`);
+    const safePeriod = periodLabel.replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`Laporan_Penggunaan_Obat_UKS_${safeFilename}_${safePeriod}.pdf`);
   }
 }
