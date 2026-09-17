@@ -249,13 +249,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                         {visit.visitorName}
                       </h4>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                          visit.role === 'siswa'
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${visit.role === 'siswa'
                             ? 'bg-emerald-100 text-emerald-800'
                             : visit.role === 'guru'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-purple-100 text-purple-800'
-                        }`}>
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
+                          }`}>
                           {visit.role.toUpperCase()}
                         </span>
                         <span className="text-xs font-semibold text-slate-700">
@@ -423,7 +422,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-bold text-rose-950">
-                    Peringatan Kedaluwarsa Obat (FEFO Alert)!
+                    Peringatan Kedaluwarsa Obat !
                   </h3>
                   {expiredMedicines.length > 0 && (
                     <span className="bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
@@ -1012,9 +1011,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
               </div>
 
               {/* Drug Allergy Status */}
-              <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
-                selectedVisit.hasDrugAllergy ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
-              }`}>
+              <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${selectedVisit.hasDrugAllergy ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                }`}>
                 {selectedVisit.hasDrugAllergy ? (
                   <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                 ) : (

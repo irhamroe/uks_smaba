@@ -1328,7 +1328,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                 <p className="text-slate-400 text-[11px] mt-1">
                   {importFile
                     ? `Ukuran file: ${(importFile.size / 1024).toFixed(1)} KB`
-                    : 'Format standar: Nama Obat, Kategori, Satuan, Jumlah Stok, Batas Minimum'}
+                    : 'Format standar: Nama Obat, Kategori, Tipe Pemakaian, Satuan, Jumlah Stok, Batas Minimum, No. Batch, Tgl. Kedaluwarsa'}
                 </p>
               </div>
 

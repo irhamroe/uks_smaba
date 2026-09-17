@@ -8,42 +8,46 @@ export function downloadMedicineExcelTemplate(): void {
     {
       'Nama Obat': 'Paracetamol 500mg',
       'Kategori': 'Analgesik & Antipiretik',
+      'Tipe Pemakaian': 'Dosis Tunggal',
       'Satuan': 'Tablet',
       'Jumlah Stok': 50,
-      'Batas Minimum Peringatan': 15,
+      'Batas Minimum': 15,
+      'No. Batch / Kloter': 'LOT-2026-01',
       'Tanggal Kedaluwarsa (YYYY-MM-DD)': '2027-12-31',
-      'Lokasi Simpan': 'Lemari A - Rak 1',
-      'Keterangan': 'Pereda demam & sakit kepala'
+      'Keterangan / Indikasi': 'Pereda demam & sakit kepala'
     },
     {
       'Nama Obat': 'Promag',
       'Kategori': 'Saluran Pencernaan',
+      'Tipe Pemakaian': 'Dosis Tunggal',
       'Satuan': 'Tablet',
       'Jumlah Stok': 30,
-      'Batas Minimum Peringatan': 10,
+      'Batas Minimum': 10,
+      'No. Batch / Kloter': 'LOT-2026-02',
       'Tanggal Kedaluwarsa (YYYY-MM-DD)': '2026-11-15',
-      'Lokasi Simpan': 'Lemari A - Rak 2',
-      'Keterangan': 'Pereda asam lambung'
+      'Keterangan / Indikasi': 'Pereda asam lambung & maag'
     },
     {
       'Nama Obat': 'Minyak Kayu Putih 60ml',
       'Kategori': 'Obat Luar & Terapi',
+      'Tipe Pemakaian': 'Multi-Dose',
       'Satuan': 'Botol',
       'Jumlah Stok': 12,
-      'Batas Minimum Peringatan': 5,
+      'Batas Minimum': 5,
+      'No. Batch / Kloter': 'LOT-2026-03',
       'Tanggal Kedaluwarsa (YYYY-MM-DD)': '2028-06-30',
-      'Lokasi Simpan': 'Meja Periksa',
-      'Keterangan': 'Pereda mual dan pusing'
+      'Keterangan / Indikasi': 'Pereda pusing, kembung dan mual'
     },
     {
       'Nama Obat': 'Hansaplast Plester Luka',
       'Kategori': 'Alat Medis P3K',
+      'Tipe Pemakaian': 'Dosis Tunggal',
       'Satuan': 'Pcs',
       'Jumlah Stok': 100,
-      'Batas Minimum Peringatan': 25,
+      'Batas Minimum': 25,
+      'No. Batch / Kloter': 'LOT-2026-04',
       'Tanggal Kedaluwarsa (YYYY-MM-DD)': '2028-01-01',
-      'Lokasi Simpan': 'Kotak P3K Utama',
-      'Keterangan': 'Plester luka elastis steril'
+      'Keterangan / Indikasi': 'Plester penutup luka steril'
     }
   ];
 
@@ -53,12 +57,13 @@ export function downloadMedicineExcelTemplate(): void {
   worksheet['!cols'] = [
     { wch: 30 }, // Nama Obat
     { wch: 25 }, // Kategori
+    { wch: 18 }, // Tipe Pemakaian
     { wch: 12 }, // Satuan
     { wch: 14 }, // Jumlah Stok
-    { wch: 24 }, // Batas Minimum Peringatan
+    { wch: 16 }, // Batas Minimum
+    { wch: 22 }, // No. Batch / Kloter
     { wch: 32 }, // Tanggal Kedaluwarsa
-    { wch: 22 }, // Lokasi Simpan
-    { wch: 35 }  // Keterangan
+    { wch: 35 }  // Keterangan / Indikasi
   ];
 
   const workbook = XLSX.utils.book_new();
@@ -106,27 +111,52 @@ export function parseMedicineExcelFile(file: File): Promise<{
 
           const category = String(row['Kategori'] || row['kategori'] || 'Umum').trim();
           const unit = String(row['Satuan'] || row['satuan'] || 'Tablet').trim();
-          const rawStock = row['Jumlah Stok'] ?? row['stok'] ?? row['Stok'] ?? 0;
+          
+          // Determine usageType
+          const rawUsage = String(row['Tipe Pemakaian'] || row['Tipe Obat'] || row['usageType'] || '').toLowerCase();
+          const isMultiDose = rawUsage.includes('multi') || rawUsage.includes('bersama') || 
+            (unit.toLowerCase().includes('botol') && !rawUsage.includes('single')) ||
+            unit.toLowerCase().includes('tube') || unit.toLowerCase().includes('salep');
+          const usageType = isMultiDose ? 'multi_dose' : 'single_dose';
+
+          const rawStock = row['Jumlah Stok'] ?? row['Total Stok'] ?? row['stok'] ?? row['Stok'] ?? 0;
           const stock = Number.isFinite(Number(rawStock)) ? Math.max(0, Math.floor(Number(rawStock))) : 0;
-          const rawMinStock = row['Batas Minimum Peringatan'] ?? row['min_stock'] ?? row['Batas Minimum'] ?? 10;
+          const rawMinStock = row['Batas Minimum'] ?? row['Batas Minimum Peringatan'] ?? row['min_stock'] ?? 10;
           const minStock = Number.isFinite(Number(rawMinStock)) ? Math.max(1, Math.floor(Number(rawMinStock))) : 10;
           
-          let expiryDate = String(row['Tanggal Kedaluwarsa (YYYY-MM-DD)'] || row['expired'] || row['Expired'] || '').trim();
+          const batchNumber = String(
+            row['No. Batch / Kloter'] || row['Nomor Batch'] || row['No Batch'] || row['Batch'] || row['batchNumber'] || `LOT-${new Date().getFullYear()}-${String(i + 1).padStart(2, '0')}`
+          ).trim();
+
+          let expiryDate = String(
+            row['Tanggal Kedaluwarsa (YYYY-MM-DD)'] || row['Tanggal Kedaluwarsa'] || row['expired'] || row['Expired'] || ''
+          ).trim();
           if (!expiryDate || expiryDate === 'undefined' || expiryDate === 'null') {
-            expiryDate = '';
+            const defaultDate = new Date();
+            defaultDate.setFullYear(defaultDate.getFullYear() + 2);
+            expiryDate = defaultDate.toISOString().split('T')[0];
           }
 
-          const location = String(row['Lokasi Simpan'] || row['lokasi'] || 'Lemari UKS').trim();
-          const description = String(row['Keterangan'] || row['deskripsi'] || '').trim();
+          const description = String(row['Keterangan / Indikasi'] || row['Keterangan'] || row['deskripsi'] || '').trim();
+
+          const batches = stock > 0 ? [{
+            id: `batch-import-${Date.now()}-${i}`,
+            batchNumber,
+            quantity: stock,
+            expiryDate,
+            receivedDate: new Date().toISOString().split('T')[0],
+            note: 'Impor dari Excel'
+          }] : [];
 
           parsedList.push({
             name,
             category,
             unit,
+            usageType,
             stock,
             minStock,
             expiryDate,
-            location,
+            batches,
             description
           });
         }
@@ -240,7 +270,6 @@ export function exportMedicineUsageReportToExcel(
       'Batas Minimum Stok': m.minStock,
       'Status Stok': m.stock === 0 ? 'HABIS' : m.stock <= m.minStock ? 'MENIPIS' : 'AMAN',
       'Tanggal Kedaluwarsa': m.expiryDate || '-',
-      'Lokasi Penyimpanan': m.location || 'Lemari UKS',
       'Keterangan Obat': m.description || '-'
     };
   });
@@ -256,7 +285,6 @@ export function exportMedicineUsageReportToExcel(
     { wch: 20 }, // Batas Minimum
     { wch: 14 }, // Status
     { wch: 18 }, // Expired
-    { wch: 22 }, // Lokasi
     { wch: 30 }  // Keterangan
   ];
 
