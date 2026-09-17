@@ -14,7 +14,6 @@ import {
   X, 
   FileSpreadsheet, 
   Calendar, 
-  MapPin, 
   Info,
   Layers,
   ArrowUpRight,
@@ -83,7 +82,6 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
   const [formMinStock, setFormMinStock] = useState<number>(10);
   const [formExpiryDate, setFormExpiryDate] = useState('2027-12-31');
   const [formBatchNumber, setFormBatchNumber] = useState('KLOTER-AWAL');
-  const [formLocation, setFormLocation] = useState('Lemari A - Rak 1');
   const [formDescription, setFormDescription] = useState('');
 
   // Quick Restock State
@@ -146,8 +144,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
         const q = searchQuery.toLowerCase();
         const matchesName = m.name.toLowerCase().includes(q);
         const matchesCat = m.category.toLowerCase().includes(q);
-        const matchesLoc = (m.location || '').toLowerCase().includes(q);
-        if (!matchesName && !matchesCat && !matchesLoc) return false;
+        if (!matchesName && !matchesCat) return false;
       }
 
       // Category
@@ -210,7 +207,6 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
     setFormMinStock(med.minStock);
     setFormExpiryDate(med.expiryDate || '');
     setFormBatchNumber('KLOTER-AWAL');
-    setFormLocation(med.location || '');
     setFormDescription(med.description || '');
   };
 
@@ -228,7 +224,6 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
     d.setFullYear(d.getFullYear() + 2);
     setFormExpiryDate(d.toISOString().split('T')[0]);
     setFormBatchNumber(`LOT-${new Date().getFullYear()}-01`);
-    setFormLocation('Lemari A - Rak 1');
     setFormDescription('');
     setShowAddModal(true);
   };
@@ -245,7 +240,6 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
         unit: formUnit.trim(),
         usageType: formUsageType,
         minStock: formMinStock,
-        location: formLocation.trim(),
         description: formDescription.trim()
       });
       setEditingMedicine(null);
@@ -268,7 +262,6 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
         minStock: formMinStock,
         expiryDate: formExpiryDate.trim(),
         batches: formStock > 0 ? [initialBatch] : [],
-        location: formLocation.trim(),
         description: formDescription.trim()
       });
       setShowAddModal(false);
@@ -576,14 +569,13 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                 <th className="py-3 px-4 text-center">Total Stok</th>
                 <th className="py-3 px-4 text-center">Batas Minimum</th>
                 <th className="py-3 px-4">Expired Terdekat (FEFO)</th>
-                <th className="py-3 px-4">Lokasi Rak</th>
                 <th className="py-3 px-4 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {filteredMedicines.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
                     <PackageOpen className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                     Tidak ada data obat yang sesuai dengan filter.
                   </td>
@@ -655,11 +647,6 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                         ) : (
                           <span className="text-slate-400 italic text-[11px]">-</span>
                         )}
-                      </td>
-
-                      {/* Lokasi Rak */}
-                      <td className="py-3 px-4 whitespace-nowrap text-slate-600 text-[11px]">
-                        {med.location || 'Lemari UKS'}
                       </td>
 
                       {/* Aksi */}
@@ -975,19 +962,6 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                   />
                 </div>
               )}
-
-              <div>
-                <label className="block text-slate-700 font-semibold mb-1">
-                  Lokasi / Rak Simpan
-                </label>
-                <input
-                  type="text"
-                  value={formLocation}
-                  onChange={(e) => setFormLocation(e.target.value)}
-                  placeholder="Lemari A - Rak 1"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:border-emerald-500 text-sm"
-                />
-              </div>
 
               <div>
                 <label className="block text-slate-700 font-semibold mb-1">
@@ -1477,8 +1451,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
           { label: 'Nama Obat', value: deletingMedicine.name },
           { label: 'Kategori', value: deletingMedicine.category },
           { label: 'Stok Saat Ini', value: `${deletingMedicine.stock} ${deletingMedicine.unit}` },
-          { label: 'Batas Minimum', value: `${deletingMedicine.minStock} ${deletingMedicine.unit}` },
-          { label: 'Lokasi', value: deletingMedicine.location || 'Lemari Obat' }
+          { label: 'Batas Minimum', value: `${deletingMedicine.minStock} ${deletingMedicine.unit}` }
         ] : []}
         confirmLabel="Hapus Obat"
         cancelLabel="Batal"
