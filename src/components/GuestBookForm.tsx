@@ -644,7 +644,54 @@ export const GuestBookForm: React.FC = () => {
           </div>
         </div>
 
-        {/* SECTION: Konfirmasi Riwayat Alergi Obat */}
+        {/* SECTION 3: Tindakan / Penanganan UKS */}
+        <div>
+          <div className="flex items-center gap-2 text-slate-900 font-bold text-base mb-3.5 pb-2.5 border-b border-slate-100">
+            <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+              3
+            </div>
+            <span>Tindakan / Penanganan UKS</span>
+          </div>
+
+          <div className="mb-3">
+            <span className="text-xs text-slate-500 mb-1.5 block font-medium">Pilih cepat tindakan yang diberikan:</span>
+            <div className="flex flex-wrap gap-1.5">
+              {quickActions.map(act => {
+                const active = isTagActive(actionTaken, act);
+                return (
+                  <button
+                    key={act}
+                    type="button"
+                    onClick={() => {
+                      setActionTaken(prev => toggleQuickTag(prev, act));
+                    }}
+                    className={`text-xs px-2.5 py-1.5 min-h-[36px] rounded-lg border transition font-medium cursor-pointer ${
+                      active
+                        ? 'bg-teal-100 border-teal-400 text-teal-800 font-semibold shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    {act}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <textarea
+              id="input-action-taken"
+              required
+              rows={2}
+              value={actionTaken}
+              onChange={(e) => setActionTaken(e.target.value)}
+              placeholder="Tindakan yang telah dilakukan petugas UKS (misal: Diberi teh manis hangat, diolesi minyak kayu putih, diobservasi di ruang UKS)..."
+              className="bs-form-control w-full min-h-[75px] px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition"
+            />
+          </div>
+        </div>
+
+        {/* SECTION: Konfirmasi Riwayat Alergi Obat (Sebelum Kebutuhan Obat) */}
         <div className={`rounded-2xl border p-4 sm:p-5 transition-all ${
           hasDrugAllergy 
             ? 'bg-rose-50/80 border-rose-300 ring-2 ring-rose-500/15' 
@@ -719,76 +766,6 @@ export const GuestBookForm: React.FC = () => {
               </p>
             </div>
           )}
-        </div>
-
-        {/* SECTION 3: Tindakan / Penanganan UKS */}
-        <div>
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-base mb-3.5 pb-2.5 border-b border-slate-100">
-            <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
-              3
-            </div>
-            <span>Tindakan / Penanganan UKS</span>
-          </div>
-
-          <div className="mb-3">
-            <span className="text-xs text-slate-500 mb-1.5 block font-medium">Pilih cepat tindakan yang diberikan:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {quickActions.map(act => {
-                const active = isTagActive(actionTaken, act);
-                return (
-                  <button
-                    key={act}
-                    type="button"
-                    onClick={() => {
-                      setActionTaken(prev => toggleQuickTag(prev, act));
-                    }}
-                    className={`text-xs px-2.5 py-1.5 min-h-[36px] rounded-lg border transition font-medium cursor-pointer ${
-                      active
-                        ? 'bg-teal-100 border-teal-400 text-teal-800 font-semibold shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    {act}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <textarea
-              id="input-action-taken"
-              required
-              rows={2}
-              value={actionTaken}
-              onChange={(e) => setActionTaken(e.target.value)}
-              placeholder="Tindakan yang telah dilakukan petugas UKS (misal: Diberi teh manis hangat, diolesi minyak kayu putih, diobservasi di ruang UKS)..."
-              className="bs-form-control w-full min-h-[75px] px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 text-base sm:text-sm text-slate-800 placeholder-slate-400 transition"
-            />
-          </div>
-
-          {/* Kondisi Akhir */}
-          <div className="mt-3">
-            <label htmlFor="select-final-status" className="bs-form-label mb-1.5">
-              Status Akhir Kunjungan
-            </label>
-            <div className="relative">
-              <select
-                id="select-final-status"
-                value={finalStatus}
-                onChange={(e) => setFinalStatus(e.target.value as VisitStatus)}
-                className="bs-form-select w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-base sm:text-sm text-slate-800 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 transition font-semibold appearance-none pr-10"
-              >
-                <option value="Kembali ke Kelas / Mengajar">Kembali ke Kelas / Mengajar</option>
-                <option value="Istirahat di UKS">Istirahat di UKS</option>
-                <option value="Izin Pulang / Dijemput">Izin Pulang / Dijemput Orang Tua</option>
-                <option value="Rujukan ke Puskesmas/RS">Rujukan ke Puskesmas / Rumah Sakit</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
-                <ChevronDown className="w-5 h-5 text-slate-400" />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* SECTION 4: Kebutuhan Obat (Otomatis Kurangi Stok) */}
@@ -988,7 +965,39 @@ export const GuestBookForm: React.FC = () => {
           )}
         </div>
 
-        {/* SECTION 5: Catatan Tambahan (Opsional) */}
+        {/* SECTION 5: Status Akhir Kunjungan (Setelah Kebutuhan Obat) */}
+        <div>
+          <div className="flex items-center gap-2 text-slate-900 font-bold text-base mb-3.5 pb-2.5 border-b border-slate-100">
+            <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+              5
+            </div>
+            <span>Status Akhir Kunjungan</span>
+          </div>
+
+          <div>
+            <label htmlFor="select-final-status" className="bs-form-label mb-1.5 block">
+              Kondisi / Disposisi Akhir Pengunjung UKS <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <select
+                id="select-final-status"
+                value={finalStatus}
+                onChange={(e) => setFinalStatus(e.target.value as VisitStatus)}
+                className="bs-form-select w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-base sm:text-sm text-slate-800 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 transition font-semibold appearance-none pr-10"
+              >
+                <option value="Kembali ke Kelas / Mengajar">Kembali ke Kelas / Mengajar</option>
+                <option value="Istirahat di UKS">Istirahat di UKS</option>
+                <option value="Izin Pulang / Dijemput">Izin Pulang / Dijemput Orang Tua</option>
+                <option value="Rujukan ke Puskesmas/RS">Rujukan ke Puskesmas / Rumah Sakit</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+                <ChevronDown className="w-5 h-5 text-slate-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 6: Catatan Tambahan (Opsional) */}
         <div>
           <label htmlFor="input-notes" className="bs-form-label mb-2">
             Catatan Tambahan Petugas UKS (Opsional)
