@@ -1,23 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { 
   FileSpreadsheet, 
-  FileText, 
-  Calendar, 
   Download, 
   Printer, 
   Users, 
   Pill, 
-  CheckCircle2, 
-  Building2, 
-  ChevronRight,
   Sparkles,
-  UserCheck,
   ClipboardList,
   AlertTriangle,
   Clock,
-  ArrowRight,
   CalendarRange,
-  Filter
+  Building2,
+  CheckCircle2
 } from 'lucide-react';
 import { useUks } from '../context/UksContext';
 import { 
@@ -31,26 +25,12 @@ import {
   printMedicineUsageReport
 } from '../utils/pdfHelper';
 
-const MONTH_NAMES = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-];
+interface ReportsViewProps {
+  type?: 'visits' | 'medicines';
+}
 
-type ReportTab = 'visits' | 'medicines';
-type FilterMode = 'month' | 'range';
-
-export const ReportsView: React.FC = () => {
-  const { records, medicines, schoolInfo, koordinatorUks, showToast } = useUks();
-
-  // Active Report Tab: 'visits' vs 'medicines'
-  const [activeReportTab, setActiveReportTab] = useState<ReportTab>('visits');
-
-  // Filter Mode: 'month' vs 'range'
-  const [filterMode, setFilterMode] = useState<FilterMode>('month');
-
-  const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState<number>(currentDate.getMonth()); // 0 - 11
-  const [selectedYear, setSelectedYear] = useState<number>(currentDate.getFullYear());
+export const ReportsView: React.FC<ReportsViewProps> = ({ type = 'visits' }) => {
+  const { records, medicines, schoolInfo, koordinatorUks } = useUks();
 
   // Date Range state (default: current month start to today)
   const defaultStartDate = useMemo(() => {
@@ -67,36 +47,32 @@ export const ReportsView: React.FC = () => {
 
   // Human readable period label
   const periodLabel = useMemo(() => {
-    if (filterMode === 'month') {
-      return `${MONTH_NAMES[selectedMonth]} ${selectedYear}`;
-    }
-
     if (!startDate && !endDate) return 'Semua Waktu';
+    if (startDate && !endDate) {
+      return `Mulai ${new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(startDate))}`;
+    }
+    if (!startDate && endDate) {
+      return `Sampai ${new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(endDate))}`;
+    }
     if (startDate === endDate) {
       return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(startDate));
     }
     const s = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(startDate));
     const e = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(endDate));
     return `${s} s/d ${e}`;
-  }, [filterMode, selectedMonth, selectedYear, startDate, endDate]);
+  }, [startDate, endDate]);
 
-  // Filter approved records according to selected period
+  // Filter approved records according to selected date range
   const filteredRecords = useMemo(() => {
     return records.filter(r => {
       const isApproved = r.approvalStatus === 'approved' || !r.approvalStatus;
       if (!isApproved) return false;
 
-      if (filterMode === 'month') {
-        const d = new Date(r.date);
-        return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
-      }
-
-      // Date Range Mode
       if (startDate && r.date < startDate) return false;
       if (endDate && r.date > endDate) return false;
       return true;
     });
-  }, [records, filterMode, selectedMonth, selectedYear, startDate, endDate]);
+  }, [records, startDate, endDate]);
 
   // Statistics for filtered visits
   const visitStats = useMemo(() => {
@@ -155,7 +131,7 @@ export const ReportsView: React.FC = () => {
 
   // Print & Export Handlers
   const handlePrint = () => {
-    if (activeReportTab === 'visits') {
+    if (type === 'visits') {
       printVisitsReport(periodLabel, filteredRecords, schoolInfo, koordinatorUks);
     } else {
       printMedicineUsageReport(periodLabel, filteredRecords, medicines, schoolInfo, koordinatorUks);
@@ -163,7 +139,7 @@ export const ReportsView: React.FC = () => {
   };
 
   const handleExportPdf = () => {
-    if (activeReportTab === 'visits') {
+    if (type === 'visits') {
       exportVisitsReportToPdf(periodLabel, filteredRecords, schoolInfo, koordinatorUks);
     } else {
       exportMedicineUsageReportToPdf(periodLabel, filteredRecords, medicines, schoolInfo, koordinatorUks);
@@ -171,15 +147,17 @@ export const ReportsView: React.FC = () => {
   };
 
   const handleExportExcel = () => {
-    if (activeReportTab === 'visits') {
+    if (type === 'visits') {
       exportVisitsReportToExcel(periodLabel, filteredRecords, schoolInfo);
     } else {
       exportMedicineUsageReportToExcel(periodLabel, filteredRecords, medicines, schoolInfo);
     }
   };
 
+  const isVisitReport = type === 'visits';
+
   return (
-    <div className="max-w-7xl mx-auto py-5 sm:py-8 px-3 sm:px-6 space-y-6">
+    <div className="max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-6 space-y-6">
       
       {/* Top Banner */}
       <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-lg border border-emerald-800/40 relative overflow-hidden">
@@ -189,13 +167,17 @@ export const ReportsView: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold text-emerald-200 mb-2.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-              Pusat Pelaporan & Rekapitulasi Resmi UKS
+              {isVisitReport ? 'Submenu Laporan Rekap Pengunjung' : 'Submenu Laporan Rekap Penggunaan Obat'}
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-              Laporan & Rekapitulasi UKS {schoolInfo.shortName}
+              {isVisitReport 
+                ? `Laporan Rekap Kunjungan UKS ${schoolInfo.shortName}` 
+                : `Laporan Rekap Penggunaan & Stok Obat UKS ${schoolInfo.shortName}`}
             </h2>
             <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-xl leading-relaxed">
-              Pilih jenis laporan yang diinginkan, tentukan rentang tanggal atau bulan, lalu cetak ber-kop surat resmi atau unduh berkas Excel.
+              {isVisitReport
+                ? 'Rekapitulasi resmi kunjungan pasien UKS ber-kop surat resmi, keluhan, tindakan, alergi obat, dan petugas pemeriksa.'
+                : 'Rekapitulasi resmi pemakaian persediaan farmasi UKS, sisa stok obat, dan rincian penerima obat.'}
             </p>
           </div>
 
@@ -231,114 +213,23 @@ export const ReportsView: React.FC = () => {
         </div>
       </div>
 
-      {/* FILTER CONTROLS CARD (Rentang Tanggal & Pilihan Bulan) */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              1. Pilih Tipe Laporan
-            </span>
-            {/* Segmented Control for Report Type */}
-            <div className="grid grid-cols-2 gap-2 mt-2 max-w-md">
-              <button
-                type="button"
-                id="tab-report-visits"
-                onClick={() => setActiveReportTab('visits')}
-                className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
-                  activeReportTab === 'visits'
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
-                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                <ClipboardList className="w-4 h-4" />
-                Rekap Daftar Kunjungan
-              </button>
-
-              <button
-                type="button"
-                id="tab-report-medicines"
-                onClick={() => setActiveReportTab('medicines')}
-                className={`flex items-center justify-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
-                  activeReportTab === 'medicines'
-                    ? 'bg-teal-700 border-teal-700 text-white shadow-xs'
-                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                <Pill className="w-4 h-4" />
-                Rekap Penggunaan Obat
-              </button>
+      {/* FILTER CONTROLS CARD (Hanya Tanggal Awal & Tanggal Akhir) */}
+      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+            <div className="flex items-center gap-2 text-slate-700 font-bold text-xs">
+              <CalendarRange className="w-4 h-4 text-emerald-600" />
+              <span>Pilihan Rentang Tanggal:</span>
             </div>
-          </div>
 
-          <div>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              2. Metode Pemilihan Periode
-            </span>
-            <div className="inline-flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 mt-2">
-              <button
-                type="button"
-                onClick={() => setFilterMode('month')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  filterMode === 'month'
-                    ? 'bg-white text-emerald-800 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Calendar className="w-3.5 h-3.5 inline mr-1" />
-                Pilihan Bulan
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterMode('range')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                  filterMode === 'range'
-                    ? 'bg-white text-emerald-800 shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <CalendarRange className="w-3.5 h-3.5 inline mr-1" />
-                Rentang Tanggal (Kustom)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Date Filters Form Inputs */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1">
-          {filterMode === 'month' ? (
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs font-semibold text-slate-600">Pilih Bulan & Tahun:</span>
+            <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                  className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20"
-                >
-                  {MONTH_NAMES.map((name, idx) => (
-                    <option key={name} value={idx}>
-                      Bulan {name}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                  className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20"
-                >
-                  {[2024, 2025, 2026, 2027].map(yr => (
-                    <option key={yr} value={yr}>
-                      Tahun {yr}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">Tanggal Awal:</span>
+                <label htmlFor="input-start-date" className="text-xs font-semibold text-slate-600 shrink-0">
+                  Tanggal Awal:
+                </label>
                 <input
+                  id="input-start-date"
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
@@ -347,8 +238,11 @@ export const ReportsView: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">Tanggal Akhir:</span>
+                <label htmlFor="input-end-date" className="text-xs font-semibold text-slate-600 shrink-0">
+                  Tanggal Akhir:
+                </label>
                 <input
+                  id="input-end-date"
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
@@ -356,239 +250,261 @@ export const ReportsView: React.FC = () => {
                 />
               </div>
             </div>
-          )}
+          </div>
 
-          <div className="text-right">
+          <div className="text-left md:text-right pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
             <span className="text-[11px] text-slate-400 block font-medium">Periode Terpilih:</span>
             <span className="text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg inline-block mt-0.5">
               {periodLabel}
             </span>
           </div>
+
         </div>
       </div>
 
       {/* SUMMARY KPI CARDS */}
-      {activeReportTab === 'visits' ? (
+      {isVisitReport ? (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Total Kunjungan
-            </span>
-            <div className="text-2xl font-extrabold text-slate-900 mt-1">
-              {visitStats.totalVisits} <span className="text-xs font-normal text-slate-500">pasien</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Total Pasien
+              <Users className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-black text-slate-900 mt-1">
+              {visitStats.totalVisits}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              {visitStats.siswaCount} Siswa • {visitStats.guruCount} Guru/Staf
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Pengunjung Siswa
-            </span>
-            <div className="text-2xl font-extrabold text-emerald-700 mt-1">
-              {visitStats.siswaCount} <span className="text-xs font-normal text-slate-500">siswa</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Diberi Obat
+              <Pill className="w-4 h-4 text-teal-600" />
+            </div>
+            <div className="text-2xl font-black text-teal-800 mt-1">
+              {visitStats.withMedsCount}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Pasien menerima obat UKS
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Pengunjung Guru/Staf
-            </span>
-            <div className="text-2xl font-extrabold text-blue-700 mt-1">
-              {visitStats.guruCount} <span className="text-xs font-normal text-slate-500">orang</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Istirahat UKS
+              <Clock className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="text-2xl font-black text-blue-800 mt-1">
+              {visitStats.restingCount}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Perawatan di ruang UKS
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Mendapatkan Obat
-            </span>
-            <div className="text-2xl font-extrabold text-teal-700 mt-1">
-              {visitStats.withMedsCount} <span className="text-xs font-normal text-slate-500">pasien</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Alergi Obat
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+            </div>
+            <div className="text-2xl font-black text-amber-700 mt-1">
+              {visitStats.allergyCount}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Pasien memiliki riwayat alergi
             </div>
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Dosis Obat Diberikan
-            </span>
-            <div className="text-2xl font-extrabold text-teal-700 mt-1">
-              {medicineStats.totalDosesGiven} <span className="text-xs font-normal text-slate-500">unit</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Dosis Obat Terpakai
+              <Pill className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-black text-slate-900 mt-1">
+              {medicineStats.totalDosesGiven}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Total kuantitas obat periode ini
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Varian Obat Terpakai
-            </span>
-            <div className="text-2xl font-extrabold text-emerald-700 mt-1">
-              {medicineStats.distinctMedsUsed} <span className="text-xs font-normal text-slate-500">macam</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Jenis Obat Terpakai
+              <ClipboardList className="w-4 h-4 text-teal-600" />
+            </div>
+            <div className="text-2xl font-black text-teal-800 mt-1">
+              {medicineStats.distinctMedsUsed}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Variasi obat yang dikonsumsi
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Stok Obat Menipis
-            </span>
-            <div className="text-2xl font-extrabold text-amber-600 mt-1">
-              {medicineStats.criticalStockCount} <span className="text-xs font-normal text-slate-500">item</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Stok Kritis / Menipis
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+            </div>
+            <div className="text-2xl font-black text-amber-700 mt-1">
+              {medicineStats.criticalStockCount}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Perlu segera restock
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Total Jenis Obat UKS
-            </span>
-            <div className="text-2xl font-extrabold text-slate-900 mt-1">
-              {medicines.length} <span className="text-xs font-normal text-slate-500">item</span>
+            <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
+              Stok Habis (Kosong)
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+            </div>
+            <div className="text-2xl font-black text-red-700 mt-1">
+              {medicineStats.outOfStockCount}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Obat tidak tersedia
             </div>
           </div>
         </div>
       )}
 
-      {/* DOCUMENT PREVIEW CONTAINER */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* DOCUMENT PAPER PREVIEW (Ber-Kop Surat Resmi & 1 Tanda Tangan Koordinator UKS) */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         
-        {/* Document Sub-Header Bar */}
-        <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Paper Header Toolbar */}
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-emerald-700 shrink-0" />
-            <div>
-              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                Pratinjau {activeReportTab === 'visits' ? 'Laporan Rekap Daftar Kunjungan' : 'Laporan Rekap Penggunaan & Stok Obat'}
-              </span>
-              <span className="text-[11px] text-slate-500">
-                {schoolInfo.shortName} • Periode: {periodLabel}
-              </span>
-            </div>
+            <Building2 className="w-4 h-4 text-slate-600" />
+            <span className="text-xs font-bold text-slate-800 uppercase tracking-wide">
+              Pratinjau Dokumen Cetak Laporan Resmi ({periodLabel})
+            </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              id="btn-print-preview"
-              onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition cursor-pointer"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              Cetak
-            </button>
-            <button
-              type="button"
-              id="btn-pdf-preview"
-              onClick={handleExportPdf}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-xs transition cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-              PDF
-            </button>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-slate-500">Total data tercatat:</span>
+            <span className="font-bold text-slate-900 bg-slate-200/80 px-2 py-0.5 rounded-md">
+              {isVisitReport ? `${filteredRecords.length} Kunjungan` : `${medicineStats.usagePerMedicine.length} Jenis Obat`}
+            </span>
           </div>
         </div>
 
-        {/* The Paper Document */}
-        <div className="p-6 sm:p-8 max-w-4xl mx-auto space-y-6 text-slate-800 font-sans">
-          {/* Header Kop Surat Resmi */}
-          <div className="text-center pb-4 border-b-2 border-slate-800 relative">
-            {schoolInfo.logoUrl && (
+        {/* Paper Body */}
+        <div className="p-6 sm:p-10 space-y-6 max-w-5xl mx-auto font-sans">
+          
+          {/* KOP SURAT RESMI */}
+          <div className="border-b-2 border-slate-900 pb-4 text-center relative">
+            <div className="flex items-center justify-center gap-4 sm:gap-6">
               <img 
-                src={schoolInfo.logoUrl} 
+                src="/logo-sman1-batu.png" 
                 alt="Logo Sekolah" 
-                className="w-16 h-16 object-contain absolute left-2 top-0 hidden sm:block" 
+                className="w-16 h-16 sm:w-20 sm:h-20 object-contain shrink-0" 
               />
-            )}
-            <div className="text-xs font-bold uppercase tracking-wide text-slate-700">
-              {schoolInfo.governmentHeader || 'PEMERINTAH PROVINSI • DINAS PENDIDIKAN'}
-            </div>
-            <div className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">
-              {schoolInfo.name || 'SEKOLAH MENENGAH ATAS'}
-            </div>
-            <div className="text-sm font-bold text-emerald-800 tracking-wide mt-0.5">
-              {schoolInfo.division || 'UNIT KESEHATAN SEKOLAH (UKS)'}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-1">
-              {schoolInfo.address} {schoolInfo.phone ? `| Telepon: ${schoolInfo.phone}` : ''} {schoolInfo.email ? `| Email: ${schoolInfo.email}` : ''}
+              <div className="text-center">
+                <div className="text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-slate-700">
+                  {schoolInfo.governmentHeader || 'PEMERINTAH PROVINSI JAWA TIMUR DINAS PENDIDIKAN'}
+                </div>
+                <div className="text-base sm:text-lg font-black tracking-tight text-slate-950 uppercase">
+                  {schoolInfo.name || 'SEKOLAH MENENGAH ATAS NEGERI 1 BATU'}
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-emerald-800 uppercase tracking-wide">
+                  UNIT KESEHATAN SEKOLAH (UKS) {schoolInfo.shortName}
+                </div>
+                <div className="text-[10px] sm:text-[11px] text-slate-600 mt-0.5">
+                  {schoolInfo.address} • Telp: {schoolInfo.phone} • Email: {schoolInfo.email}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Title */}
+          {/* DOCUMENT TITLE */}
           <div className="text-center space-y-1">
-            <h4 className="font-extrabold text-sm sm:text-base text-slate-900 underline uppercase tracking-wide">
-              {activeReportTab === 'visits' 
-                ? 'Laporan Rekapitulasi Daftar Kunjungan Pasien UKS' 
-                : 'Laporan Rekapitulasi Penggunaan & Persediaan Obat UKS'}
-            </h4>
-            <p className="text-xs text-slate-500 font-medium">
-              Periode: <strong>{periodLabel}</strong>
+            <h3 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide underline underline-offset-4">
+              {isVisitReport 
+                ? 'LAPORAN REKAPITULASI DAFTAR KUNJUNGAN PASIEN UKS' 
+                : 'LAPORAN REKAPITULASI PENGGUNAAN & STOK OBAT UKS'}
+            </h3>
+            <p className="text-xs font-semibold text-slate-600">
+              Periode: <span className="text-slate-900 font-bold">{periodLabel}</span>
             </p>
           </div>
 
-          {/* 1. TABEL PRATINJAU KUNJUNGAN */}
-          {activeReportTab === 'visits' ? (
-            <div>
-              <div className="text-xs font-bold text-slate-800 mb-2">
-                Daftar Kunjungan Pasien UKS ({filteredRecords.length} data):
-              </div>
-              <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-[11px]">
+          {/* TABLE PREVIEW */}
+          {isVisitReport ? (
+            /* Table 1: Rekap Kunjungan */
+            <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
+              <table className="w-full text-left">
+                <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-[11px]">
+                  <tr>
+                    <th className="py-2.5 px-3">No</th>
+                    <th className="py-2.5 px-3">Waktu</th>
+                    <th className="py-2.5 px-3">Nama Pasien</th>
+                    <th className="py-2.5 px-3">Kelas/Jabatan</th>
+                    <th className="py-2.5 px-3">Keluhan</th>
+                    <th className="py-2.5 px-3">Alergi Obat</th>
+                    <th className="py-2.5 px-3">Obat / Tindakan</th>
+                    <th className="py-2.5 px-3">Petugas</th>
+                    <th className="py-2.5 px-3">Status Akhir</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-[11px]">
+                  {filteredRecords.length === 0 ? (
                     <tr>
-                      <th className="py-2.5 px-3">No</th>
-                      <th className="py-2.5 px-3">Tgl/Waktu</th>
-                      <th className="py-2.5 px-3">Nama Pengunjung</th>
-                      <th className="py-2.5 px-3">Kelas/Jabatan</th>
-                      <th className="py-2.5 px-3">Alergi Obat</th>
-                      <th className="py-2.5 px-3">Keluhan</th>
-                      <th className="py-2.5 px-3">Tindakan</th>
-                      <th className="py-2.5 px-3">Obat Diberikan</th>
-                      <th className="py-2.5 px-3">Status Akhir</th>
+                      <td colSpan={9} className="py-8 text-center text-slate-400">
+                        Tidak ada catatan kunjungan pada rentang tanggal terpilih.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-[11px]">
-                    {filteredRecords.length === 0 ? (
-                      <tr>
-                        <td colSpan={9} className="py-8 text-center text-slate-400">
-                          Belum ada data kunjungan yang tercatat pada periode {periodLabel}.
+                  ) : (
+                    filteredRecords.slice(0, 15).map((r, i) => (
+                      <tr key={r.id} className="hover:bg-slate-50/80">
+                        <td className="py-2 px-3 text-slate-400">{i + 1}</td>
+                        <td className="py-2 px-3 whitespace-nowrap text-slate-600">
+                          {r.date} {r.time}
+                        </td>
+                        <td className="py-2 px-3 font-semibold text-slate-900">{r.visitorName}</td>
+                        <td className="py-2 px-3 text-slate-600">{r.classOrPosition}</td>
+                        <td className="py-2 px-3 text-slate-800">{r.complaint}</td>
+                        <td className="py-2 px-3">
+                          {r.hasDrugAllergy ? (
+                            <span className="text-rose-700 font-bold bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded text-[10px]">
+                              {r.drugAllergyDescription || 'Ada Alergi'}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">Tidak Ada</span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3 text-slate-700">
+                          {r.needsMedicine && r.medicinesGiven.length > 0 
+                            ? r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
+                            : r.actionTaken || '-'}
+                        </td>
+                        <td className="py-2 px-3 text-slate-600">
+                          {r.approvedBy || r.handledBy || 'Petugas UKS'}
+                        </td>
+                        <td className="py-2 px-3 font-medium text-slate-800">
+                          {r.finalStatus || 'Kembali ke Kelas'}
                         </td>
                       </tr>
-                    ) : (
-                      filteredRecords.slice(0, 15).map((r, i) => (
-                        <tr key={r.id}>
-                          <td className="py-2 px-3 text-slate-400">{i + 1}</td>
-                          <td className="py-2 px-3 whitespace-nowrap">{r.date} {r.time}</td>
-                          <td className="py-2 px-3 font-semibold text-slate-900">{r.visitorName} ({r.gender})</td>
-                          <td className="py-2 px-3">{r.classOrPosition}</td>
-                          <td className="py-2 px-3">
-                            {r.hasDrugAllergy ? (
-                              <span className="text-rose-700 font-bold">Ada ({r.drugAllergyDescription || 'Ya'})</span>
-                            ) : (
-                              <span className="text-slate-400">-</span>
-                            )}
-                          </td>
-                          <td className="py-2 px-3 max-w-xs truncate">{r.complaint}</td>
-                          <td className="py-2 px-3 font-medium text-slate-800">{r.actionTaken || '-'}</td>
-                          <td className="py-2 px-3 text-emerald-700 font-medium">
-                            {r.medicinesGiven.length > 0 
-                              ? r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
-                              : '-'}
-                          </td>
-                          <td className="py-2 px-3 whitespace-nowrap font-medium text-slate-700">
-                            {r.finalStatus}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-                {filteredRecords.length > 15 && (
-                  <div className="py-2 px-3 bg-slate-50 text-slate-500 text-[11px] text-center border-t border-slate-200">
-                    ... dan {filteredRecords.length - 15} data lainnya termuat lengkap di dokumen cetak PDF & Excel.
-                  </div>
-                )}
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
+
+              {filteredRecords.length > 15 && (
+                <div className="p-2.5 bg-slate-50 border-t border-slate-200 text-center text-[11px] text-slate-500 font-medium">
+                  Menampilkan 15 dari total {filteredRecords.length} data kunjungan. Gunakan <b>Cetak Dokumen</b> atau <b>Unduh PDF / Excel</b> untuk melihat seluruh data lengkap.
+                </div>
+              )}
             </div>
           ) : (
-            /* 2. TABEL PRATINJAU PENGGUNAAN & STOK OBAT */
+            /* Table 2: Rekapitulasi Penggunaan Obat & Stok */
             <div className="space-y-6">
+              
+              {/* Rekap Stok & Terpakai */}
               <div>
                 <div className="text-xs font-bold text-slate-800 mb-2">
                   A. Rekapitulasi Pemakaian & Sisa Persediaan Obat:
@@ -658,7 +574,7 @@ export const ReportsView: React.FC = () => {
                       {filteredRecords.filter(v => v.needsMedicine && v.medicinesGiven.length > 0).length === 0 ? (
                         <tr>
                           <td colSpan={6} className="py-6 text-center text-slate-400">
-                            Tidak ada pemberian obat pada periode ini.
+                            Tidak ada pemberian obat pada rentang tanggal ini.
                           </td>
                         </tr>
                       ) : (

@@ -96,7 +96,15 @@ export interface SchoolInfo {
   logoUrl?: string;
 }
 
-export type AppTab = 'guestbook' | 'dashboard' | 'inventory' | 'reports' | 'users' | 'login';
+export type AppTab = 
+  | 'guestbook' 
+  | 'dashboard' 
+  | 'inventory' 
+  | 'reports' 
+  | 'reports_visits' 
+  | 'reports_medicines' 
+  | 'users' 
+  | 'login';
 
 export interface FilterOptions {
   dateRange: 'all' | 'today' | 'week' | 'month' | 'custom';

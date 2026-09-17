@@ -83,7 +83,10 @@ const AppContent: React.FC = () => {
       case 'inventory':
         return { title: 'Manajemen Inventaris Stok Obat & Farmasi', category: 'Pengelolaan Farmasi' };
       case 'reports':
-        return { title: 'Laporan Rekapitulasi & Arsip UKS', category: 'Laporan' };
+      case 'reports_visits':
+        return { title: 'Laporan Rekap Kunjungan Pengunjung UKS', category: 'Laporan UKS' };
+      case 'reports_medicines':
+        return { title: 'Laporan Rekap Penggunaan & Stok Obat UKS', category: 'Laporan UKS' };
       case 'users':
         return { title: 'Manajemen Pengguna & Hak Akses', category: 'Pengaturan Admin' };
       case 'guestbook':
@@ -176,7 +179,8 @@ const AppContent: React.FC = () => {
                 onClearRestockTarget={() => setTargetRestockId(null)}
               />
             )}
-            {activeTab === 'reports' && <ReportsView />}
+            {(activeTab === 'reports' || activeTab === 'reports_visits') && <ReportsView type="visits" />}
+            {activeTab === 'reports_medicines' && <ReportsView type="medicines" />}
             {activeTab === 'users' && <UserManagement />}
             {activeTab === 'guestbook' && <GuestBookForm />}
           </main>
@@ -210,7 +214,7 @@ const AppContent: React.FC = () => {
         {activeTab === 'login' && <AdminLoginView />}
 
         {/* Fallback for protected routes if attempted without login */}
-        {(activeTab === 'dashboard' || activeTab === 'inventory' || activeTab === 'reports' || activeTab === 'users') && (
+        {(activeTab === 'dashboard' || activeTab === 'inventory' || activeTab === 'reports' || activeTab === 'reports_visits' || activeTab === 'reports_medicines' || activeTab === 'users') && (
           <AdminLoginView />
         )}
       </main>

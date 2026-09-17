@@ -9,6 +9,7 @@ import {
   HeartPulse, 
   Clock, 
   ChevronRight, 
+  ChevronDown,
   ShieldCheck, 
   X,
   ExternalLink,
@@ -65,6 +66,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     onCloseMobile();
   };
 
+  const [isReportsOpen, setIsReportsOpen] = useState(true);
+
+  const isReportsTabActive = activeTab === 'reports' || activeTab === 'reports_visits' || activeTab === 'reports_medicines';
+
   const navItems = [
     {
       id: 'dashboard' as AppTab,
@@ -87,13 +92,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           {totalAlerts} Kritis
         </span>
       ) : null
+    }
+  ];
+
+  const reportSubItems = [
+    {
+      id: 'reports_visits' as AppTab,
+      label: 'Rekap Pengunjung',
+      icon: ClipboardList,
+      description: 'Log riwayat kunjungan pasien'
     },
     {
-      id: 'reports' as AppTab,
-      label: 'Laporan',
-      icon: FileSpreadsheet,
-      description: 'Rekap bulanan & arsip resmi'
-    },
+      id: 'reports_medicines' as AppTab,
+      label: 'Rekap Penggunaan Obat',
+      icon: Pill,
+      description: 'Pemakaian & sisa stok obat'
+    }
+  ];
+
+  const otherNavItems = [
     {
       id: 'users' as AppTab,
       label: 'Manajemen Pengguna',
@@ -187,7 +204,90 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               Menu Utama Admin
             </div>
 
+            {/* Main Nav (Dashboard & Stok Obat) */}
             {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  id={`admin-nav-${item.id}`}
+                  onClick={() => handleNav(item.id)}
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition cursor-pointer text-left ${
+                    isActive 
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 font-bold' 
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <div className="truncate">
+                      <div className="leading-tight">{item.label}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    {item.badge}
+                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-200" />}
+                  </div>
+                </button>
+              );
+            })}
+
+            {/* Laporan UKS Section with 2 Dedicated Submenus */}
+            <div className="pt-1.5">
+              <button
+                type="button"
+                id="admin-nav-reports-parent"
+                onClick={() => setIsReportsOpen(!isReportsOpen)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer text-left ${
+                  isReportsTabActive && !isReportsOpen
+                    ? 'bg-emerald-600 text-white font-bold'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <FileSpreadsheet className={`w-4 h-4 ${isReportsTabActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                  <span className="font-bold">Laporan UKS</span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isReportsOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isReportsOpen && (
+                <div className="mt-1 ml-3 pl-3 border-l-2 border-slate-800 space-y-1 py-1">
+                  {reportSubItems.map((sub) => {
+                    const SubIcon = sub.icon;
+                    const isSubActive = (sub.id === 'reports_visits' && (activeTab === 'reports_visits' || activeTab === 'reports')) ||
+                                        (sub.id === 'reports_medicines' && activeTab === 'reports_medicines');
+
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        id={`admin-nav-${sub.id}`}
+                        onClick={() => handleNav(sub.id)}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition cursor-pointer text-left ${
+                          isSubActive
+                            ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-800/70 font-medium'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-slate-400'}`} />
+                          <span className="truncate">{sub.label}</span>
+                        </div>
+                        {isSubActive && <ChevronRight className="w-3 h-3 text-emerald-200 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Other Nav Items (Users & Guestbook) */}
+            {otherNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
 
