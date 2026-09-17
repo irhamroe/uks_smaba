@@ -652,11 +652,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                       {/* Kelas / Jabatan */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="font-semibold text-slate-800">{record.classOrPosition}</span>
-                        {record.bedNumber && (
-                          <div className="text-[10px] text-indigo-600 font-medium mt-0.5">
-                            {record.bedNumber}
-                          </div>
-                        )}
                       </td>
 
                       {/* Keluhan */}

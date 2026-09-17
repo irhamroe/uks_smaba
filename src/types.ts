@@ -79,14 +79,6 @@ export interface AdminUser {
   createdAt?: string;
 }
 
-export interface UksBed {
-  id: string;
-  name: string;
-  location: string;
-  status: 'Tersedia' | 'Terisi' | 'Perbaikan / Pembersihan';
-  genderCategory?: 'Semua' | 'Putra' | 'Putri' | 'Isolasi';
-  description?: string;
-}
 
 export interface SchoolInfo {
   governmentHeader: string;

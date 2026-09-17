@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
-import { Medicine, VisitRecord, RestockLog, MedicineUsage, AppTab, AdminUser, UksBed, SchoolInfo } from '../types';
-import { INITIAL_MEDICINES, INITIAL_VISITS, INITIAL_ADMIN_USERS, INITIAL_BEDS, SCHOOL_INFO } from '../data/initialData';
+import { Medicine, VisitRecord, RestockLog, MedicineUsage, AppTab, AdminUser, SchoolInfo } from '../types';
+import { INITIAL_MEDICINES, INITIAL_VISITS, INITIAL_ADMIN_USERS, SCHOOL_INFO } from '../data/initialData';
 import { 
   subscribeToVisits, 
   subscribeToMedicines, 
   subscribeToUsers, 
   subscribeToSchoolInfo, 
-  subscribeToBeds,
   syncSaveVisit,
   syncDeleteVisit,
   syncSaveMedicine,
@@ -15,8 +14,6 @@ import {
   syncSaveUser,
   syncDeleteUser,
   syncSaveSchoolInfo,
-  syncSaveBed,
-  syncDeleteBed,
   seedInitialFirestoreData
 } from '../services/firestoreService';
 
@@ -30,7 +27,6 @@ interface UksContextType {
   records: VisitRecord[];
   medicines: Medicine[];
   restockLogs: RestockLog[];
-  beds: UksBed[];
   activeTab: AppTab;
   setActiveTab: (tab: AppTab) => void;
   navigateToTab: (tab: AppTab) => void;
@@ -54,13 +50,6 @@ interface UksContextType {
   deleteUser: (id: string) => { success: boolean; error?: string };
   toggleUserStatus: (id: string) => void;
   resetUserPassword: (id: string, newPass: string) => { success: boolean; error?: string };
-
-  // Bed Management
-  addBed: (bed: Omit<UksBed, 'id'>) => { success: boolean; error?: string };
-  updateBed: (id: string, updates: Partial<UksBed>) => { success: boolean; error?: string };
-  deleteBed: (id: string) => { success: boolean; error?: string };
-  setBedStatus: (id: string, status: UksBed['status']) => void;
-  releaseBed: (bedName: string) => void;
   
   // Visit Actions & Approval Workflow
   addVisitRecord: (data: {
@@ -117,32 +106,11 @@ const STORAGE_KEYS = {
   RESTOCK: 'uks_sman1batu_restock_v2',
   ADMIN_SESSION: 'uks_sman1batu_admin_session_v2',
   USERS: 'uks_sman1batu_users_v2',
-  BEDS: 'uks_sman1batu_beds_v2',
   SCHOOL_INFO: 'uks_sman1batu_school_info_v2',
   INITIALIZED: 'uks_sman1batu_initialized_v2'
 };
 
 export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Beds state with local cache + cloud sync
-  const [beds, setBeds] = useState<UksBed[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.BEDS);
-      if (saved !== null) return JSON.parse(saved);
-    } catch {
-      // Fallback
-    }
-    const isInit = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
-    if (isInit) return [];
-    return INITIAL_BEDS;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.BEDS, JSON.stringify(beds));
-    } catch {
-      // Ignore
-    }
-  }, [beds]);
 
   // Users state with local cache + cloud sync
   const [users, setUsers] = useState<AdminUser[]>(() => {
@@ -192,13 +160,16 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [records, setRecords] = useState<VisitRecord[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.VISITS);
-      if (saved !== null) return JSON.parse(saved);
+      if (saved !== null) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(v => !['vis-1', 'vis-2', 'vis-3', 'vis-4', 'vis-5', 'vis-6'].includes(v.id));
+        }
+      }
     } catch {
       // Fallback
     }
-    const isInit = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
-    if (isInit) return [];
-    return INITIAL_VISITS;
+    return [];
   });
 
   useEffect(() => {
@@ -307,38 +278,23 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const unsubVisits = subscribeToVisits((cloudVisits) => {
       if (Array.isArray(cloudVisits)) {
-        setRecords(prevLocal => {
-          // If cloud has no visits and local has items, push local to cloud
-          if (cloudVisits.length === 0) {
-            if (prevLocal.length > 0) {
-              prevLocal.forEach(v => syncSaveVisit(v));
-              return prevLocal;
-            }
-            return [];
+        // Otomatis bersihkan data dummy demonstrasi lama jika sempat ter-upload ke Firestore
+        const dummyIds = ['vis-1', 'vis-2', 'vis-3', 'vis-4', 'vis-5', 'vis-6'];
+        cloudVisits.forEach(v => {
+          if (dummyIds.includes(v.id)) {
+            syncDeleteVisit(v.id);
           }
-
-          // Merge: Map cloud records by ID
-          const cloudMap = new Map(cloudVisits.map(v => [v.id, v]));
-
-          // Retain any locally-created records that haven't synced to cloud yet
-          const localOnly = prevLocal.filter(v => !cloudMap.has(v.id));
-
-          // If local-only records exist, push them to Firestore so they are never lost
-          if (localOnly.length > 0) {
-            localOnly.forEach(v => syncSaveVisit(v));
-          }
-
-          const merged = [...cloudVisits, ...localOnly];
-          merged.sort((a, b) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp || a.date).getTime());
-
-          try {
-            localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(merged));
-          } catch (e) {
-            console.error('Failed to sync merged visits to localStorage:', e);
-          }
-
-          return merged;
         });
+
+        const cleanVisits = cloudVisits.filter(v => !dummyIds.includes(v.id));
+        cleanVisits.sort((a, b) => new Date(b.timestamp || b.date).getTime() - new Date(a.timestamp || a.date).getTime());
+
+        setRecords(cleanVisits);
+        try {
+          localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(cleanVisits));
+        } catch (e) {
+          console.error('Failed to sync clean visits to localStorage:', e);
+        }
       }
     });
 
@@ -382,29 +338,11 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     });
 
-    const unsubBeds = subscribeToBeds((cloudBeds) => {
-      if (Array.isArray(cloudBeds) && cloudBeds.length > 0) {
-        setBeds(prevLocal => {
-          const cloudMap = new Map(cloudBeds.map(b => [b.id, b]));
-          const localOnly = prevLocal.filter(b => !cloudMap.has(b.id));
-          if (localOnly.length > 0) {
-            localOnly.forEach(b => syncSaveBed(b));
-          }
-          const merged = [...cloudBeds, ...localOnly];
-          try {
-            localStorage.setItem(STORAGE_KEYS.BEDS, JSON.stringify(merged));
-          } catch (e) {}
-          return merged;
-        });
-      }
-    });
-
     return () => {
       unsubVisits();
       unsubMedicines();
       unsubUsers();
       unsubSchool();
-      unsubBeds();
     };
   }, []);
 
@@ -624,121 +562,6 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     syncSaveUser(updatedUser);
     showToast(`Password untuk pengguna "${user.name}" (${user.username}) berhasil direset.`, 'success');
     return { success: true };
-  };
-
-  // =====================
-  // Bed Management Actions
-  // =====================
-  const addBed = (bedData: Omit<UksBed, 'id'>) => {
-    const trimmedName = bedData.name.trim();
-    if (!trimmedName) {
-      return { success: false, error: 'Nama ranjang wajib diisi.' };
-    }
-    if (beds.some(b => b.name.toLowerCase() === trimmedName.toLowerCase())) {
-      return { success: false, error: `Ranjang dengan nama "${trimmedName}" sudah ada.` };
-    }
-
-    const newBed: UksBed = {
-      ...bedData,
-      id: `bed-${Date.now()}`,
-      name: trimmedName,
-      location: bedData.location.trim() || 'Ruang Utama UKS',
-      status: bedData.status || 'Tersedia',
-      genderCategory: bedData.genderCategory || 'Semua'
-    };
-
-    setBeds(prev => [...prev, newBed]);
-    syncSaveBed(newBed);
-    showToast(`Ranjang "${newBed.name}" berhasil ditambahkan ke inventaris UKS.`, 'success');
-    return { success: true };
-  };
-
-  const updateBed = (id: string, updates: Partial<UksBed>) => {
-    const existing = beds.find(b => b.id === id);
-    if (!existing) {
-      return { success: false, error: 'Ranjang tidak ditemukan.' };
-    }
-
-    if (updates.name) {
-      const trimmedName = updates.name.trim();
-      if (beds.some(b => b.id !== id && b.name.toLowerCase() === trimmedName.toLowerCase())) {
-        return { success: false, error: `Nama ranjang "${trimmedName}" sudah digunakan.` };
-      }
-    }
-
-    let updatedBedObj = existing;
-    setBeds(prev => prev.map(b => {
-      if (b.id === id) {
-        const u = { ...b, ...updates };
-        updatedBedObj = u;
-        return u;
-      }
-      return b;
-    }));
-    syncSaveBed(updatedBedObj);
-    showToast(`Data ranjang "${updates.name || existing.name}" berhasil diperbarui.`, 'success');
-    return { success: true };
-  };
-
-  const deleteBed = (id: string) => {
-    const bedToDelete = beds.find(b => b.id === id);
-    if (!bedToDelete) {
-      return { success: false, error: 'Ranjang tidak ditemukan.' };
-    }
-
-    // Check if bed is currently occupied by active resting patient
-    const isOccupied = records.some(
-      r => (r.finalStatus === 'Istirahat di UKS' || r.finalStatus === 'Sedang Istirahat di UKS') && r.bedNumber === bedToDelete.name
-    );
-
-    if (isOccupied) {
-      showToast(`Ranjang "${bedToDelete.name}" sedang digunakan pasien istirahat. Harap selesaikan istirahat pasien terlebih dahulu.`, 'warning');
-      return { success: false, error: 'Ranjang sedang digunakan pasien.' };
-    }
-
-    setBeds(prev => {
-      const filtered = prev.filter(b => b.id !== id);
-      try {
-        localStorage.setItem(STORAGE_KEYS.BEDS, JSON.stringify(filtered));
-      } catch (e) {
-        console.error(e);
-      }
-      return filtered;
-    });
-    syncDeleteBed(id);
-    showToast(`Ranjang "${bedToDelete.name}" berhasil dihapus dari UKS.`, 'info');
-    return { success: true };
-  };
-
-  const setBedStatus = (id: string, status: UksBed['status']) => {
-    const bed = beds.find(b => b.id === id);
-    if (!bed) return;
-
-    const updated = { ...bed, status };
-    setBeds(prev => prev.map(b => (b.id === id ? updated : b)));
-    syncSaveBed(updated);
-    showToast(`Status "${bed.name}" diubah menjadi "${status}".`, 'info');
-  };
-
-  const releaseBed = (bedName: string) => {
-    // Find active patient on this bed and complete rest
-    const activePatient = records.find(
-      r => (r.finalStatus === 'Istirahat di UKS' || r.finalStatus === 'Sedang Istirahat di UKS') && r.bedNumber === bedName
-    );
-
-    if (activePatient) {
-      updateVisitStatus(activePatient.id, 'Kembali ke Kelas / Mengajar');
-    }
-
-    setBeds(prev => prev.map(b => {
-      if (b.name === bedName) {
-        const updated = { ...b, status: 'Tersedia' as const };
-        syncSaveBed(updated);
-        return updated;
-      }
-      return b;
-    }));
-    showToast(`Ranjang "${bedName}" telah dikosongkan dan siap digunakan kembali.`, 'success');
   };
 
   const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
@@ -1242,13 +1065,12 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const resetToDefaultData = () => {
-    setRecords(INITIAL_VISITS);
+    setRecords([]);
     setMedicines(INITIAL_MEDICINES);
     setRestockLogs([]);
     
-    INITIAL_VISITS.forEach(v => syncSaveVisit(v));
     INITIAL_MEDICINES.forEach(m => syncSaveMedicine(m));
-    showToast('Data berhasil diatur ulang ke data awal demonstrasi UKS SMAN 1 Batu.', 'info');
+    showToast('Data master obat dan pengaturan berhasil diatur ulang.', 'info');
   };
 
   return (
@@ -1257,7 +1079,6 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         records,
         medicines,
         restockLogs,
-        beds,
         activeTab,
         setActiveTab,
         navigateToTab,
@@ -1277,11 +1098,6 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         deleteUser,
         toggleUserStatus,
         resetUserPassword,
-        addBed,
-        updateBed,
-        deleteBed,
-        setBedStatus,
-        releaseBed,
         addVisitRecord,
         approveVisitRecord,
         rejectVisitRecord,

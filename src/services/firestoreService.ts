@@ -9,14 +9,13 @@ import {
   writeBatch 
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { VisitRecord, Medicine, AdminUser, SchoolInfo, UksBed } from '../types';
-import { INITIAL_VISITS, INITIAL_MEDICINES, INITIAL_ADMIN_USERS, INITIAL_BEDS, SCHOOL_INFO } from '../data/initialData';
+import { VisitRecord, Medicine, AdminUser, SchoolInfo } from '../types';
+import { INITIAL_VISITS, INITIAL_MEDICINES, INITIAL_ADMIN_USERS, SCHOOL_INFO } from '../data/initialData';
 
 const COLLECTIONS = {
   VISITS: 'visits',
   MEDICINES: 'medicines',
   USERS: 'users',
-  BEDS: 'beds',
   CONFIG: 'config'
 };
 
@@ -105,23 +104,6 @@ export const subscribeToSchoolInfo = (onUpdate: (data: SchoolInfo) => void, onEr
   );
 };
 
-export const subscribeToBeds = (onUpdate: (data: UksBed[]) => void, onError?: (error: unknown) => void) => {
-  return onSnapshot(
-    collection(db, COLLECTIONS.BEDS), 
-    (snapshot) => {
-      const beds: UksBed[] = [];
-      snapshot.forEach((d) => {
-        beds.push({ ...(d.data() as UksBed), id: d.id });
-      });
-      // Always notify listener with the latest beds array (including empty array)
-      onUpdate(beds);
-    },
-    (err) => {
-      console.warn('Firestore beds subscription error (using local state):', err);
-      if (onError) onError(err);
-    }
-  );
-};
 
 // ======================= CRUD OPERATIONS =======================
 
@@ -201,23 +183,6 @@ export const syncSaveSchoolInfo = async (info: SchoolInfo) => {
   }
 };
 
-// Beds
-export const syncSaveBed = async (bed: UksBed) => {
-  try {
-    await setDoc(doc(db, COLLECTIONS.BEDS, bed.id), bed);
-  } catch (err) {
-    console.error('Failed to sync bed to Firestore:', err);
-  }
-};
-
-export const syncDeleteBed = async (bedId: string) => {
-  try {
-    await deleteDoc(doc(db, COLLECTIONS.BEDS, bedId));
-  } catch (err) {
-    console.error('Failed to delete bed from Firestore:', err);
-  }
-};
-
 // ======================= INITIAL SEEDING HELPER =======================
 
 export const seedInitialFirestoreData = async () => {
@@ -248,15 +213,7 @@ export const seedInitialFirestoreData = async () => {
       await batch.commit();
     }
 
-    const visitSnap = await getDocs(collection(db, COLLECTIONS.VISITS));
-    if (visitSnap.empty) {
-      console.log('Seeding initial visits to Firestore...');
-      const batch = writeBatch(db);
-      INITIAL_VISITS.forEach((v) => {
-        batch.set(doc(db, COLLECTIONS.VISITS, v.id), v);
-      });
-      await batch.commit();
-    }
+    // Visits collection starts clean with actual visits only (no dummy visits seeded)
 
     // Seed initial users ONLY if users collection is empty
     const userSnap = await getDocs(collection(db, COLLECTIONS.USERS));
@@ -266,16 +223,6 @@ export const seedInitialFirestoreData = async () => {
       INITIAL_ADMIN_USERS.forEach((u) => {
         const uid = u.id || u.username;
         batch.set(doc(db, COLLECTIONS.USERS, uid), { ...u, id: uid });
-      });
-      await batch.commit();
-    }
-
-    const bedSnap = await getDocs(collection(db, COLLECTIONS.BEDS));
-    if (bedSnap.empty) {
-      console.log('Seeding initial beds to Firestore...');
-      const batch = writeBatch(db);
-      INITIAL_BEDS.forEach((b) => {
-        batch.set(doc(db, COLLECTIONS.BEDS, b.id), b);
       });
       await batch.commit();
     }
