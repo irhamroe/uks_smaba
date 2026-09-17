@@ -101,6 +101,58 @@ export const GuestBookForm: React.FC = () => {
     'Diizinkan Pulang Dijemput Ortu'
   ];
 
+  // Helper untuk toggle (tambah / hapus) opsi pilih cepat pada textarea
+  const toggleQuickTag = (currentText: string, tag: string): string => {
+    if (!currentText || !currentText.trim()) {
+      return tag;
+    }
+
+    const trimmedTag = tag.trim().toLowerCase();
+    
+    // Pisahkan teks saat ini berdasarkan pemisah koma
+    const items = currentText
+      .split(/,\s*/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const matchIndex = items.findIndex(s => s.toLowerCase() === trimmedTag);
+
+    if (matchIndex !== -1) {
+      // Jika sudah ada, hapus opsi tersebut dari daftar
+      items.splice(matchIndex, 1);
+      return items.join(', ');
+    }
+
+    // Jika tag berada di dalam teks bebas
+    if (currentText.toLowerCase().includes(trimmedTag)) {
+      const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escaped = escapeRegExp(tag.trim());
+      const regex = new RegExp(`(^|,\\s*)${escaped}(\\s*,|$)`, 'gi');
+      const replaced = currentText.replace(regex, (match, p1, p2) => {
+        if (p1.includes(',') && p2.includes(',')) return ', ';
+        return '';
+      });
+      return replaced.replace(/^[\s,]+|[\s,]+$/g, '').trim();
+    }
+
+    // Jika belum ada, tambahkan ke teks
+    const trimmed = currentText.trim();
+    if (trimmed.endsWith(',')) {
+      return `${trimmed} ${tag}`;
+    }
+    return `${trimmed}, ${tag}`;
+  };
+
+  const isTagActive = (currentText: string, tag: string): boolean => {
+    if (!currentText) return false;
+    const trimmedTag = tag.trim().toLowerCase();
+    const items = currentText
+      .split(/,\s*/)
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean);
+    return items.includes(trimmedTag) || currentText.toLowerCase().includes(trimmedTag);
+  };
+
   // Medicine selection handlers
   const handleAddMedicineRow = () => {
     // Find first medicine with available stock
@@ -500,23 +552,25 @@ export const GuestBookForm: React.FC = () => {
           <div className="mb-3">
             <span className="text-xs text-slate-500 mb-1.5 block font-medium">Pilih cepat keluhan umum:</span>
             <div className="flex flex-wrap gap-1.5">
-              {quickSymptoms.map(sym => (
-                <button
-                  key={sym}
-                  type="button"
-                  onClick={() => {
-                    if (complaint.includes(sym)) return;
-                    setComplaint(prev => prev ? `${prev}, ${sym}` : sym);
-                  }}
-                  className={`text-xs px-2.5 py-1 rounded-lg border transition font-medium cursor-pointer ${
-                    complaint.includes(sym)
-                      ? 'bg-emerald-100 border-emerald-400 text-emerald-800 font-semibold'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  {sym}
-                </button>
-              ))}
+              {quickSymptoms.map(sym => {
+                const active = isTagActive(complaint, sym);
+                return (
+                  <button
+                    key={sym}
+                    type="button"
+                    onClick={() => {
+                      setComplaint(prev => toggleQuickTag(prev, sym));
+                    }}
+                    className={`text-xs px-2.5 py-1.5 rounded-lg border transition font-medium cursor-pointer ${
+                      active
+                        ? 'bg-emerald-100 border-emerald-400 text-emerald-800 font-semibold shadow-xs'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {sym}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -582,23 +636,25 @@ export const GuestBookForm: React.FC = () => {
           <div className="mb-3">
             <span className="text-xs text-slate-500 mb-1.5 block font-medium">Pilih cepat tindakan yang diberikan:</span>
             <div className="flex flex-wrap gap-1.5">
-              {quickActions.map(act => (
-                <button
-                  key={act}
-                  type="button"
-                  onClick={() => {
-                    if (actionTaken.includes(act)) return;
-                    setActionTaken(prev => prev ? `${prev}, ${act}` : act);
-                  }}
-                  className={`text-xs px-2.5 py-1.5 min-h-[36px] rounded-lg border transition font-medium cursor-pointer ${
-                    actionTaken.includes(act)
-                      ? 'bg-teal-100 border-teal-400 text-teal-800 font-semibold shadow-2xs'
-                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  {act}
-                </button>
-              ))}
+              {quickActions.map(act => {
+                const active = isTagActive(actionTaken, act);
+                return (
+                  <button
+                    key={act}
+                    type="button"
+                    onClick={() => {
+                      setActionTaken(prev => toggleQuickTag(prev, act));
+                    }}
+                    className={`text-xs px-2.5 py-1.5 min-h-[36px] rounded-lg border transition font-medium cursor-pointer ${
+                      active
+                        ? 'bg-teal-100 border-teal-400 text-teal-800 font-semibold shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    {act}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
