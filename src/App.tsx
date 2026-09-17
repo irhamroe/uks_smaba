@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UksProvider, useUks } from './context/UksContext';
 import { Navbar } from './components/Navbar';
 import { AdminSidebar } from './components/AdminSidebar';
@@ -20,6 +20,7 @@ import {
   UserCheck,
   ShieldCheck,
   ChevronRight,
+  ChevronDown,
   LogOut,
   Sparkles
 } from 'lucide-react';
@@ -42,6 +43,22 @@ const AppContent: React.FC = () => {
   const [targetRestockId, setTargetRestockId] = useState<string | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [adminTime, setAdminTime] = useState<string>('');
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    if (isProfileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileMenuOpen]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -152,19 +169,66 @@ const AppContent: React.FC = () => {
                   <span className="font-semibold text-slate-800">{adminTime}</span>
                 </div>
 
-                {/* Quick Profile Badge */}
-                <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                    {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
-                  </div>
-                  <div className="hidden lg:flex flex-col text-left">
-                    <span className="text-xs font-bold text-slate-800 truncate max-w-[140px]">
-                      {adminUser?.name || 'Petugas UKS'}
-                    </span>
-                    <span className="text-[10px] text-emerald-700 font-semibold">
-                      {adminUser?.role || 'Admin'}
-                    </span>
-                  </div>
+                {/* Officer Profile Interactive Menu */}
+                <div className="relative pl-2 border-l border-slate-200" ref={profileMenuRef}>
+                  <button
+                    type="button"
+                    id="btn-admin-profile-menu"
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    className="flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-xl hover:bg-slate-100 transition cursor-pointer border border-transparent hover:border-slate-200 text-left select-none group"
+                    title="Klik untuk melihat profil & logout"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center shadow-xs transition">
+                      {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                    <div className="hidden lg:flex flex-col text-left">
+                      <span className="text-xs font-bold text-slate-800 truncate max-w-[140px] group-hover:text-emerald-800">
+                        {adminUser?.name || 'Petugas UKS'}
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-semibold">
+                        {adminUser?.role || 'Admin'}
+                      </span>
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180 text-emerald-700' : 'group-hover:text-slate-600'}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isProfileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95">
+                      <div className="px-3.5 py-2.5 border-b border-slate-100 bg-slate-50/70 rounded-t-xl">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Akun Petugas Aktif
+                        </div>
+                        <div className="font-bold text-xs text-slate-900 truncate mt-0.5" title={adminUser?.name}>
+                          {adminUser?.name || 'Petugas UKS'}
+                        </div>
+                        <div className="text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span>{adminUser?.role || 'Admin'} • {adminUser?.username ? `@${adminUser.username}` : 'UKS SMAN 1 Batu'}</span>
+                        </div>
+                      </div>
+
+                      <div className="p-1.5">
+                        <button
+                          type="button"
+                          id="btn-profile-dropdown-logout"
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            logoutAdmin();
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer text-left"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                            <LogOut className="w-3.5 h-3.5" />
+                          </div>
+                          <div>
+                            <div>Logout / Keluar</div>
+                            <div className="text-[10px] text-slate-400 font-normal">Akhiri sesi login admin</div>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
