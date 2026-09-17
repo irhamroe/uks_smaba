@@ -171,8 +171,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ type = 'visits' }) => 
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
               {isVisitReport 
-                ? `Laporan Rekap Kunjungan UKS ${schoolInfo.shortName}` 
-                : `Laporan Rekap Penggunaan & Stok Obat UKS ${schoolInfo.shortName}`}
+                ? 'Laporan Rekap Kunjungan Pengunjung' 
+                : 'Laporan Rekap Penggunaan & Stok Obat'}
             </h2>
             <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-xl leading-relaxed">
               {isVisitReport

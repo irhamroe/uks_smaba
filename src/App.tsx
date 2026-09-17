@@ -84,9 +84,9 @@ const AppContent: React.FC = () => {
         return { title: 'Manajemen Inventaris Stok Obat & Farmasi', category: 'Pengelolaan Farmasi' };
       case 'reports':
       case 'reports_visits':
-        return { title: 'Laporan Rekap Kunjungan Pengunjung UKS', category: 'Laporan UKS' };
+        return { title: 'Laporan Rekap Kunjungan Pengunjung', category: 'Laporan UKS' };
       case 'reports_medicines':
-        return { title: 'Laporan Rekap Penggunaan & Stok Obat UKS', category: 'Laporan UKS' };
+        return { title: 'Laporan Rekap Penggunaan & Stok Obat', category: 'Laporan UKS' };
       case 'users':
         return { title: 'Manajemen Pengguna & Hak Akses', category: 'Pengaturan Admin' };
       case 'guestbook':
