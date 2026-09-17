@@ -65,31 +65,6 @@ export const ReportsView: React.FC = () => {
   const [startDate, setStartDate] = useState<string>(defaultStartDate);
   const [endDate, setEndDate] = useState<string>(defaultEndDate);
 
-  // Quick Preset Date Ranges
-  const handleSetQuickRange = (type: 'today' | '7days' | '30days' | 'this_month') => {
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-
-    if (type === 'today') {
-      setStartDate(todayStr);
-      setEndDate(todayStr);
-    } else if (type === '7days') {
-      const past = new Date();
-      past.setDate(now.getDate() - 6);
-      setStartDate(past.toISOString().split('T')[0]);
-      setEndDate(todayStr);
-    } else if (type === '30days') {
-      const past = new Date();
-      past.setDate(now.getDate() - 29);
-      setStartDate(past.toISOString().split('T')[0]);
-      setEndDate(todayStr);
-    } else if (type === 'this_month') {
-      const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-      setStartDate(startOfMonth);
-      setEndDate(todayStr);
-    }
-  };
-
   // Human readable period label
   const periodLabel = useMemo(() => {
     if (filterMode === 'month') {
@@ -362,55 +337,23 @@ export const ReportsView: React.FC = () => {
           ) : (
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">Dari:</span>
+                <span className="text-xs font-semibold text-slate-600 shrink-0">Tanggal Awal:</span>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800"
+                  className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">Sampai:</span>
+                <span className="text-xs font-semibold text-slate-600 shrink-0">Tanggal Akhir:</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800"
+                  className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20"
                 />
-              </div>
-
-              {/* Quick Preset Buttons */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1 sm:pt-0">
-                <button
-                  type="button"
-                  onClick={() => handleSetQuickRange('today')}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
-                >
-                  Hari Ini
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSetQuickRange('7days')}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
-                >
-                  7 Hari
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSetQuickRange('30days')}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"
-                >
-                  30 Hari
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSetQuickRange('this_month')}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold"
-                >
-                  Bulan Ini
-                </button>
               </div>
             </div>
           )}
