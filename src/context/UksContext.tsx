@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
-import { Medicine, VisitRecord, RestockLog, MedicineUsage, AppTab, AdminUser, SchoolInfo } from '../types';
+import { Medicine, MedicineBatch, VisitRecord, RestockLog, MedicineUsage, AppTab, AdminUser, SchoolInfo } from '../types';
 import { INITIAL_MEDICINES, INITIAL_VISITS, INITIAL_ADMIN_USERS, SCHOOL_INFO } from '../data/initialData';
 import { 
   subscribeToVisits, 
@@ -24,6 +24,75 @@ interface ToastState {
   message: string;
   type: 'success' | 'error' | 'warning' | 'info';
 }
+
+// ==========================================
+// FEFO (First Expired First Out) & Batch Helper Functions
+// ==========================================
+export const recalculateMedicineBatches = (med: Medicine): Medicine => {
+  let batches = med.batches ? [...med.batches] : [];
+
+  // If no batches exist but medicine has stock, create an initial batch
+  if (batches.length === 0 && med.stock > 0) {
+    batches.push({
+      id: `batch-${med.id}-init`,
+      batchNumber: 'KLOTER-AWAL',
+      quantity: med.stock,
+      expiryDate: med.expiryDate || '2027-12-31',
+      receivedDate: med.lastUpdated ? med.lastUpdated.split('T')[0] : new Date().toISOString().split('T')[0],
+      note: 'Stok awal sistem'
+    });
+  }
+
+  // Filter out negative quantities
+  batches = batches.map(b => ({ ...b, quantity: Math.max(0, b.quantity) }));
+
+  // Sort batches by expiryDate ascending (FEFO)
+  batches.sort((a, b) => (a.expiryDate || '9999-99-99').localeCompare(b.expiryDate || '9999-99-99'));
+
+  // Calculate total active stock (sum of all batch quantities)
+  const totalStock = batches.reduce((sum, b) => sum + b.quantity, 0);
+
+  // Find earliest active batch (with quantity > 0)
+  const earliestActive = batches.find(b => b.quantity > 0);
+  const earliestExpiryDate = earliestActive ? earliestActive.expiryDate : (med.expiryDate || '');
+
+  return {
+    ...med,
+    batches,
+    stock: totalStock,
+    expiryDate: earliestExpiryDate,
+    lastUpdated: new Date().toISOString()
+  };
+};
+
+export const deductMedicineFefo = (med: Medicine, quantityToDeduct: number): Medicine => {
+  // If multi-dose item, we don't deduct per-visit (handled via consumeMultiDoseBottle)
+  const isMultiDose = med.usageType === 'multi_dose' || (med.unit?.toLowerCase().includes('botol') && med.usageType !== 'single_dose');
+  if (isMultiDose) return med;
+
+  const medNormalized = recalculateMedicineBatches(med);
+  let remainingToDeduct = quantityToDeduct;
+  const updatedBatches = (medNormalized.batches || []).map(b => ({ ...b }));
+
+  // Deduct from batches starting from earliest expiry date (FEFO)
+  for (let i = 0; i < updatedBatches.length && remainingToDeduct > 0; i++) {
+    const batch = updatedBatches[i];
+    if (batch.quantity > 0) {
+      if (batch.quantity >= remainingToDeduct) {
+        batch.quantity -= remainingToDeduct;
+        remainingToDeduct = 0;
+      } else {
+        remainingToDeduct -= batch.quantity;
+        batch.quantity = 0;
+      }
+    }
+  }
+
+  return recalculateMedicineBatches({
+    ...medNormalized,
+    batches: updatedBatches
+  });
+};
 
 interface UksContextType {
   records: VisitRecord[];
@@ -81,7 +150,8 @@ interface UksContextType {
   addMedicine: (data: Omit<Medicine, 'id' | 'lastUpdated'>) => void;
   updateMedicine: (id: string, updates: Partial<Omit<Medicine, 'id'>>) => void;
   deleteMedicine: (id: string) => void;
-  restockMedicine: (id: string, quantity: number, note?: string) => void;
+  restockMedicine: (id: string, quantity: number, expiryDate?: string, batchNumber?: string, note?: string) => void;
+  disposeExpiredBatch: (medicineId: string, batchId: string, reason?: string) => void;
   consumeMultiDoseBottle: (id: string) => void;
   importMedicinesFromExcel: (list: Omit<Medicine, 'id' | 'lastUpdated'>[], mode: 'merge' | 'replace') => { added: number; updated: number };
   resetToDefaultData: () => void;
@@ -91,6 +161,8 @@ interface UksContextType {
   approvedVisits: VisitRecord[];
   lowStockMedicines: Medicine[];
   outOfStockMedicines: Medicine[];
+  expiringSoonMedicines: Medicine[];
+  expiredMedicines: Medicine[];
   todayVisits: VisitRecord[];
   activePatients: VisitRecord[];
   
@@ -186,7 +258,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // 2. Realtime Medicines Subscription
     const unsubMedicines = subscribeToMedicines((cloudMeds) => {
       if (Array.isArray(cloudMeds) && cloudMeds.length > 0) {
-        setMedicines(cloudMeds);
+        const normalized = cloudMeds.map(m => recalculateMedicineBatches(m));
+        setMedicines(normalized);
       }
     });
 
@@ -348,93 +421,74 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     syncSaveUser(updatedUserObj);
 
     // If currently logged in user was updated, refresh session
-    if (adminUser && (adminUser.id === id || adminUser.username.toLowerCase() === existing.username.toLowerCase())) {
-      const refreshed: AdminUser = {
-        ...adminUser,
-        name: updates.name || adminUser.name,
-        role: updates.role || adminUser.role,
-        nip: updates.nip !== undefined ? updates.nip : adminUser.nip,
-        email: updates.email !== undefined ? updates.email : adminUser.email,
-        phone: updates.phone !== undefined ? updates.phone : adminUser.phone,
-        username: updates.username ? updates.username.trim().toLowerCase() : adminUser.username
-      };
-      setAdminUser(refreshed);
+    if (adminUser && adminUser.id === id) {
+      const refreshedSession = { ...adminUser, ...updates };
+      setAdminUser(refreshedSession);
       try {
-        localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify(refreshed));
+        localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify(refreshedSession));
       } catch (e) {
-        console.error('Failed to update current admin session:', e);
+        console.error('Failed to update admin session:', e);
       }
     }
 
-    showToast(`Data pengguna "${updates.name || existing.name}" berhasil diperbarui.`, 'success');
+    showToast(`Data pengguna "${updatedUserObj.name}" berhasil diperbarui.`, 'success');
     return { success: true };
   };
 
   const deleteUser = (id: string) => {
-    const userToDelete = users.find(u => u.id === id);
-    if (!userToDelete) {
+    const target = users.find(u => u.id === id);
+    if (!target) {
       return { success: false, error: 'Pengguna tidak ditemukan.' };
     }
 
-    // Protection for Koordinator UKS (Nita Rimayanti)
-    if (userToDelete.username.toLowerCase() === 'nita' || userToDelete.role.toLowerCase().includes('koordinator')) {
-      showToast('Akun Koordinator UKS (Nita Rimayanti) adalah akun utama dan tidak dapat dihapus.', 'warning');
-      return { success: false, error: 'Akun Koordinator UKS tidak dapat dihapus.' };
+    if (target.role === 'Koordinator UKS') {
+      const koorCount = users.filter(u => u.role === 'Koordinator UKS').length;
+      if (koorCount <= 1) {
+        return {
+          success: false,
+          error: 'Tidak dapat menghapus satu-satunya Koordinator UKS. Tetapkan pengguna lain terlebih dahulu.'
+        };
+      }
     }
 
-    if (users.length <= 1) {
-      showToast('Harus tersisa setidaknya satu akun administrator di sistem UKS.', 'warning');
-      return { success: false, error: 'Minimal harus ada satu akun administrator.' };
+    if (adminUser && adminUser.id === id) {
+      return {
+        success: false,
+        error: 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif.'
+      };
     }
 
     setUsers(prev => prev.filter(u => u.id !== id));
     syncDeleteUser(id);
-
-    // If deleted the active logged in user, logout smoothly
-    if (adminUser && (adminUser.id === id || adminUser.username.toLowerCase() === userToDelete.username.toLowerCase())) {
-      logoutAdmin();
-      showToast(`Akun "${userToDelete.name}" berhasil dihapus. Anda telah keluar dari sesi.`, 'info');
-    } else {
-      showToast(`Pengguna "${userToDelete.name}" berhasil dihapus dari sistem.`, 'info');
-    }
-
+    showToast(`Pengguna "${target.name}" telah dihapus dari sistem.`, 'info');
     return { success: true };
   };
 
   const toggleUserStatus = (id: string) => {
-    const user = users.find(u => u.id === id);
-    if (!user) return;
+    const target = users.find(u => u.id === id);
+    if (!target) return;
 
-    if (adminUser && (adminUser.id === id || adminUser.username.toLowerCase() === user.username.toLowerCase())) {
-      showToast('Anda tidak dapat menonaktifkan akun yang sedang Anda gunakan saat ini.', 'warning');
+    if (adminUser && adminUser.id === id && target.isActive !== false) {
+      showToast('Anda tidak dapat menonaktifkan akun Anda sendiri saat sedang login.', 'error');
       return;
     }
 
-    const newStatus = !user.isActive;
-    const updatedUser = { ...user, isActive: newStatus };
-    setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
-    syncSaveUser(updatedUser);
-    showToast(
-      `Status akun "${user.name}" diubah menjadi ${newStatus ? 'Aktif' : 'Nonaktif'}.`,
-      newStatus ? 'success' : 'info'
-    );
+    const updated = { ...target, isActive: !target.isActive };
+    setUsers(prev => prev.map(u => u.id === id ? updated : u));
+    syncSaveUser(updated);
+    showToast(`Status akun "${target.name}" berhasil diubah menjadi: ${updated.isActive ? 'Aktif' : 'Non-Aktif'}.`, 'info');
   };
 
   const resetUserPassword = (id: string, newPass: string) => {
-    const trimmed = newPass.trim();
-    if (!trimmed || trimmed.length < 4) {
-      return { success: false, error: 'Password minimal 4 karakter.' };
-    }
-
-    const user = users.find(u => u.id === id);
-    if (!user) {
+    const target = users.find(u => u.id === id);
+    if (!target) {
       return { success: false, error: 'Pengguna tidak ditemukan.' };
     }
 
-    const updatedUser = { ...user, password: trimmed };
-    setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
-    syncSaveUser(updatedUser);
-    showToast(`Password untuk pengguna "${user.name}" (${user.username}) berhasil direset.`, 'success');
+    const updated = { ...target, password: newPass.trim() };
+    setUsers(prev => prev.map(u => u.id === id ? updated : u));
+    syncSaveUser(updated);
+    showToast(`Password untuk "${target.name}" berhasil direset.`, 'success');
     return { success: true };
   };
 
@@ -479,6 +533,36 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const todayStr = useMemo(() => {
     return new Date().toISOString().split('T')[0];
   }, []);
+
+  const expiringSoonMedicines = useMemo(() => {
+    const today = new Date();
+    const thresholdDate = new Date();
+    thresholdDate.setDate(today.getDate() + 90); // 90 days warning
+    const todayFormatted = today.toISOString().split('T')[0];
+    const thresholdFormatted = thresholdDate.toISOString().split('T')[0];
+
+    return medicines.filter(m => {
+      if (m.stock <= 0) return false;
+      const batches = m.batches && m.batches.length > 0 ? m.batches : [];
+      if (batches.length > 0) {
+        return batches.some(b => b.quantity > 0 && b.expiryDate <= thresholdFormatted && b.expiryDate >= todayFormatted);
+      }
+      return m.expiryDate ? (m.expiryDate <= thresholdFormatted && m.expiryDate >= todayFormatted) : false;
+    });
+  }, [medicines]);
+
+  const expiredMedicines = useMemo(() => {
+    const todayFormatted = new Date().toISOString().split('T')[0];
+
+    return medicines.filter(m => {
+      if (m.stock <= 0) return false;
+      const batches = m.batches && m.batches.length > 0 ? m.batches : [];
+      if (batches.length > 0) {
+        return batches.some(b => b.quantity > 0 && b.expiryDate < todayFormatted);
+      }
+      return m.expiryDate ? (m.expiryDate < todayFormatted) : false;
+    });
+  }, [medicines]);
 
   const todayVisits = useMemo(() => {
     return records.filter(r => r.date === todayStr && (r.approvalStatus === 'approved' || !r.approvalStatus));
@@ -576,15 +660,10 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             if (isMultiDose) {
               return med;
             }
-            const newStock = Math.max(0, med.stock - used.quantity);
-            if (newStock <= med.minStock) {
-              lowStockAlerts.push(`${med.name} (Sisa: ${newStock} ${med.unit})`);
+            const updatedMedObj = deductMedicineFefo(med, used.quantity);
+            if (updatedMedObj.stock <= updatedMedObj.minStock) {
+              lowStockAlerts.push(`${updatedMedObj.name} (Sisa: ${updatedMedObj.stock} ${updatedMedObj.unit})`);
             }
-            const updatedMedObj = {
-              ...med,
-              stock: newStock,
-              lastUpdated: new Date().toISOString()
-            };
             syncSaveMedicine(updatedMedObj);
             return updatedMedObj;
           }
@@ -682,15 +761,10 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             // Multi-dose item: do not deduct bottle stock
             return med;
           }
-          const newStock = Math.max(0, med.stock - used.quantity);
-          if (newStock <= med.minStock) {
-            lowStockAlerts.push(`${med.name} (Sisa: ${newStock} ${med.unit})`);
+          const updatedMedObj = deductMedicineFefo(med, used.quantity);
+          if (updatedMedObj.stock <= updatedMedObj.minStock) {
+            lowStockAlerts.push(`${updatedMedObj.name} (Sisa: ${updatedMedObj.stock} ${updatedMedObj.unit})`);
           }
-          const updatedMedObj = {
-            ...med,
-            stock: newStock,
-            lastUpdated: new Date().toISOString()
-          };
           syncSaveMedicine(updatedMedObj);
           return updatedMedObj;
         }
@@ -754,11 +828,22 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Medicine Management
   const addMedicine = (data: Omit<Medicine, 'id' | 'lastUpdated'>) => {
-    const newMed: Medicine = {
-      ...data,
-      id: `med-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      lastUpdated: new Date().toISOString()
+    const medId = `med-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
+    const initialBatch: MedicineBatch = {
+      id: `batch-${medId}-init`,
+      batchNumber: 'KLOTER-AWAL',
+      quantity: data.stock,
+      expiryDate: data.expiryDate || '2027-12-31',
+      receivedDate: new Date().toISOString().split('T')[0],
+      note: 'Stok awal penambahan obat'
     };
+
+    const newMed: Medicine = recalculateMedicineBatches({
+      ...data,
+      id: medId,
+      batches: data.batches && data.batches.length > 0 ? data.batches : (data.stock > 0 ? [initialBatch] : []),
+      lastUpdated: new Date().toISOString()
+    });
     setMedicines(prev => [newMed, ...prev]);
     syncSaveMedicine(newMed);
     showToast(`Obat "${data.name}" berhasil ditambahkan ke inventaris cloud.`, 'success');
@@ -767,11 +852,11 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const updateMedicine = (id: string, updates: Partial<Omit<Medicine, 'id'>>) => {
     setMedicines(prev => prev.map(m => {
       if (m.id === id) {
-        const updated = {
+        const updated = recalculateMedicineBatches({
           ...m,
           ...updates,
           lastUpdated: new Date().toISOString()
-        };
+        });
         syncSaveMedicine(updated);
         return updated;
       }
@@ -787,16 +872,35 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast(`Obat "${target?.name || ''}" telah dihapus dari cloud.`, 'info');
   };
 
-  const restockMedicine = (id: string, quantity: number, note?: string) => {
+  const restockMedicine = (
+    id: string, 
+    quantity: number, 
+    expiryDate?: string, 
+    batchNumber?: string, 
+    note?: string
+  ) => {
     const target = medicines.find(m => m.id === id);
     if (!target) return;
 
-    const newStock = target.stock + quantity;
-    const updatedMed = {
-      ...target,
-      stock: newStock,
-      lastUpdated: new Date().toISOString()
+    const targetNormalized = recalculateMedicineBatches(target);
+    const expDate = expiryDate || target.expiryDate || '2027-12-31';
+    const bNumber = batchNumber?.trim() || `LOT-${new Date().toISOString().slice(2, 10).replace(/-/g, '')}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
+
+    const newBatch: MedicineBatch = {
+      id: `batch-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      batchNumber: bNumber,
+      quantity: quantity,
+      expiryDate: expDate,
+      receivedDate: new Date().toISOString().split('T')[0],
+      note: note || 'Penambahan stok kloter baru'
     };
+
+    const updatedBatches = [...(targetNormalized.batches || []), newBatch];
+    const updatedMed = recalculateMedicineBatches({
+      ...targetNormalized,
+      batches: updatedBatches
+    });
+
     setMedicines(prev => prev.map(m => m.id === id ? updatedMed : m));
     syncSaveMedicine(updatedMed);
 
@@ -805,13 +909,49 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       medicineId: id,
       medicineName: target.name,
       addedQuantity: quantity,
+      expiryDate: expDate,
+      batchNumber: bNumber,
       date: new Date().toISOString().split('T')[0],
-      note: note || 'Penambahan stok manual'
+      note: note || 'Penambahan stok kloter baru'
     };
     setRestockLogs(prev => [newLog, ...prev]);
     syncSaveRestockLog(newLog);
 
-    showToast(`Stok "${target.name}" berhasil ditambah +${quantity} ${target.unit}. Total sekarang: ${newStock} ${target.unit}.`, 'success');
+    showToast(`Stok "${target.name}" berhasil ditambah +${quantity} ${target.unit} (Kloter Exp: ${expDate}). Total sekarang: ${updatedMed.stock} ${target.unit}.`, 'success');
+  };
+
+  const disposeExpiredBatch = (medicineId: string, batchId: string, reason?: string) => {
+    const target = medicines.find(m => m.id === medicineId);
+    if (!target) return;
+
+    const targetNormalized = recalculateMedicineBatches(target);
+    const foundBatch = targetNormalized.batches?.find(b => b.id === batchId);
+    if (!foundBatch) return;
+
+    const disposedQty = foundBatch.quantity;
+    const updatedBatches = (targetNormalized.batches || []).filter(b => b.id !== batchId);
+    const updatedMed = recalculateMedicineBatches({
+      ...targetNormalized,
+      batches: updatedBatches
+    });
+
+    setMedicines(prev => prev.map(m => m.id === medicineId ? updatedMed : m));
+    syncSaveMedicine(updatedMed);
+
+    const newLog: RestockLog = {
+      id: `dispose-${Date.now()}`,
+      medicineId: medicineId,
+      medicineName: target.name,
+      addedQuantity: -disposedQty,
+      expiryDate: foundBatch.expiryDate,
+      batchNumber: foundBatch.batchNumber,
+      date: new Date().toISOString().split('T')[0],
+      note: reason || `Pemusnahan stok kedaluwarsa (${disposedQty} ${target.unit})`
+    };
+    setRestockLogs(prev => [newLog, ...prev]);
+    syncSaveRestockLog(newLog);
+
+    showToast(`Kloter ${foundBatch.batchNumber || foundBatch.expiryDate} (${disposedQty} ${target.unit}) "${target.name}" berhasil dimusnahkan/dihapus dari stok aktif.`, 'info');
   };
 
   // Consume 1 bottle/tube of multi-dose medicine when completely finished
@@ -824,16 +964,11 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return;
     }
 
-    const newStock = Math.max(0, target.stock - 1);
-    const updatedMed = {
-      ...target,
-      stock: newStock,
-      lastUpdated: new Date().toISOString()
-    };
+    const updatedMed = deductMedicineFefo(target, 1);
     setMedicines(prev => prev.map(m => m.id === id ? updatedMed : m));
     syncSaveMedicine(updatedMed);
 
-    showToast(`1 ${target.unit} "${target.name}" ditandai habis. Sisa stok di UKS: ${newStock} ${target.unit}.`, newStock <= target.minStock ? 'warning' : 'success');
+    showToast(`1 ${target.unit} "${target.name}" ditandai habis. Sisa stok di UKS: ${updatedMed.stock} ${target.unit}.`, updatedMed.stock <= target.minStock ? 'warning' : 'success');
   };
 
   const importMedicinesFromExcel = (
@@ -845,11 +980,23 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     if (mode === 'replace') {
       const oldIds = medicines.map(m => m.id);
-      const newItems: Medicine[] = list.map((item, idx) => ({
-        ...item,
-        id: `med-import-${Date.now()}-${idx}`,
-        lastUpdated: new Date().toISOString()
-      }));
+      const newItems: Medicine[] = list.map((item, idx) => {
+        const medId = `med-import-${Date.now()}-${idx}`;
+        const initialBatch: MedicineBatch = {
+          id: `batch-${medId}-init`,
+          batchNumber: 'KLOTER-IMPORT',
+          quantity: item.stock,
+          expiryDate: item.expiryDate || '2027-12-31',
+          receivedDate: new Date().toISOString().split('T')[0],
+          note: 'Impor Excel'
+        };
+        return recalculateMedicineBatches({
+          ...item,
+          id: medId,
+          batches: [initialBatch],
+          lastUpdated: new Date().toISOString()
+        });
+      });
       setMedicines(newItems);
       syncReplaceAllMedicines(oldIds, newItems);
       added = newItems.length;
@@ -871,28 +1018,49 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           const existing = currentMap.get(key)!;
           const targetIndex = result.findIndex(m => m.id === existing.id);
           if (targetIndex !== -1) {
-            result[targetIndex] = {
+            const extraBatch: MedicineBatch = {
+              id: `batch-${existing.id}-${Date.now()}-${idx}`,
+              batchNumber: 'KLOTER-IMPORT',
+              quantity: item.stock,
+              expiryDate: item.expiryDate || existing.expiryDate || '2027-12-31',
+              receivedDate: new Date().toISOString().split('T')[0],
+              note: 'Impor Excel Merge'
+            };
+
+            const updatedBatches = [...(existing.batches || []), extraBatch];
+            const updatedMed = recalculateMedicineBatches({
               ...result[targetIndex],
-              stock: result[targetIndex].stock + item.stock, // Add incoming stock
               category: item.category || result[targetIndex].category,
               unit: item.unit || result[targetIndex].unit,
               usageType: item.usageType || result[targetIndex].usageType,
               minStock: item.minStock || result[targetIndex].minStock,
-              expiryDate: item.expiryDate || result[targetIndex].expiryDate,
               location: item.location || result[targetIndex].location,
               description: item.description || result[targetIndex].description,
+              batches: updatedBatches,
               lastUpdated: new Date().toISOString()
-            };
-            syncSaveMedicine(result[targetIndex]);
+            });
+
+            result[targetIndex] = updatedMed;
+            syncSaveMedicine(updatedMed);
             updated++;
           }
         } else {
           // Add new
-          const newMed: Medicine = {
-            ...item,
-            id: `med-import-${Date.now()}-${idx}`,
-            lastUpdated: new Date().toISOString()
+          const medId = `med-import-${Date.now()}-${idx}`;
+          const initialBatch: MedicineBatch = {
+            id: `batch-${medId}-init`,
+            batchNumber: 'KLOTER-IMPORT',
+            quantity: item.stock,
+            expiryDate: item.expiryDate || '2027-12-31',
+            receivedDate: new Date().toISOString().split('T')[0],
+            note: 'Impor Excel'
           };
+          const newMed: Medicine = recalculateMedicineBatches({
+            ...item,
+            id: medId,
+            batches: [initialBatch],
+            lastUpdated: new Date().toISOString()
+          });
           result.push(newMed);
           currentMap.set(key, newMed);
           syncSaveMedicine(newMed);
@@ -909,10 +1077,11 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const resetToDefaultData = () => {
     setRecords([]);
-    setMedicines(INITIAL_MEDICINES);
+    const normalizedInitial = INITIAL_MEDICINES.map(m => recalculateMedicineBatches(m));
+    setMedicines(normalizedInitial);
     setRestockLogs([]);
     
-    INITIAL_MEDICINES.forEach(m => syncSaveMedicine(m));
+    normalizedInitial.forEach(m => syncSaveMedicine(m));
     showToast('Data master obat dan pengaturan berhasil diatur ulang.', 'info');
   };
 
@@ -950,6 +1119,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateMedicine,
         deleteMedicine,
         restockMedicine,
+        disposeExpiredBatch,
         consumeMultiDoseBottle,
         importMedicinesFromExcel,
         resetToDefaultData,
@@ -957,6 +1127,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         approvedVisits,
         lowStockMedicines,
         outOfStockMedicines,
+        expiringSoonMedicines,
+        expiredMedicines,
         todayVisits,
         activePatients,
         toast,

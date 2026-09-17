@@ -43,6 +43,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
     medicines,
     lowStockMedicines,
     outOfStockMedicines,
+    expiringSoonMedicines,
+    expiredMedicines,
     pendingVisits,
     approvedVisits,
     approveVisitRecord,
@@ -405,6 +407,73 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
               className="whitespace-nowrap px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer shrink-0"
             >
               Buka Inventaris Obat &rarr;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* NOTIFIKASI PERINGATAN OBAT KEDALUWARSA / MENDEKATI EXPIRED */}
+      {(expiredMedicines.length > 0 || expiringSoonMedicines.length > 0) && (
+        <div className="bg-gradient-to-r from-red-500/10 via-rose-50 to-amber-50 border border-rose-300 rounded-2xl p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-rose-950">
+                    Peringatan Kedaluwarsa Obat (FEFO Alert)!
+                  </h3>
+                  {expiredMedicines.length > 0 && (
+                    <span className="bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                      {expiredMedicines.length} Obat Kedaluwarsa
+                    </span>
+                  )}
+                  {expiringSoonMedicines.length > 0 && (
+                    <span className="bg-amber-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                      {expiringSoonMedicines.length} Mendekati Expired
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-rose-900/90 mt-0.5">
+                  Terdapat kloter obat yang sudah melewati tanggal kedaluwarsa atau mendekati masa expired (&le; 3 bulan). Periksa rincian kloter pada menu inventaris.
+                </p>
+
+                {/* List of pills with expiry alerts */}
+                <div className="flex flex-wrap gap-2 mt-2.5">
+                  {expiredMedicines.map(m => (
+                    <div
+                      key={m.id}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 border border-red-300 text-red-900"
+                    >
+                      <span className="font-bold">{m.name}</span>
+                      <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.2 rounded font-bold">
+                        Expired ({m.expiryDate})
+                      </span>
+                    </div>
+                  ))}
+                  {expiringSoonMedicines.filter(m => !expiredMedicines.some(em => em.id === m.id)).map(m => (
+                    <div
+                      key={m.id}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-amber-300 text-amber-900"
+                    >
+                      <span>{m.name}</span>
+                      <span className="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded font-bold">
+                        Exp: {m.expiryDate}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigateToTab('inventory')}
+              className="whitespace-nowrap px-4 py-2 bg-rose-700 hover:bg-rose-800 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer shrink-0"
+            >
+              Kelola Kloter Obat &rarr;
             </button>
           </div>
         </div>

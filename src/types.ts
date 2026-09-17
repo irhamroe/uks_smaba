@@ -45,6 +45,15 @@ export interface VisitRecord {
 
 export type MedicineUsageType = 'single_dose' | 'multi_dose';
 
+export interface MedicineBatch {
+  id: string;
+  batchNumber?: string; // e.g. "LOT-2026-01" atau "KLOTER-A"
+  quantity: number;     // Sisa stok dalam batch/kloter ini
+  expiryDate: string;   // YYYY-MM-DD
+  receivedDate?: string;// YYYY-MM-DD
+  note?: string;
+}
+
 export interface Medicine {
   id: string;
   name: string;
@@ -53,7 +62,8 @@ export interface Medicine {
   usageType?: MedicineUsageType; // 'single_dose' (tablet/sachet) vs 'multi_dose' (minyak/rivanol/betadine/salep)
   stock: number;
   minStock: number;
-  expiryDate?: string; // YYYY-MM-DD
+  expiryDate?: string; // YYYY-MM-DD (Earliest active batch expiry date)
+  batches?: MedicineBatch[]; // Rincian kloter/batch obat
   location?: string; // e.g. Lemari Obat A-1
   description?: string;
   lastUpdated: string;
@@ -64,6 +74,8 @@ export interface RestockLog {
   medicineId: string;
   medicineName: string;
   addedQuantity: number;
+  expiryDate?: string;
+  batchNumber?: string;
   date: string;
   note?: string;
 }

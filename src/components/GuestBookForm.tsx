@@ -842,13 +842,14 @@ export const GuestBookForm: React.FC = () => {
                         >
                           {medicines.map(m => {
                             const isMulti = m.usageType === 'multi_dose' || ((m.unit === 'Botol' || m.unit === 'Tube') && m.usageType !== 'single_dose');
+                            const isExpired = m.expiryDate && m.expiryDate < new Date().toISOString().split('T')[0];
                             return (
                               <option
                                 key={m.id}
                                 value={m.id}
-                                disabled={m.stock === 0}
+                                disabled={m.stock === 0 || isExpired}
                               >
-                                {m.name} — Stok: {m.stock} {m.unit} {isMulti ? '(Multi-Pakai)' : ''} {m.stock === 0 ? '(HABIS)' : m.stock <= m.minStock ? '(MENIPIS)' : ''}
+                                {m.name} — Stok: {m.stock} {m.unit} {isMulti ? '(Multi-Pakai)' : ''} {m.stock === 0 ? '(HABIS)' : isExpired ? '(KEDALUWARSA)' : m.stock <= m.minStock ? '(MENIPIS)' : ''}
                               </option>
                             );
                           })}
@@ -863,6 +864,14 @@ export const GuestBookForm: React.FC = () => {
                               }`}>
                               Sisa Stok: {currentMedObj.stock} {currentMedObj.unit}
                             </span>
+                            {currentMedObj.expiryDate && (
+                              <>
+                                <span className="text-slate-300">•</span>
+                                <span className="text-slate-500 text-[11px]">
+                                  Exp (FEFO): <strong>{currentMedObj.expiryDate}</strong>
+                                </span>
+                              </>
+                            )}
                             {isMultiDose && (
                               <span className="text-[11px] text-sky-700 font-medium">
                                 (Stok botol utuh, dioles/diteteskan)
