@@ -698,23 +698,15 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
 
     const now = new Date();
-    let updatedVisit: VisitRecord = visit;
+    const updatedVisit: VisitRecord = {
+      ...visit,
+      approvalStatus: 'approved',
+      approvedBy: adminUser?.name || 'Petugas UKS',
+      handledBy: adminUser?.name || 'Petugas UKS',
+      approvedAt: now.toISOString()
+    };
 
-    setRecords(prev => prev.map(r => {
-      if (r.id === id) {
-        const u: VisitRecord = {
-          ...r,
-          approvalStatus: 'approved',
-          approvedBy: adminUser?.name || 'Petugas UKS',
-          handledBy: adminUser?.name || 'Petugas UKS',
-          approvedAt: now.toISOString()
-        };
-        updatedVisit = u;
-        return u;
-      }
-      return r;
-    }));
-
+    setRecords(prev => prev.map(r => r.id === id ? updatedVisit : r));
     syncSaveVisit(updatedVisit);
     showToast(`Kunjungan "${visit.visitorName}" berhasil disetujui & data inventaris sinkron!`, 'success');
     return { success: true };
@@ -727,21 +719,13 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: false, error: 'Catatan kunjungan tidak ditemukan.' };
     }
 
-    let updatedVisit: VisitRecord = visit;
+    const updatedVisit: VisitRecord = {
+      ...visit,
+      approvalStatus: 'rejected',
+      rejectedReason: reason || 'Pengajuan kunjungan ditolak oleh Petugas UKS'
+    };
 
-    setRecords(prev => prev.map(r => {
-      if (r.id === id) {
-        const u: VisitRecord = {
-          ...r,
-          approvalStatus: 'rejected',
-          rejectedReason: reason || 'Pengajuan kunjungan ditolak oleh Petugas UKS'
-        };
-        updatedVisit = u;
-        return u;
-      }
-      return r;
-    }));
-
+    setRecords(prev => prev.map(r => r.id === id ? updatedVisit : r));
     syncSaveVisit(updatedVisit);
     showToast(`Pengajuan kunjungan "${visit.visitorName}" telah ditolak. Stok obat aman & tidak berkurang.`, 'info');
     return { success: true };
@@ -754,14 +738,11 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateVisitStatus = (id: string, status: VisitRecord['finalStatus']) => {
-    setRecords(prev => prev.map(r => {
-      if (r.id === id) {
-        const updated = { ...r, finalStatus: status };
-        syncSaveVisit(updated);
-        return updated;
-      }
-      return r;
-    }));
+    const visit = records.find(r => r.id === id);
+    if (!visit) return;
+    const updated: VisitRecord = { ...visit, finalStatus: status };
+    setRecords(prev => prev.map(r => r.id === id ? updated : r));
+    syncSaveVisit(updated);
     showToast('Status kunjungan berhasil diperbarui.', 'success');
   };
 
