@@ -107,9 +107,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
     {
       id: 'guestbook' as AppTab,
-      label: 'Buku Tamu Siswa',
+      label: 'Buku Kontrol Pengunjung',
       icon: ClipboardList,
-      description: 'Formulir kunjungan publik',
+      description: 'Formulir kunjungan UKS',
       isPublic: true
     }
   ];

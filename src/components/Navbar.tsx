@@ -76,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
                 </h1>
               </div>
               <p className="text-xs text-slate-500 font-medium truncate max-w-[200px] sm:max-w-none">
-                Buku Tamu Siswa & Farmasi Sekolah
+                Buku Kontrol Pengunjung & Farmasi UKS
               </p>
             </div>
           </div>
@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
           {/* Center / Desktop Info - Clean branding */}
           <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200/80">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Buku Tamu & Pelayanan Kesehatan Digital UKS</span>
+            <span>Buku Kontrol Pengunjung & Farmasi Digital UKS</span>
           </div>
 
           {/* Right Action: Live Clock & Admin Login Button */}

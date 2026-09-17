@@ -220,14 +220,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-base font-extrabold text-amber-950">
-                    Antrean Verifikasi Formulir Buku Tamu UKS
+                    Antrean Verifikasi Formulir Buku Kontrol Pengunjung UKS
                   </h3>
                   <span className="bg-amber-600 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-xs animate-pulse">
                     {pendingVisits.length} Pengajuan Menunggu
                   </span>
                 </div>
                 <p className="text-xs text-amber-900/90 mt-0.5 leading-relaxed">
-                  Pengunjung mengisi buku tamu publik. Data kunjungan & pemotongan stok obat baru akan diproses resmi setelah disetujui oleh Petugas UKS.
+                  Pengunjung mengisi buku kontrol publik. Data kunjungan & pemotongan stok obat baru akan diproses resmi setelah disetujui oleh Petugas UKS.
                 </p>
               </div>
             </div>
@@ -281,6 +281,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                       </div>
                     )}
                   </div>
+
+                  {/* Drug Allergy Alert */}
+                  {visit.hasDrugAllergy ? (
+                    <div className="bg-rose-50 border border-rose-200 text-rose-800 p-2 rounded-xl text-xs flex items-start gap-1.5">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-[11px] block text-rose-900">Perhatian: Ada Alergi Obat!</span>
+                        <span className="text-[11px] text-rose-700 font-medium">{visit.drugAllergyDescription || 'Alergi obat dilaporkan'}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-emerald-700 bg-emerald-50/70 border border-emerald-200/80 px-2 py-1 rounded-lg flex items-center gap-1 font-medium">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <span>Konfirmasi: Tidak ada alergi obat</span>
+                    </div>
+                  )}
 
                   {/* Medicines Requested */}
                   <div>
@@ -654,9 +670,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                         <span className="font-semibold text-slate-800">{record.classOrPosition}</span>
                       </td>
 
-                      {/* Keluhan */}
+                      {/* Keluhan & Alergi */}
                       <td className="py-3.5 px-4 max-w-xs">
                         <p className="line-clamp-2 text-slate-800">{record.complaint}</p>
+                        {record.hasDrugAllergy ? (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center gap-1 bg-rose-100 border border-rose-200 text-rose-800 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                              <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
+                              Alergi: {record.drugAllergyDescription || 'Ada Riwayat Alergi'}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="mt-0.5">
+                            <span className="text-[10px] text-slate-400">
+                              (Alergi Obat: -)
+                            </span>
+                          </div>
+                        )}
                         {(record.temperature || record.bloodPressure) && (
                           <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
                             {record.temperature && <span>Suhu: {record.temperature}°C</span>}
@@ -910,6 +940,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                 <p className="text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                   {selectedVisit.complaint}
                 </p>
+              </div>
+
+              {/* Drug Allergy Status */}
+              <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
+                selectedVisit.hasDrugAllergy ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              }`}>
+                {selectedVisit.hasDrugAllergy ? (
+                  <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                ) : (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1">
+                  <span className="font-bold text-xs block">
+                    Riwayat Alergi Obat: {selectedVisit.hasDrugAllergy ? 'ADA ALERGI OBAT' : 'Tidak Ada Riwayat Alergi'}
+                  </span>
+                  {selectedVisit.hasDrugAllergy && (
+                    <p className="text-xs text-rose-700 mt-0.5 font-semibold">
+                      Nama Obat Alergi: {selectedVisit.drugAllergyDescription || 'Perlu konfirmasi dengan pasien'}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>

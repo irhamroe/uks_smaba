@@ -13,6 +13,7 @@ import {
   Thermometer, 
   Gauge, 
   AlertCircle,
+  AlertTriangle,
   FileText,
   Clock,
   Send,
@@ -33,6 +34,8 @@ export const GuestBookForm: React.FC = () => {
   const [gender, setGender] = useState<Gender>('L');
   const [classOrPosition, setClassOrPosition] = useState('');
   const [complaint, setComplaint] = useState('');
+  const [hasDrugAllergy, setHasDrugAllergy] = useState(false);
+  const [drugAllergyDescription, setDrugAllergyDescription] = useState('');
   const [actionTaken, setActionTaken] = useState('');
   const [needsMedicine, setNeedsMedicine] = useState(false);
   const [medicinesGiven, setMedicinesGiven] = useState<MedicineUsage[]>([]);
@@ -79,8 +82,14 @@ export const GuestBookForm: React.FC = () => {
 
   const quickSymptoms = [
     'Pusing / Sakit Kepala',
-    'Mual / Sakit Perut (Maag)',
+    'Mual / Muntah',
+    'Sakit Tenggorokan',
+    'Sariawan',
+    'Flu (Batuk)',
+    'Flu (Pilek)',
     'Demam / Meriang',
+    'Diare',
+    'Sakit Perut / Maag',
     'Kram Haid (Dismenore)',
     'Luka Lecet / Terkilir',
     'Pingsan saat Upacara',
@@ -240,6 +249,11 @@ export const GuestBookForm: React.FC = () => {
       return;
     }
 
+    if (hasDrugAllergy && !drugAllergyDescription.trim()) {
+      setErrorMessage('Anda menandai memiliki alergi obat. Silakan sebutkan nama obat atau jenis zat yang menyebabkan alergi.');
+      return;
+    }
+
     if (!actionTaken.trim()) {
       setErrorMessage('Tindakan atau penanganan awal wajib diisi.');
       return;
@@ -256,6 +270,8 @@ export const GuestBookForm: React.FC = () => {
       classOrPosition,
       gender,
       complaint,
+      hasDrugAllergy,
+      drugAllergyDescription: hasDrugAllergy ? drugAllergyDescription : '',
       actionTaken,
       needsMedicine,
       medicinesGiven: needsMedicine ? medicinesGiven : [],
@@ -281,6 +297,8 @@ export const GuestBookForm: React.FC = () => {
       classOrPosition,
       gender,
       complaint,
+      hasDrugAllergy,
+      drugAllergyDescription: hasDrugAllergy ? drugAllergyDescription : '',
       actionTaken,
       needsMedicine,
       medicinesGiven: needsMedicine ? medicinesGiven : [],
@@ -296,6 +314,8 @@ export const GuestBookForm: React.FC = () => {
     setVisitorName('');
     setClassOrPosition('');
     setComplaint('');
+    setHasDrugAllergy(false);
+    setDrugAllergyDescription('');
     setActionTaken('');
     setNeedsMedicine(false);
     setMedicinesGiven([]);
@@ -315,13 +335,13 @@ export const GuestBookForm: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-1.5 bg-emerald-950/40 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold text-emerald-100 mb-2.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-              Buku Tamu Digital UKS Terintegrasi
+              Buku Kontrol Pengunjung Digital UKS
             </div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
               Selamat Datang di UKS SMAN 1 Batu
             </h2>
             <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-xl leading-relaxed">
-              Silakan mengisi formulir kunjungan di bawah ini.
+              Silakan mengisi formulir buku kontrol kunjungan UKS di bawah ini.
             </p>
           </div>
 
@@ -622,6 +642,83 @@ export const GuestBookForm: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* SECTION: Konfirmasi Riwayat Alergi Obat */}
+        <div className={`rounded-2xl border p-4 sm:p-5 transition-all ${
+          hasDrugAllergy 
+            ? 'bg-rose-50/80 border-rose-300 ring-2 ring-rose-500/15' 
+            : 'bg-slate-50/80 border-slate-200'
+        }`}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-xs ${
+                hasDrugAllergy ? 'bg-rose-600 shadow-rose-500/30' : 'bg-slate-700'
+              }`}>
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  Konfirmasi Riwayat Alergi Obat
+                  <span className="text-red-500">*</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Apakah pengunjung memiliki riwayat alergi terhadap obat-obatan tertentu?
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto shrink-0">
+              <button
+                type="button"
+                id="allergy-btn-no"
+                onClick={() => {
+                  setHasDrugAllergy(false);
+                  setDrugAllergyDescription('');
+                }}
+                className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer text-center ${
+                  !hasDrugAllergy
+                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                ✓ Tidak Ada Alergi
+              </button>
+
+              <button
+                type="button"
+                id="allergy-btn-yes"
+                onClick={() => setHasDrugAllergy(true)}
+                className={`min-h-[42px] px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer text-center ${
+                  hasDrugAllergy
+                    ? 'bg-rose-600 border-rose-600 text-white shadow-xs'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700'
+                }`}
+              >
+                ⚠ Ada Alergi Obat
+              </button>
+            </div>
+          </div>
+
+          {hasDrugAllergy && (
+            <div className="mt-3.5 pt-3.5 border-t border-rose-200 animate-in fade-in">
+              <label htmlFor="input-allergy-desc" className="block text-xs font-bold text-rose-900 mb-1.5">
+                Sebutkan Nama Obat yang Menyebabkan Alergi: <span className="text-rose-600">*</span>
+              </label>
+              <input
+                id="input-allergy-desc"
+                type="text"
+                required={hasDrugAllergy}
+                value={drugAllergyDescription}
+                onChange={(e) => setDrugAllergyDescription(e.target.value)}
+                placeholder="Contoh: Alergi Paracetamol, Antibiotik Amoxicillin, Golongan Sulfa, Asam Mefenamat, dll."
+                className="bs-form-control w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-rose-300 bg-white text-base sm:text-sm text-slate-800 placeholder-slate-400 focus:border-rose-600 focus:ring-4 focus:ring-rose-500/20 transition"
+              />
+              <p className="text-[11px] text-rose-700 mt-1.5 flex items-center gap-1 font-medium">
+                <span>Peringatan: Petugas UKS tidak akan memberikan obat yang mengandung bahan/zat pemicu alergi di atas.</span>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* SECTION 3: Tindakan / Penanganan UKS */}
@@ -968,6 +1065,16 @@ export const GuestBookForm: React.FC = () => {
                   {lastSubmitted.medicinesGiven.length > 0
                     ? lastSubmitted.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
                     : 'Tidak ada obat'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-200">
+                <span className="text-slate-500 font-medium">Riwayat Alergi Obat:</span>
+                <span className={`font-bold text-right max-w-[200px] truncate ${
+                  lastSubmitted.hasDrugAllergy ? 'text-rose-600' : 'text-emerald-700'
+                }`}>
+                  {lastSubmitted.hasDrugAllergy 
+                    ? `Ada (${lastSubmitted.drugAllergyDescription || 'Perlu Perhatian'})` 
+                    : 'Tidak Ada Alergi'}
                 </span>
               </div>
               <div className="flex justify-between py-1">

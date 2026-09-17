@@ -87,7 +87,7 @@ const AppContent: React.FC = () => {
       case 'users':
         return { title: 'Manajemen Pengguna & Hak Akses', category: 'Pengaturan Admin' };
       case 'guestbook':
-        return { title: 'Formulir Buku Tamu Digital UKS', category: 'Layanan Publik' };
+        return { title: 'Formulir Buku Kontrol Pengunjung UKS', category: 'Layanan Pengunjung' };
       case 'login':
         return { title: 'Autentikasi Petugas UKS', category: 'Keamanan' };
       default:

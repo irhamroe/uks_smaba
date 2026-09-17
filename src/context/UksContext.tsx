@@ -64,9 +64,10 @@ interface UksContextType {
     needsMedicine: boolean;
     medicinesGiven: MedicineUsage[];
     notes?: string;
-    finalStatus: VisitRecord['finalStatus'];
     temperature?: string;
     bloodPressure?: string;
+    hasDrugAllergy?: boolean;
+    drugAllergyDescription?: string;
     customDate?: string;
     customTime?: string;
   }) => { success: boolean; error?: string };
@@ -501,7 +502,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     finalStatus: VisitRecord['finalStatus'];
     temperature?: string;
     bloodPressure?: string;
-    bedNumber?: string;
+    hasDrugAllergy?: boolean;
+    drugAllergyDescription?: string;
     customDate?: string;
     customTime?: string;
   }) => {
@@ -553,6 +555,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         finalStatus: data.finalStatus,
         temperature: data.temperature?.trim() || '',
         bloodPressure: data.bloodPressure?.trim() || '',
+        hasDrugAllergy: data.hasDrugAllergy ?? false,
+        drugAllergyDescription: data.drugAllergyDescription?.trim() || '',
         approvalStatus: 'approved',
         approvedBy: adminUser?.name || 'Petugas UKS',
         handledBy: adminUser?.name || 'Petugas UKS',
@@ -619,6 +623,8 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       finalStatus: data.finalStatus,
       temperature: data.temperature?.trim() || '',
       bloodPressure: data.bloodPressure?.trim() || '',
+      hasDrugAllergy: data.hasDrugAllergy ?? false,
+      drugAllergyDescription: data.drugAllergyDescription?.trim() || '',
       approvalStatus: 'pending'
     };
 

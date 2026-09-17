@@ -64,7 +64,7 @@ export const AdminLoginView: React.FC = () => {
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-emerald-700 transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            Kembali ke Buku Tamu (Tanpa Login)
+            Kembali ke Buku Kontrol Pengunjung (Tanpa Login)
           </button>
         </div>
 
@@ -188,7 +188,7 @@ export const AdminLoginView: React.FC = () => {
                   }}
                   className="text-emerald-700 hover:text-emerald-900 font-bold hover:underline ml-1 cursor-pointer"
                 >
-                  Buka Buku Tamu Siswa/Guru &rarr;
+                  Buka Buku Kontrol Pengunjung &rarr;
                 </button>
               </p>
             </div>

@@ -34,6 +34,8 @@ export interface VisitRecord {
   temperature?: string; // e.g. "36.8"
   bloodPressure?: string; // e.g. "110/70"
   bedNumber?: string;
+  hasDrugAllergy?: boolean; // Konfirmasi apakah ada riwayat alergi obat atau tidak
+  drugAllergyDescription?: string; // Keterangan obat yang dialergi jika ada
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   approvedBy?: string;
   approvedAt?: string;
