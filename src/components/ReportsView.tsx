@@ -436,66 +436,68 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ type = 'visits' }) => 
           {/* TABLE PREVIEW */}
           {isVisitReport ? (
             /* Table 1: Rekap Kunjungan */
-            <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
-              <table className="w-full text-left">
-                <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-[11px]">
-                  <tr>
-                    <th className="py-2.5 px-3">No</th>
-                    <th className="py-2.5 px-3">Waktu</th>
-                    <th className="py-2.5 px-3">Nama Pasien</th>
-                    <th className="py-2.5 px-3">Kelas/Jabatan</th>
-                    <th className="py-2.5 px-3">Keluhan</th>
-                    <th className="py-2.5 px-3">Alergi Obat</th>
-                    <th className="py-2.5 px-3">Obat / Tindakan</th>
-                    <th className="py-2.5 px-3">Petugas</th>
-                    <th className="py-2.5 px-3">Status Akhir</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-[11px]">
-                  {filteredRecords.length === 0 ? (
+            <div className="border border-slate-400 rounded-xl overflow-hidden text-xs shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse border border-slate-400">
+                  <thead className="bg-slate-100 text-slate-800 font-bold border-b-2 border-slate-400 text-[11px]">
                     <tr>
-                      <td colSpan={9} className="py-8 text-center text-slate-400">
-                        Tidak ada catatan kunjungan pada rentang tanggal terpilih.
-                      </td>
+                      <th className="py-2.5 px-3 border border-slate-300 text-center">No</th>
+                      <th className="py-2.5 px-3 border border-slate-300 whitespace-nowrap">Waktu</th>
+                      <th className="py-2.5 px-3 border border-slate-300">Nama Pasien</th>
+                      <th className="py-2.5 px-3 border border-slate-300">Kelas/Jabatan</th>
+                      <th className="py-2.5 px-3 border border-slate-300">Keluhan</th>
+                      <th className="py-2.5 px-3 border border-slate-300">Alergi Obat</th>
+                      <th className="py-2.5 px-3 border border-slate-300">Obat / Tindakan</th>
+                      <th className="py-2.5 px-3 border border-slate-300">Petugas</th>
+                      <th className="py-2.5 px-3 border border-slate-300">Status Akhir</th>
                     </tr>
-                  ) : (
-                    filteredRecords.slice(0, 15).map((r, i) => (
-                      <tr key={r.id} className="hover:bg-slate-50/80">
-                        <td className="py-2 px-3 text-slate-400">{i + 1}</td>
-                        <td className="py-2 px-3 whitespace-nowrap text-slate-600">
-                          {r.date} {r.time}
-                        </td>
-                        <td className="py-2 px-3 font-semibold text-slate-900">{r.visitorName}</td>
-                        <td className="py-2 px-3 text-slate-600">{r.classOrPosition}</td>
-                        <td className="py-2 px-3 text-slate-800">{r.complaint}</td>
-                        <td className="py-2 px-3">
-                          {r.hasDrugAllergy ? (
-                            <span className="text-rose-700 font-bold bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded text-[10px]">
-                              {r.drugAllergyDescription || 'Ada Alergi'}
-                            </span>
-                          ) : (
-                            <span className="text-slate-400">Tidak Ada</span>
-                          )}
-                        </td>
-                        <td className="py-2 px-3 text-slate-700">
-                          {r.needsMedicine && r.medicinesGiven.length > 0 
-                            ? r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
-                            : r.actionTaken || '-'}
-                        </td>
-                        <td className="py-2 px-3 text-slate-600">
-                          {r.approvedBy || r.handledBy || 'Petugas UKS'}
-                        </td>
-                        <td className="py-2 px-3 font-medium text-slate-800">
-                          {r.finalStatus || 'Kembali ke Kelas'}
+                  </thead>
+                  <tbody className="divide-y divide-slate-300 text-[11px]">
+                    {filteredRecords.length === 0 ? (
+                      <tr>
+                        <td colSpan={9} className="py-8 text-center text-slate-400 border border-slate-300">
+                          Tidak ada catatan kunjungan pada rentang tanggal terpilih.
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      filteredRecords.slice(0, 15).map((r, i) => (
+                        <tr key={r.id} className="hover:bg-slate-50/80">
+                          <td className="py-2 px-3 text-slate-500 border border-slate-300 text-center font-medium">{i + 1}</td>
+                          <td className="py-2 px-3 whitespace-nowrap text-slate-700 border border-slate-300">
+                            {r.date} {r.time}
+                          </td>
+                          <td className="py-2 px-3 font-semibold text-slate-900 border border-slate-300">{r.visitorName}</td>
+                          <td className="py-2 px-3 text-slate-700 border border-slate-300">{r.classOrPosition}</td>
+                          <td className="py-2 px-3 text-slate-800 border border-slate-300">{r.complaint}</td>
+                          <td className="py-2 px-3 border border-slate-300">
+                            {r.hasDrugAllergy ? (
+                              <span className="text-rose-700 font-bold bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded text-[10px]">
+                                {r.drugAllergyDescription || 'Ada Alergi'}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">Tidak Ada</span>
+                            )}
+                          </td>
+                          <td className="py-2 px-3 text-slate-700 border border-slate-300">
+                            {r.needsMedicine && r.medicinesGiven.length > 0 
+                              ? r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
+                              : r.actionTaken || '-'}
+                          </td>
+                          <td className="py-2 px-3 text-slate-700 border border-slate-300">
+                            {r.approvedBy || r.handledBy || 'Petugas UKS'}
+                          </td>
+                          <td className="py-2 px-3 font-medium text-slate-800 border border-slate-300">
+                            {r.finalStatus || 'Kembali ke Kelas'}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
               {filteredRecords.length > 15 && (
-                <div className="p-2.5 bg-slate-50 border-t border-slate-200 text-center text-[11px] text-slate-500 font-medium">
+                <div className="p-2.5 bg-slate-50 border-t border-slate-300 text-center text-[11px] text-slate-500 font-medium">
                   Menampilkan 15 dari total {filteredRecords.length} data kunjungan. Gunakan <b>Cetak Dokumen</b> atau <b>Unduh PDF / Excel</b> untuk melihat seluruh data lengkap.
                 </div>
               )}
@@ -509,47 +511,49 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ type = 'visits' }) => 
                 <div className="text-xs font-bold text-slate-800 mb-2">
                   A. Rekapitulasi Pemakaian & Sisa Persediaan Obat:
                 </div>
-                <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-[11px]">
-                      <tr>
-                        <th className="py-2.5 px-3">No</th>
-                        <th className="py-2.5 px-3">Nama Obat</th>
-                        <th className="py-2.5 px-3">Kategori</th>
-                        <th className="py-2.5 px-3 text-center">Satuan</th>
-                        <th className="py-2.5 px-3 text-center">Terpakai Periode Ini</th>
-                        <th className="py-2.5 px-3 text-center">Sisa Stok</th>
-                        <th className="py-2.5 px-3 text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-[11px]">
-                      {medicineStats.usagePerMedicine.map((m, i) => (
-                        <tr key={m.id}>
-                          <td className="py-2 px-3 text-slate-400">{i + 1}</td>
-                          <td className="py-2 px-3 font-semibold text-slate-900">{m.name}</td>
-                          <td className="py-2 px-3 text-slate-600">{m.category}</td>
-                          <td className="py-2 px-3 text-center">{m.unit}</td>
-                          <td className="py-2 px-3 text-center font-bold text-emerald-800">
-                            {m.totalUsedPeriod} {m.unit}
-                          </td>
-                          <td className="py-2 px-3 text-center font-semibold text-slate-800">
-                            {m.stock} {m.unit}
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              m.stock === 0 
-                                ? 'bg-red-100 text-red-800' 
-                                : m.stock <= m.minStock 
-                                ? 'bg-amber-100 text-amber-800' 
-                                : 'bg-emerald-100 text-emerald-800'
-                            }`}>
-                              {m.stock === 0 ? 'HABIS' : m.stock <= m.minStock ? 'MENIPIS' : 'AMAN'}
-                            </span>
-                          </td>
+                <div className="border border-slate-400 rounded-xl overflow-hidden text-xs shadow-xs">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse border border-slate-400">
+                      <thead className="bg-slate-100 text-slate-800 font-bold border-b-2 border-slate-400 text-[11px]">
+                        <tr>
+                          <th className="py-2.5 px-3 border border-slate-300 text-center">No</th>
+                          <th className="py-2.5 px-3 border border-slate-300">Nama Obat</th>
+                          <th className="py-2.5 px-3 border border-slate-300">Kategori</th>
+                          <th className="py-2.5 px-3 border border-slate-300 text-center">Satuan</th>
+                          <th className="py-2.5 px-3 border border-slate-300 text-center">Terpakai Periode Ini</th>
+                          <th className="py-2.5 px-3 border border-slate-300 text-center">Sisa Stok</th>
+                          <th className="py-2.5 px-3 border border-slate-300 text-center">Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-300 text-[11px]">
+                        {medicineStats.usagePerMedicine.map((m, i) => (
+                          <tr key={m.id} className="hover:bg-slate-50/80">
+                            <td className="py-2 px-3 text-slate-500 border border-slate-300 text-center font-medium">{i + 1}</td>
+                            <td className="py-2 px-3 font-semibold text-slate-900 border border-slate-300">{m.name}</td>
+                            <td className="py-2 px-3 text-slate-700 border border-slate-300">{m.category}</td>
+                            <td className="py-2 px-3 text-center text-slate-700 border border-slate-300">{m.unit}</td>
+                            <td className="py-2 px-3 text-center font-bold text-emerald-800 border border-slate-300">
+                              {m.totalUsedPeriod} {m.unit}
+                            </td>
+                            <td className="py-2 px-3 text-center font-semibold text-slate-800 border border-slate-300">
+                              {m.stock} {m.unit}
+                            </td>
+                            <td className="py-2 px-3 text-center border border-slate-300">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                m.stock === 0 
+                                  ? 'bg-red-100 text-red-800 border border-red-200' 
+                                  : m.stock <= m.minStock 
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                              }`}>
+                                {m.stock === 0 ? 'HABIS' : m.stock <= m.minStock ? 'MENIPIS' : 'AMAN'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
 
@@ -558,48 +562,50 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ type = 'visits' }) => 
                 <div className="text-xs font-bold text-slate-800 mb-2">
                   B. Rincian Distribusi Obat kepada Pasien ({filteredRecords.filter(v => v.needsMedicine && v.medicinesGiven.length > 0).length} pasien):
                 </div>
-                <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-[11px]">
-                      <tr>
-                        <th className="py-2.5 px-3">No</th>
-                        <th className="py-2.5 px-3">Tgl/Waktu</th>
-                        <th className="py-2.5 px-3">Nama Pasien</th>
-                        <th className="py-2.5 px-3">Obat Diberikan</th>
-                        <th className="py-2.5 px-3">Aturan / Anjuran</th>
-                        <th className="py-2.5 px-3">Petugas</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-[11px]">
-                      {filteredRecords.filter(v => v.needsMedicine && v.medicinesGiven.length > 0).length === 0 ? (
+                <div className="border border-slate-400 rounded-xl overflow-hidden text-xs shadow-xs">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse border border-slate-400">
+                      <thead className="bg-slate-100 text-slate-800 font-bold border-b-2 border-slate-400 text-[11px]">
                         <tr>
-                          <td colSpan={6} className="py-6 text-center text-slate-400">
-                            Tidak ada pemberian obat pada rentang tanggal ini.
-                          </td>
+                          <th className="py-2.5 px-3 border border-slate-300 text-center">No</th>
+                          <th className="py-2.5 px-3 border border-slate-300 whitespace-nowrap">Tgl/Waktu</th>
+                          <th className="py-2.5 px-3 border border-slate-300">Nama Pasien</th>
+                          <th className="py-2.5 px-3 border border-slate-300">Obat Diberikan</th>
+                          <th className="py-2.5 px-3 border border-slate-300">Aturan / Anjuran</th>
+                          <th className="py-2.5 px-3 border border-slate-300">Petugas</th>
                         </tr>
-                      ) : (
-                        filteredRecords
-                          .filter(v => v.needsMedicine && v.medicinesGiven.length > 0)
-                          .slice(0, 10)
-                          .map((r, i) => (
-                            <tr key={r.id}>
-                              <td className="py-2 px-3 text-slate-400">{i + 1}</td>
-                              <td className="py-2 px-3 whitespace-nowrap">{r.date} {r.time}</td>
-                              <td className="py-2 px-3 font-semibold text-slate-900">{r.visitorName} ({r.classOrPosition})</td>
-                              <td className="py-2 px-3 text-emerald-800 font-semibold">
-                                {r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')}
-                              </td>
-                              <td className="py-2 px-3 text-slate-600">
-                                {r.medicinesGiven.map(m => m.dosageNotes || '-').join('; ')}
-                              </td>
-                              <td className="py-2 px-3 text-slate-700 font-medium">
-                                {r.approvedBy || r.handledBy || 'Petugas UKS'}
-                              </td>
-                            </tr>
-                          ))
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-300 text-[11px]">
+                        {filteredRecords.filter(v => v.needsMedicine && v.medicinesGiven.length > 0).length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="py-6 text-center text-slate-400 border border-slate-300">
+                              Tidak ada pemberian obat pada rentang tanggal ini.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredRecords
+                            .filter(v => v.needsMedicine && v.medicinesGiven.length > 0)
+                            .slice(0, 10)
+                            .map((r, i) => (
+                              <tr key={r.id} className="hover:bg-slate-50/80">
+                                <td className="py-2 px-3 text-slate-500 border border-slate-300 text-center font-medium">{i + 1}</td>
+                                <td className="py-2 px-3 whitespace-nowrap text-slate-700 border border-slate-300">{r.date} {r.time}</td>
+                                <td className="py-2 px-3 font-semibold text-slate-900 border border-slate-300">{r.visitorName} ({r.classOrPosition})</td>
+                                <td className="py-2 px-3 text-emerald-800 font-semibold border border-slate-300">
+                                  {r.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')}
+                                </td>
+                                <td className="py-2 px-3 text-slate-600 border border-slate-300">
+                                  {r.medicinesGiven.map(m => m.dosageNotes || '-').join('; ')}
+                                </td>
+                                <td className="py-2 px-3 text-slate-700 font-medium border border-slate-300">
+                                  {r.approvedBy || r.handledBy || 'Petugas UKS'}
+                                </td>
+                              </tr>
+                            ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>

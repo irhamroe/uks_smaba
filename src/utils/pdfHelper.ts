@@ -159,23 +159,39 @@ export function generateVisitsReportPdfDoc(
     startY: statsBoxY + 18,
     head: [['No', 'Tgl / Jam', 'Nama & Kelas', 'Alergi Obat', 'Keluhan / Gejala', 'Tindakan UKS', 'Obat Diberikan', 'Status Akhir']],
     body: visitRows.length > 0 ? visitRows : [['-', '-', 'Belum ada data kunjungan pada periode ini', '-', '-', '-', '-', '-']],
+    theme: 'grid',
+    styles: {
+      lineColor: [71, 85, 105],
+      lineWidth: 0.25,
+      fontSize: 7,
+      textColor: [30, 41, 59],
+      cellPadding: 2
+    },
     headStyles: {
       fillColor: [16, 149, 120], // Teal/Emerald
       textColor: 255,
       fontSize: 7.5,
       fontStyle: 'bold',
       halign: 'center',
-      valign: 'middle'
+      valign: 'middle',
+      lineColor: [15, 23, 42],
+      lineWidth: 0.35
     },
     bodyStyles: {
       fontSize: 7,
       textColor: [30, 41, 59],
       valign: 'top',
-      cellPadding: 2
+      cellPadding: 2,
+      lineColor: [100, 116, 139],
+      lineWidth: 0.25
     },
     alternateRowStyles: {
-      fillColor: [248, 250, 252]
+      fillColor: [248, 250, 252],
+      lineColor: [100, 116, 139],
+      lineWidth: 0.25
     },
+    tableLineWidth: 0.35,
+    tableLineColor: [30, 41, 59],
     columnStyles: {
       0: { cellWidth: 7, halign: 'center' },
       1: { cellWidth: 20 },
@@ -186,7 +202,6 @@ export function generateVisitsReportPdfDoc(
       6: { cellWidth: 25 },
       7: { cellWidth: 20 }
     },
-    theme: 'grid',
     margin: { left: 14, right: 14 }
   });
 
@@ -317,23 +332,39 @@ export function generateMedicineUsageReportPdfDoc(
     startY: statsBoxY + 23,
     head: [['No', 'Nama Obat', 'Kategori', 'Satuan', 'Terpakai Periode Ini', 'Sisa Stok', 'Batas Min', 'Status', 'Kedaluwarsa']],
     body: medRows.length > 0 ? medRows : [['-', '-', '-', '-', '-', '-', '-', '-', '-']],
+    theme: 'grid',
+    styles: {
+      lineColor: [71, 85, 105],
+      lineWidth: 0.25,
+      fontSize: 7,
+      textColor: [30, 41, 59],
+      cellPadding: 2
+    },
     headStyles: {
       fillColor: [30, 41, 59], // Slate 800
       textColor: 255,
       fontSize: 7.5,
       fontStyle: 'bold',
       halign: 'center',
-      valign: 'middle'
+      valign: 'middle',
+      lineColor: [15, 23, 42],
+      lineWidth: 0.35
     },
     bodyStyles: {
       fontSize: 7,
       textColor: [30, 41, 59],
       valign: 'middle',
-      cellPadding: 2
+      cellPadding: 2,
+      lineColor: [100, 116, 139],
+      lineWidth: 0.25
     },
     alternateRowStyles: {
-      fillColor: [248, 250, 252]
+      fillColor: [248, 250, 252],
+      lineColor: [100, 116, 139],
+      lineWidth: 0.25
     },
+    tableLineWidth: 0.35,
+    tableLineColor: [30, 41, 59],
     columnStyles: {
       0: { cellWidth: 7, halign: 'center' },
       1: { cellWidth: 38, fontStyle: 'bold' },
@@ -345,7 +376,6 @@ export function generateMedicineUsageReportPdfDoc(
       7: { cellWidth: 16, halign: 'center' },
       8: { cellWidth: 17, halign: 'center' }
     },
-    theme: 'grid',
     margin: { left: 14, right: 14 }
   });
 
@@ -378,23 +408,39 @@ export function generateMedicineUsageReportPdfDoc(
       startY: table2StartY + 3,
       head: [['No', 'Tgl / Jam', 'Nama Pasien & Kelas', 'Keluhan', 'Obat & Aturan Pakai', 'Petugas']],
       body: distRows,
+      theme: 'grid',
+      styles: {
+        lineColor: [71, 85, 105],
+        lineWidth: 0.25,
+        fontSize: 7,
+        textColor: [30, 41, 59],
+        cellPadding: 2
+      },
       headStyles: {
         fillColor: [16, 149, 120], // Teal/Emerald
         textColor: 255,
         fontSize: 7.5,
         fontStyle: 'bold',
         halign: 'center',
-        valign: 'middle'
+        valign: 'middle',
+        lineColor: [15, 23, 42],
+        lineWidth: 0.35
       },
       bodyStyles: {
         fontSize: 7,
         textColor: [30, 41, 59],
         valign: 'top',
-        cellPadding: 2
+        cellPadding: 2,
+        lineColor: [100, 116, 139],
+        lineWidth: 0.25
       },
       alternateRowStyles: {
-        fillColor: [248, 250, 252]
+        fillColor: [248, 250, 252],
+        lineColor: [100, 116, 139],
+        lineWidth: 0.25
       },
+      tableLineWidth: 0.35,
+      tableLineColor: [30, 41, 59],
       columnStyles: {
         0: { cellWidth: 7, halign: 'center' },
         1: { cellWidth: 22 },
@@ -403,7 +449,6 @@ export function generateMedicineUsageReportPdfDoc(
         4: { cellWidth: 50 },
         5: { cellWidth: 30 }
       },
-      theme: 'grid',
       margin: { left: 14, right: 14 }
     });
 
