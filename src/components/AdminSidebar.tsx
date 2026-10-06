@@ -164,8 +164,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     UKS {schoolInfo.shortName || 'DIGITAL'}
                   </span>
                 </div>
-                <div className="text-[10px] font-bold text-blue-400 tracking-wider uppercase flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                <div className="text-[10px] font-bold text-sky-400 tracking-wider uppercase flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-sky-400"></span>
                   Admin Control Panel
                 </div>
               </div>
@@ -183,14 +183,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           {/* Admin User Card: Solid Flat Block */}
           <div className="p-4 mx-3 my-3.5 bg-gray-800 rounded-lg">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-md bg-blue-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-md bg-sky-500 text-white font-extrabold text-sm flex items-center justify-center shrink-0">
                 {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-white truncate">
                   {adminUser?.name || 'Petugas UKS'}
                 </div>
-                <div className="text-[11px] text-blue-300 font-semibold truncate">
+                <div className="text-[11px] text-sky-300 font-semibold truncate">
                   {adminUser?.role || 'Administrator'}
                 </div>
                 <div className="text-[10px] text-gray-400 font-mono">
@@ -219,7 +219,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   onClick={() => handleNav(item.id)}
                   className={`w-full flex items-center justify-between px-3.5 py-3 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
                     isActive 
-                      ? 'bg-blue-600 text-white font-extrabold' 
+                      ? 'bg-sky-500 text-white font-extrabold' 
                       : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }`}
                 >
@@ -246,12 +246,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 onClick={() => setIsReportsOpen(!isReportsOpen)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
                   isReportsTabActive && !isReportsOpen
-                    ? 'bg-blue-600 text-white font-extrabold'
+                    ? 'bg-sky-500 text-white font-extrabold'
                     : 'text-gray-300 hover:text-white hover:bg-gray-800'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <FileSpreadsheet className={`w-4 h-4 ${isReportsTabActive ? 'text-blue-400' : 'text-gray-400'}`} />
+                  <FileSpreadsheet className={`w-4 h-4 ${isReportsTabActive ? 'text-sky-400' : 'text-gray-400'}`} />
                   <span className="font-bold">Laporan UKS</span>
                 </div>
                 <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isReportsOpen ? 'rotate-180' : ''}`} />
@@ -272,7 +272,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         onClick={() => handleNav(sub.id)}
                         className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs transition-all duration-150 cursor-pointer text-left ${
                           isSubActive
-                            ? 'bg-blue-600 text-white font-extrabold'
+                            ? 'bg-sky-500 text-white font-extrabold'
                             : 'text-gray-300 hover:text-white hover:bg-gray-800 font-semibold'
                         }`}
                       >
@@ -301,7 +301,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   onClick={() => handleNav(item.id)}
                   className={`w-full flex items-center justify-between px-3.5 py-3 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
                     isActive 
-                      ? 'bg-blue-600 text-white font-extrabold' 
+                      ? 'bg-sky-500 text-white font-extrabold' 
                       : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }`}
                 >

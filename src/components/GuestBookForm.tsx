@@ -328,7 +328,7 @@ export const GuestBookForm: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto py-6 sm:py-10 px-4 sm:px-6">
       {/* Welcome Banner Card - Bold Flat Poster Look */}
-      <div className="mb-6 bg-blue-600 text-white rounded-lg p-6 sm:p-8 relative overflow-hidden border-2 border-blue-700">
+      <div className="mb-6 bg-sky-500 text-white rounded-lg p-6 sm:p-8 relative overflow-hidden border-2 border-sky-600">
         {/* Abstract Geometric Background Accent */}
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-white/5 rotate-45 -mb-16 pointer-events-none" />
@@ -342,20 +342,20 @@ export const GuestBookForm: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight uppercase">
               Selamat Datang di UKS SMAN 1 Batu
             </h2>
-            <p className="text-xs sm:text-sm text-blue-100 font-medium mt-1.5 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-sky-100 font-medium mt-1.5 max-w-xl leading-relaxed">
               Silakan isi formulir kunjungan UKS di bawah ini secara lengkap untuk pencatatan riwayat kesehatan sekolah.
             </p>
           </div>
 
           <div className="bg-white/10 rounded-lg p-4 text-center shrink-0 w-full sm:w-auto border border-white/20">
-            <div className="flex items-center justify-center gap-2 text-xs text-blue-200 font-bold uppercase tracking-wider">
+            <div className="flex items-center justify-center gap-2 text-xs text-sky-100 font-bold uppercase tracking-wider">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
               <span>Waktu Sekarang</span>
             </div>
             <div className="text-xl sm:text-2xl font-black font-mono text-white mt-1">
               {liveTime || '--:--:--'}
             </div>
-            <div className="text-xs text-blue-200 font-semibold mt-0.5">
+            <div className="text-xs text-sky-100 font-semibold mt-0.5">
               {new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date())}
             </div>
           </div>
@@ -379,7 +379,7 @@ export const GuestBookForm: React.FC = () => {
         {/* SECTION 1: Identitas Pengunjung */}
         <div>
           <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
               1
             </div>
             <span className="uppercase tracking-wider">Identitas Pengunjung UKS</span>
@@ -397,7 +397,7 @@ export const GuestBookForm: React.FC = () => {
                   id="role-btn-siswa"
                   onClick={() => handleRoleChange('siswa')}
                   className={`flex items-center justify-center gap-1.5 h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer ${role === 'siswa'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -410,7 +410,7 @@ export const GuestBookForm: React.FC = () => {
                   id="role-btn-guru"
                   onClick={() => handleRoleChange('guru')}
                   className={`flex items-center justify-center gap-1.5 h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer ${role === 'guru'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -423,7 +423,7 @@ export const GuestBookForm: React.FC = () => {
                   id="role-btn-staf"
                   onClick={() => handleRoleChange('staf')}
                   className={`flex items-center justify-center gap-1.5 h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer ${role === 'staf'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -444,7 +444,7 @@ export const GuestBookForm: React.FC = () => {
                   id="gender-btn-l"
                   onClick={() => setGender('L')}
                   className={`h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer text-center ${gender === 'L'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
@@ -476,7 +476,7 @@ export const GuestBookForm: React.FC = () => {
                 value={visitorName}
                 onChange={(e) => setVisitorName(e.target.value)}
                 placeholder="Contoh: Nita Rimayanti, S.Pd"
-                className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-150"
+                className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
               />
             </div>
 
@@ -489,8 +489,8 @@ export const GuestBookForm: React.FC = () => {
                       Kelas Siswa <span className="text-rose-600">*</span>
                     </label>
                     {classOrPosition && ALL_STUDENT_CLASSES.includes(classOrPosition) && (
-                      <span className="text-[11px] font-black text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="text-[11px] font-black text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-sky-600" />
                         Kelas {classOrPosition}
                       </span>
                     )}
@@ -503,7 +503,7 @@ export const GuestBookForm: React.FC = () => {
                       required
                       value={classOrPosition}
                       onChange={(e) => handleSelectStudentClass(e.target.value)}
-                      className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-bold border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-150 cursor-pointer appearance-none pr-10"
+                      className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-bold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150 cursor-pointer appearance-none pr-10"
                     >
                       <option value="">-- Pilih Kelas Siswa (X-1 s/d XII-12) --</option>
                       <optgroup label="── KELAS X (X-1 s/d X-12) ──">
@@ -548,7 +548,7 @@ export const GuestBookForm: React.FC = () => {
                     value={classOrPosition}
                     onChange={(e) => setClassOrPosition(e.target.value)}
                     placeholder="Contoh: Guru / Wali Kelas / Staf TU"
-                    className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-150"
+                    className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
                   />
                 </div>
               )}
@@ -559,7 +559,7 @@ export const GuestBookForm: React.FC = () => {
         {/* SECTION 2: Keluhan & Gejala Medis */}
         <div>
           <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
               2
             </div>
             <span className="uppercase tracking-wider">Keluhan & Gejala yang Dirasakan</span>
@@ -579,7 +579,7 @@ export const GuestBookForm: React.FC = () => {
                       setComplaint(prev => toggleQuickTag(prev, sym));
                     }}
                     className={`text-xs px-3 py-2 rounded-md font-bold transition-all duration-150 cursor-pointer ${active
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-sky-500 text-white'
                         : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                       }`}
                   >
@@ -598,7 +598,7 @@ export const GuestBookForm: React.FC = () => {
               value={complaint}
               onChange={(e) => setComplaint(e.target.value)}
               placeholder="Jelaskan keluhan secara spesifik (misal: Pusing berputar sejak jam pelajaran ke-2, mual dan belum sarapan)..."
-              className="w-full p-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-150"
+              className="w-full p-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
             />
           </div>
 
@@ -616,13 +616,13 @@ export const GuestBookForm: React.FC = () => {
                   value={temperature}
                   onChange={(e) => setTemperature(e.target.value)}
                   placeholder="36.5"
-                  className="w-full h-10 px-3 bg-white text-sm font-bold text-gray-900 rounded-md border-2 border-transparent focus:border-blue-600 outline-none"
+                  className="w-full h-10 px-3 bg-white text-sm font-bold text-gray-900 rounded-md border-2 border-transparent focus:border-sky-500 outline-none"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3 bg-gray-100 p-4 rounded-md">
-              <Gauge className="w-6 h-6 text-blue-500 shrink-0" />
+              <Gauge className="w-6 h-6 text-sky-500 shrink-0" />
               <div className="flex-1">
                 <label htmlFor="input-bp" className="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wide mb-1">
                   Tekanan Darah (mmHg) - Opsional
@@ -633,7 +633,7 @@ export const GuestBookForm: React.FC = () => {
                   value={bloodPressure}
                   onChange={(e) => setBloodPressure(e.target.value)}
                   placeholder="110/70"
-                  className="w-full h-10 px-3 bg-white text-sm font-bold text-gray-900 rounded-md border-2 border-transparent focus:border-blue-600 outline-none"
+                  className="w-full h-10 px-3 bg-white text-sm font-bold text-gray-900 rounded-md border-2 border-transparent focus:border-sky-500 outline-none"
                 />
               </div>
             </div>
@@ -643,7 +643,7 @@ export const GuestBookForm: React.FC = () => {
         {/* SECTION 3: Tindakan / Penanganan UKS */}
         <div>
           <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
               3
             </div>
             <span className="uppercase tracking-wider">Tindakan / Penanganan UKS</span>
@@ -681,7 +681,7 @@ export const GuestBookForm: React.FC = () => {
               value={actionTaken}
               onChange={(e) => setActionTaken(e.target.value)}
               placeholder="Tindakan yang telah dilakukan petugas UKS (misal: Diberi teh manis hangat, diolesi minyak kayu putih, diobservasi di ruang UKS)..."
-              className="w-full p-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-150"
+              className="w-full p-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
             />
           </div>
         </div>
@@ -760,10 +760,10 @@ export const GuestBookForm: React.FC = () => {
         </div>
 
         {/* SECTION 4: Kebutuhan Obat */}
-        <div className="bg-blue-50 rounded-lg border-2 border-blue-200 p-6 space-y-4">
+        <div className="bg-sky-50 rounded-lg border-2 border-sky-200 p-6 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-md bg-blue-600 text-white flex items-center justify-center">
+              <div className="w-10 h-10 rounded-md bg-sky-500 text-white flex items-center justify-center">
                 <Pill className="w-5 h-5" />
               </div>
               <div>
@@ -792,7 +792,7 @@ export const GuestBookForm: React.FC = () => {
                 }}
                 className="sr-only peer"
               />
-              <div className="w-12 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-12 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
               <span className="ml-3 text-xs font-bold text-gray-900 uppercase tracking-wider">
                 {needsMedicine ? 'Butuh Obat' : 'Tidak Butuh Obat'}
               </span>
@@ -803,12 +803,12 @@ export const GuestBookForm: React.FC = () => {
           {needsMedicine && (
             <div className="space-y-4 pt-3">
               {medicinesGiven.length === 0 ? (
-                <div className="text-center py-6 bg-white rounded-md border-2 border-dashed border-blue-300 text-gray-600 text-sm">
+                <div className="text-center py-6 bg-white rounded-md border-2 border-dashed border-sky-300 text-gray-600 text-sm">
                   <span>Belum ada obat yang dipilih. </span>
                   <button
                     type="button"
                     onClick={handleAddMedicineRow}
-                    className="text-blue-600 font-bold hover:underline cursor-pointer"
+                    className="text-sky-600 font-bold hover:underline cursor-pointer"
                   >
                     + Klik untuk memilih obat
                   </button>
@@ -823,7 +823,7 @@ export const GuestBookForm: React.FC = () => {
                   return (
                     <div
                       key={index}
-                      className="bg-white p-5 rounded-lg border-2 border-blue-200 flex flex-col md:flex-row items-stretch md:items-center gap-4"
+                      className="bg-white p-5 rounded-lg border-2 border-sky-200 flex flex-col md:flex-row items-stretch md:items-center gap-4"
                     >
                       {/* Medicine Dropdown */}
                       <div className="flex-1 w-full">
@@ -832,7 +832,7 @@ export const GuestBookForm: React.FC = () => {
                             Nama Obat Tersedia
                           </label>
                           {isMultiDose && (
-                            <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px] font-black uppercase">
+                            <span className="bg-sky-100 text-sky-800 px-2 py-0.5 rounded text-[10px] font-black uppercase">
                               Pemakaian Bersama di UKS
                             </span>
                           )}
@@ -840,7 +840,7 @@ export const GuestBookForm: React.FC = () => {
                         <select
                           value={medRow.medicineId}
                           onChange={(e) => handleUpdateMedicineRow(index, e.target.value)}
-                          className="w-full h-11 text-sm font-bold text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-md px-3 focus:bg-white focus:border-blue-600 outline-none"
+                          className="w-full h-11 text-sm font-bold text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-md px-3 focus:bg-white focus:border-sky-500 outline-none"
                         >
                           {medicines.map(m => {
                             const isMulti = m.usageType === 'multi_dose' || ((m.unit === 'Botol' || m.unit === 'Tube') && m.usageType !== 'single_dose');
@@ -916,7 +916,7 @@ export const GuestBookForm: React.FC = () => {
                           value={medRow.dosageNotes || ''}
                           onChange={(e) => handleDosageChange(index, e.target.value)}
                           placeholder="Misal: 1 tablet sesudah makan"
-                          className="w-full h-11 px-3 bg-gray-50 text-sm font-semibold text-gray-900 border-2 border-gray-200 rounded-md focus:bg-white focus:border-blue-600 outline-none"
+                          className="w-full h-11 px-3 bg-gray-50 text-sm font-semibold text-gray-900 border-2 border-gray-200 rounded-md focus:bg-white focus:border-sky-500 outline-none"
                         />
                       </div>
 
@@ -941,9 +941,9 @@ export const GuestBookForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddMedicineRow}
-                  className="inline-flex items-center gap-2 text-xs font-extrabold text-blue-700 bg-blue-100 hover:bg-blue-200 px-4 py-2.5 rounded-md transition-all duration-150 cursor-pointer uppercase tracking-wider"
+                  className="inline-flex items-center gap-2 text-xs font-extrabold text-sky-800 bg-sky-100 hover:bg-sky-200 px-4 py-2.5 rounded-md transition-all duration-150 cursor-pointer uppercase tracking-wider"
                 >
-                  <Plus className="w-4 h-4 text-blue-700" />
+                  <Plus className="w-4 h-4 text-sky-700" />
                   Tambah Obat Lainnya
                 </button>
               </div>
@@ -954,7 +954,7 @@ export const GuestBookForm: React.FC = () => {
         {/* SECTION 5: Status Akhir Kunjungan */}
         <div>
           <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
               5
             </div>
             <span className="uppercase tracking-wider">Status Akhir Kunjungan</span>
@@ -969,7 +969,7 @@ export const GuestBookForm: React.FC = () => {
                 id="select-final-status"
                 value={finalStatus}
                 onChange={(e) => setFinalStatus(e.target.value as VisitStatus)}
-                className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-bold border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-150 cursor-pointer appearance-none pr-10"
+                className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-bold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150 cursor-pointer appearance-none pr-10"
               >
                 <option value="Kembali ke Kelas / Mengajar">Kembali ke Kelas / Mengajar</option>
                 <option value="Istirahat di UKS">Istirahat di UKS</option>
@@ -994,7 +994,7 @@ export const GuestBookForm: React.FC = () => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Misal: Sudah menghubungi wali murid, dipantau hingga jam istirahat kedua..."
-            className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-150"
+            className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
           />
         </div>
 
@@ -1003,7 +1003,7 @@ export const GuestBookForm: React.FC = () => {
           <button
             id="btn-submit-guestbook"
             type="submit"
-            className="w-full sm:w-auto h-14 inline-flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold uppercase tracking-wider px-10 rounded-md transition-all duration-200 hover:scale-105 cursor-pointer text-sm"
+            className="w-full sm:w-auto h-14 inline-flex items-center justify-center gap-3 bg-sky-500 hover:bg-sky-600 text-white font-extrabold uppercase tracking-wider px-10 rounded-md transition-all duration-200 hover:scale-105 cursor-pointer text-sm"
           >
             <Send className="w-5 h-5" />
             Simpan Data Kunjungan
@@ -1014,8 +1014,8 @@ export const GuestBookForm: React.FC = () => {
       {/* SUCCESS MODAL / POSTER DIALOG */}
       {showSuccessModal && lastSubmitted && (
         <div className="fixed inset-0 z-50 bg-gray-900/80 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 sm:p-8 border-4 border-blue-600">
-            <div className="w-16 h-16 rounded-lg bg-blue-600 text-white flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-lg max-w-lg w-full p-6 sm:p-8 border-4 border-sky-500">
+            <div className="w-16 h-16 rounded-lg bg-sky-500 text-white flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
             </div>
 
@@ -1056,7 +1056,7 @@ export const GuestBookForm: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b border-gray-200">
                 <span className="text-gray-500 font-bold uppercase tracking-wide">Obat:</span>
-                <span className="font-black text-blue-600 text-right">
+                <span className="font-black text-sky-600 text-right">
                   {lastSubmitted.medicinesGiven.length > 0
                     ? lastSubmitted.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
                     : 'Tidak ada obat'}
@@ -1064,7 +1064,7 @@ export const GuestBookForm: React.FC = () => {
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-gray-500 font-bold uppercase tracking-wide">Status:</span>
-                <span className="font-black bg-blue-600 text-white px-2.5 py-0.5 rounded-md uppercase text-[10px]">
+                <span className="font-black bg-sky-500 text-white px-2.5 py-0.5 rounded-md uppercase text-[10px]">
                   {lastSubmitted.finalStatus}
                 </span>
               </div>
@@ -1087,7 +1087,7 @@ export const GuestBookForm: React.FC = () => {
                     setShowSuccessModal(false);
                     navigateToTab('dashboard');
                   }}
-                  className="w-full sm:flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-md transition-all duration-150 cursor-pointer text-center flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 h-12 bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-md transition-all duration-150 cursor-pointer text-center flex items-center justify-center gap-2"
                 >
                   Buka Dashboard
                   <ArrowRight className="w-4 h-4" />

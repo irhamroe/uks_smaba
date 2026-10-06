@@ -675,7 +675,7 @@ export const MedicineInventory: React.FC<MedicineInventoryProps> = ({
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(med)}
-                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"
+                            className="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition cursor-pointer"
                             title="Edit data obat"
                           >
                             <Edit3 className="w-4 h-4" />

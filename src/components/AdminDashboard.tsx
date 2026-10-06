@@ -252,7 +252,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${visit.role === 'siswa'
                             ? 'bg-emerald-100 text-emerald-800'
                             : visit.role === 'guru'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-sky-100 text-sky-800'
                               : 'bg-purple-100 text-purple-800'
                           }`}>
                           {visit.role.toUpperCase()}
@@ -512,7 +512,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
               Siswa: {roleBreakdown.siswa} • Guru: {roleBreakdown.guru}
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+          <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
             <Calendar className="w-6 h-6" />
           </div>
         </div>
@@ -724,7 +724,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                           <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded ${record.role === 'siswa'
                             ? 'bg-emerald-100 text-emerald-800'
                             : record.role === 'guru'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-sky-100 text-sky-800'
                               : 'bg-purple-100 text-purple-800'
                             }`}>
                             {record.role === 'siswa' ? 'Siswa' : record.role === 'guru' ? 'Guru' : 'Staf'}

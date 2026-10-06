@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
             className="flex items-center gap-3 cursor-pointer group transition-transform duration-200 hover:scale-102" 
             onClick={() => navigateToTab('guestbook')}
           >
-            <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 bg-sky-100 rounded-lg flex items-center justify-center shrink-0">
               <img 
                 src="/logo-sman1-batu.png" 
                 alt="Logo SMA Negeri 1 Batu" 
@@ -87,8 +87,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
           </div>
 
           {/* Center / Desktop Info - Bold Flat Pill */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-md bg-blue-50 text-blue-700 text-xs font-bold">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-md bg-sky-100 text-sky-800 text-xs font-bold">
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
             <span>PORTAL LAYANAN KESEHATAN DIGITAL</span>
           </div>
 
@@ -96,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
           <div className="flex items-center gap-3">
             {/* Live Clock Badge */}
             <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-md bg-gray-100 text-gray-800 text-xs font-bold" title="Waktu Sistem Real-time">
-              <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+              <Clock className="w-4 h-4 text-sky-600 shrink-0" />
               <span>{currentTime}</span>
             </div>
 
@@ -106,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
                 type="button"
                 id="btn-nav-login-admin"
                 onClick={() => navigateToTab('login')}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-xs font-bold transition-all duration-200 hover:scale-105 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-xs font-bold transition-all duration-200 hover:scale-105 cursor-pointer bg-sky-500 hover:bg-sky-600 text-white"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Login Admin</span>

@@ -294,9 +294,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ type = 'visits' }) => 
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="text-slate-400 text-xs font-bold flex items-center justify-between">
               Istirahat UKS
-              <Clock className="w-4 h-4 text-blue-600" />
+              <Clock className="w-4 h-4 text-sky-600" />
             </div>
-            <div className="text-2xl font-black text-blue-800 mt-1">
+            <div className="text-2xl font-black text-sky-800 mt-1">
               {visitStats.restingCount}
             </div>
             <div className="text-[11px] text-slate-500 mt-1">

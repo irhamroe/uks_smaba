@@ -46,8 +46,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       default:
         return {
           icon: HelpCircle,
-          iconBg: 'bg-blue-600 text-white',
-          confirmBtn: 'bg-blue-600 hover:bg-blue-700 text-white',
+          iconBg: 'bg-sky-600 text-white',
+          confirmBtn: 'bg-sky-600 hover:bg-sky-700 text-white',
           badgeText: 'Konfirmasi Tindakan'
         };
     }

@@ -237,7 +237,7 @@ export const UserManagement: React.FC = () => {
       return 'bg-emerald-100 text-emerald-800 border-emerald-200';
     }
     if (r.includes('administrasi') || r.includes('staf')) {
-      return 'bg-blue-100 text-blue-800 border-blue-200';
+      return 'bg-sky-100 text-sky-800 border-sky-200';
     }
     return 'bg-slate-100 text-slate-800 border-slate-200';
   };
@@ -309,12 +309,12 @@ export const UserManagement: React.FC = () => {
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Staf Administrasi</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+            <span className="text-xs font-bold text-sky-700 uppercase tracking-wider">Staf Administrasi</span>
+            <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
               <Building2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-blue-700 mt-2">{stats.staf}</div>
+          <div className="text-2xl font-bold text-sky-700 mt-2">{stats.staf}</div>
           <div className="text-[11px] text-slate-400 mt-0.5">Staf Administrasi UKS</div>
         </div>
       </div>

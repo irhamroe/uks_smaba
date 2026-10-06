@@ -73,10 +73,10 @@ export const Toast: React.FC = () => {
         return {
           title: 'Informasi UKS',
           icon: Info,
-          bgColor: 'bg-blue-600',
+          bgColor: 'bg-sky-600',
           textColor: 'text-white',
-          iconBg: 'bg-blue-700',
-          barColor: 'bg-blue-300'
+          iconBg: 'bg-sky-700',
+          barColor: 'bg-sky-300'
         };
     }
   };

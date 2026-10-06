@@ -150,7 +150,7 @@ const AppContent: React.FC = () => {
                 </button>
 
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 uppercase tracking-wider truncate">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-sky-600 uppercase tracking-wider truncate">
                     <span className="hidden sm:inline">UKS {schoolInfo.shortName || 'SMAN 1 BATU'}</span>
                     <ChevronRight className="w-3.5 h-3.5 text-gray-400 hidden sm:inline" />
                     <span>{pageInfo.category}</span>
@@ -165,7 +165,7 @@ const AppContent: React.FC = () => {
               <div className="flex items-center gap-3 shrink-0">
                 {/* Live Clock */}
                 <div className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-md bg-gray-100 text-gray-800 text-xs font-bold" title="Waktu Sekarang">
-                  <Clock className="w-4 h-4 text-blue-600" />
+                  <Clock className="w-4 h-4 text-sky-600" />
                   <span>{adminTime}</span>
                 </div>
 
@@ -178,18 +178,18 @@ const AppContent: React.FC = () => {
                     className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-md hover:bg-gray-100 transition cursor-pointer text-left select-none group"
                     title="Klik untuk melihat profil & logout"
                   >
-                    <div className="w-8 h-8 rounded-md bg-blue-600 group-hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center transition">
+                    <div className="w-8 h-8 rounded-md bg-sky-500 group-hover:bg-sky-600 text-white font-black text-xs flex items-center justify-center transition">
                       {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
                     </div>
                     <div className="hidden lg:flex flex-col text-left">
                       <span className="text-xs font-bold text-gray-900 truncate max-w-[140px]">
                         {adminUser?.name || 'Petugas UKS'}
                       </span>
-                      <span className="text-[10px] text-blue-600 font-extrabold uppercase tracking-wider">
+                      <span className="text-[10px] text-sky-600 font-extrabold uppercase tracking-wider">
                         {adminUser?.role || 'Admin'}
                       </span>
                     </div>
-                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180 text-blue-600' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180 text-sky-600' : ''}`} />
                   </button>
 
                   {/* Dropdown Menu */}
@@ -202,8 +202,8 @@ const AppContent: React.FC = () => {
                         <div className="font-extrabold text-xs text-gray-900 truncate mt-0.5" title={adminUser?.name}>
                           {adminUser?.name || 'Petugas UKS'}
                         </div>
-                        <div className="text-[11px] text-blue-600 font-bold mt-0.5 flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <div className="text-[11px] text-sky-600 font-bold mt-0.5 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-sky-500"></span>
                           <span>{adminUser?.role || 'Admin'} • @{adminUser?.username || 'admin'}</span>
                         </div>
                       </div>
@@ -284,7 +284,7 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* Public Poster Footer */}
-      <footer className="bg-gray-900 text-white mt-12 py-10 border-t-4 border-blue-600">
+      <footer className="bg-gray-900 text-white mt-12 py-10 border-t-4 border-sky-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3 text-center md:text-left">
             <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center shrink-0">
@@ -302,11 +302,11 @@ const AppContent: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-300 font-medium">
             <span className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-blue-400" />
+              <Phone className="w-4 h-4 text-sky-400" />
               {schoolInfo.phone}
             </span>
             <span className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-blue-400" />
+              <Mail className="w-4 h-4 text-sky-400" />
               {schoolInfo.email}
             </span>
           </div>

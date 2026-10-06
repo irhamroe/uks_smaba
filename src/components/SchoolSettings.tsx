@@ -283,7 +283,7 @@ export const SchoolSettings: React.FC = () => {
               {/* Kepala Sekolah Input */}
               <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex items-center gap-2 font-bold text-xs text-slate-700 uppercase tracking-wide">
-                  <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                  <span className="w-2 h-2 rounded-full bg-sky-600"></span>
                   Pihak Mengetahui: Kepala Sekolah
                 </div>
 

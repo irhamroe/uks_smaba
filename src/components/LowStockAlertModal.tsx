@@ -140,7 +140,7 @@ export const LowStockAlertModal: React.FC<LowStockAlertModalProps> = ({
                           onClose();
                           onOpenRestock(med.id);
                         }}
-                        className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-wider rounded-md transition-all duration-150 hover:scale-105 flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-black uppercase tracking-wider rounded-md transition-all duration-150 hover:scale-105 flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <Plus className="w-4 h-4" />
                         <span>Restock</span>
@@ -161,7 +161,7 @@ export const LowStockAlertModal: React.FC<LowStockAlertModalProps> = ({
               onClose();
               navigateToTab('inventory');
             }}
-            className="w-full sm:w-auto text-blue-600 hover:text-blue-800 font-bold flex items-center justify-center sm:justify-start gap-1.5 py-1.5 transition cursor-pointer uppercase tracking-wider"
+            className="w-full sm:w-auto text-sky-600 hover:text-sky-800 font-bold flex items-center justify-center sm:justify-start gap-1.5 py-1.5 transition cursor-pointer uppercase tracking-wider"
           >
             <span>Buka Manajemen Farmasi</span>
             <ArrowRight className="w-4 h-4" />

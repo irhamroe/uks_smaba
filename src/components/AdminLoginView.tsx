@@ -61,7 +61,7 @@ export const AdminLoginView: React.FC = () => {
               setPendingTab(null);
               navigateToTab('guestbook');
             }}
-            className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-blue-600 transition-colors uppercase tracking-wider"
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-sky-600 transition-colors uppercase tracking-wider"
           >
             <ArrowLeft className="w-4 h-4" />
             Kembali ke Buku Kontrol Pengunjung
@@ -84,7 +84,7 @@ export const AdminLoginView: React.FC = () => {
         {/* Main Card - Pure Flat Poster Style */}
         <div className="bg-white rounded-lg overflow-hidden border-2 border-gray-200">
           {/* Card Header: Solid Color Block */}
-          <div className="bg-blue-600 text-white p-8 text-center relative">
+          <div className="bg-sky-500 text-white p-8 text-center relative">
             {/* Background Geometric Accent */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12 pointer-events-none" />
             
@@ -99,7 +99,7 @@ export const AdminLoginView: React.FC = () => {
               <h2 className="text-xl sm:text-2xl font-black tracking-tight uppercase">
                 Masuk Portal Admin UKS
               </h2>
-              <p className="text-xs font-semibold text-blue-100 mt-1">
+              <p className="text-xs font-semibold text-sky-100 mt-1">
                 Panel Manajemen & Pelayanan Kesehatan Sekolah
               </p>
             </div>
@@ -134,7 +134,7 @@ export const AdminLoginView: React.FC = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Masukkan username"
-                    className="w-full pl-10 pr-3.5 py-3 bg-gray-100 focus:bg-white text-gray-900 font-semibold text-sm rounded-md border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-200"
+                    className="w-full pl-10 pr-3.5 py-3 bg-gray-100 focus:bg-white text-gray-900 font-semibold text-sm rounded-md border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-200"
                   />
                 </div>
               </div>
@@ -155,7 +155,7 @@ export const AdminLoginView: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Masukkan kata sandi"
-                    className="w-full pl-10 pr-10 py-3 bg-gray-100 focus:bg-white text-gray-900 font-semibold text-sm rounded-md border-2 border-transparent focus:border-blue-600 outline-none transition-all duration-200"
+                    className="w-full pl-10 pr-10 py-3 bg-gray-100 focus:bg-white text-gray-900 font-semibold text-sm rounded-md border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-200"
                   />
                   <button
                     type="button"
@@ -174,7 +174,7 @@ export const AdminLoginView: React.FC = () => {
                   type="submit"
                   id="btn-submit-admin-login"
                   disabled={isSubmitting}
-                  className="w-full h-12 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold uppercase tracking-wider text-xs rounded-md transition-all duration-200 hover:scale-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 inline-flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-extrabold uppercase tracking-wider text-xs rounded-md transition-all duration-200 hover:scale-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Lock className="w-4 h-4" />
                   {isSubmitting ? 'Memproses...' : 'Masuk Sekarang'}
@@ -192,7 +192,7 @@ export const AdminLoginView: React.FC = () => {
                     setPendingTab(null);
                     navigateToTab('guestbook');
                   }}
-                  className="text-blue-600 font-bold hover:underline inline-block mt-1 cursor-pointer"
+                  className="text-sky-600 font-bold hover:underline inline-block mt-1 cursor-pointer"
                 >
                   Buka Formulir Kunjungan &rarr;
                 </button>
