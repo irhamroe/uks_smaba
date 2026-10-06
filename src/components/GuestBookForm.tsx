@@ -327,35 +327,35 @@ export const GuestBookForm: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-6 sm:py-10 px-4 sm:px-6">
-      {/* Welcome Banner Card - Bold Flat Poster Look */}
-      <div className="mb-6 bg-sky-500 text-white rounded-lg p-6 sm:p-8 relative overflow-hidden border-2 border-sky-600">
-        {/* Abstract Geometric Background Accent */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-white/5 rotate-45 -mb-16 pointer-events-none" />
+      {/* Welcome Banner Card - Material You Atmospheric Hero */}
+      <div className="mb-8 bg-gradient-to-br from-[#6750A4] via-[#5B3E96] to-[#4F378B] text-white rounded-[32px] sm:rounded-[40px] p-6 sm:p-9 relative overflow-hidden shadow-md">
+        {/* Atmospheric Organic Blur Circles */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#D0BCFF]/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-48 h-48 bg-[#FFD8E4]/15 rounded-full blur-2xl -mb-16 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 bg-white/20 px-3.5 py-1.5 rounded-md text-xs font-black uppercase tracking-wider text-white mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-medium text-white mb-3 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#FFD8E4]" />
               Buku Kontrol Pengunjung Digital UKS
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight uppercase">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
               Selamat Datang di UKS SMAN 1 Batu
             </h2>
-            <p className="text-xs sm:text-sm text-sky-100 font-medium mt-1.5 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#EADDFF] font-normal mt-1.5 max-w-xl leading-relaxed">
               Silakan isi formulir kunjungan UKS di bawah ini secara lengkap untuk pencatatan riwayat kesehatan sekolah.
             </p>
           </div>
 
-          <div className="bg-white/10 rounded-lg p-4 text-center shrink-0 w-full sm:w-auto border border-white/20">
-            <div className="flex items-center justify-center gap-2 text-xs text-sky-100 font-bold uppercase tracking-wider">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center shrink-0 w-full sm:w-auto border border-white/20 shadow-xs">
+            <div className="flex items-center justify-center gap-2 text-xs text-[#EADDFF] font-medium uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#A8DAB5]"></span>
               <span>Waktu Sekarang</span>
             </div>
-            <div className="text-xl sm:text-2xl font-black font-mono text-white mt-1">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1">
               {liveTime || '--:--:--'}
             </div>
-            <div className="text-xs text-sky-100 font-semibold mt-0.5">
+            <div className="text-xs text-[#EADDFF] font-normal mt-0.5">
               {new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date())}
             </div>
           </div>
@@ -363,14 +363,14 @@ export const GuestBookForm: React.FC = () => {
       </div>
 
       {/* Main Guest Book Form Card */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg border-2 border-gray-200 p-6 sm:p-8 space-y-8">
+      <form onSubmit={handleSubmit} className="bg-[#F3EDF7] rounded-[32px] sm:rounded-[40px] border border-[#E7E0EC] p-6 sm:p-9 space-y-8 shadow-sm">
 
         {/* Error Alert if any */}
         {errorMessage && (
-          <div className="flex items-start gap-3 bg-rose-500 text-white p-4 rounded-md text-xs sm:text-sm font-semibold">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 bg-[#F9DEDC] text-[#410E0B] border border-[#B3261E]/30 p-4 rounded-2xl text-xs sm:text-sm font-medium">
+            <AlertCircle className="w-5 h-5 text-[#B3261E] shrink-0 mt-0.5" />
             <div className="flex-1">
-              <span className="font-extrabold uppercase tracking-wide">Perhatian: </span>
+              <span className="font-bold">Perhatian: </span>
               {errorMessage}
             </div>
           </div>
@@ -378,27 +378,27 @@ export const GuestBookForm: React.FC = () => {
 
         {/* SECTION 1: Identitas Pengunjung */}
         <div>
-          <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
+          <div className="flex items-center gap-3 text-[#1C1B1F] font-bold text-base mb-5 pb-3 border-b border-[#E7E0EC]">
+            <div className="w-8 h-8 rounded-full bg-[#6750A4] text-white flex items-center justify-center text-xs font-bold shadow-xs">
               1
             </div>
-            <span className="uppercase tracking-wider">Identitas Pengunjung UKS</span>
+            <span className="tracking-tight">Identitas Pengunjung UKS</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Peran / Status */}
             <div>
-              <label className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2">
-                Status Pengunjung <span className="text-rose-600">*</span>
+              <label className="block text-xs font-medium text-[#49454F] uppercase tracking-wider mb-2">
+                Status Pengunjung <span className="text-[#B3261E]">*</span>
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   id="role-btn-siswa"
                   onClick={() => handleRoleChange('siswa')}
-                  className={`flex items-center justify-center gap-1.5 h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer ${role === 'siswa'
-                      ? 'bg-sky-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`flex items-center justify-center gap-1.5 h-12 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer ${role === 'siswa'
+                      ? 'bg-[#6750A4] text-white shadow-sm'
+                      : 'bg-[#E7E0EC] text-[#49454F] hover:bg-[#EDE7F2]'
                     }`}
                 >
                   <GraduationCap className="w-4 h-4" />
@@ -409,9 +409,9 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="role-btn-guru"
                   onClick={() => handleRoleChange('guru')}
-                  className={`flex items-center justify-center gap-1.5 h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer ${role === 'guru'
-                      ? 'bg-sky-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`flex items-center justify-center gap-1.5 h-12 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer ${role === 'guru'
+                      ? 'bg-[#6750A4] text-white shadow-sm'
+                      : 'bg-[#E7E0EC] text-[#49454F] hover:bg-[#EDE7F2]'
                     }`}
                 >
                   <Briefcase className="w-4 h-4" />
@@ -422,9 +422,9 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="role-btn-staf"
                   onClick={() => handleRoleChange('staf')}
-                  className={`flex items-center justify-center gap-1.5 h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer ${role === 'staf'
-                      ? 'bg-sky-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`flex items-center justify-center gap-1.5 h-12 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer ${role === 'staf'
+                      ? 'bg-[#6750A4] text-white shadow-sm'
+                      : 'bg-[#E7E0EC] text-[#49454F] hover:bg-[#EDE7F2]'
                     }`}
                 >
                   <UserCheck className="w-4 h-4" />
@@ -435,17 +435,17 @@ export const GuestBookForm: React.FC = () => {
 
             {/* Jenis Kelamin */}
             <div>
-              <label className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2">
-                Jenis Kelamin <span className="text-rose-600">*</span>
+              <label className="block text-xs font-medium text-[#49454F] uppercase tracking-wider mb-2">
+                Jenis Kelamin <span className="text-[#B3261E]">*</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   id="gender-btn-l"
                   onClick={() => setGender('L')}
-                  className={`h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer text-center ${gender === 'L'
-                      ? 'bg-sky-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`h-12 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer text-center ${gender === 'L'
+                      ? 'bg-[#6750A4] text-white shadow-sm'
+                      : 'bg-[#E7E0EC] text-[#49454F] hover:bg-[#EDE7F2]'
                     }`}
                 >
                   Laki-laki
@@ -454,9 +454,9 @@ export const GuestBookForm: React.FC = () => {
                   type="button"
                   id="gender-btn-p"
                   onClick={() => setGender('P')}
-                  className={`h-12 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer text-center ${gender === 'P'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`h-12 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer text-center ${gender === 'P'
+                      ? 'bg-[#7D5260] text-white shadow-sm'
+                      : 'bg-[#E7E0EC] text-[#49454F] hover:bg-[#EDE7F2]'
                     }`}
                 >
                   Perempuan
@@ -466,8 +466,8 @@ export const GuestBookForm: React.FC = () => {
 
             {/* Nama Lengkap */}
             <div>
-              <label htmlFor="input-visitor-name" className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2">
-                Nama Lengkap <span className="text-rose-600">*</span>
+              <label htmlFor="input-visitor-name" className="block text-xs font-medium text-[#49454F] uppercase tracking-wider mb-2">
+                Nama Lengkap <span className="text-[#B3261E]">*</span>
               </label>
               <input
                 id="input-visitor-name"
@@ -476,7 +476,7 @@ export const GuestBookForm: React.FC = () => {
                 value={visitorName}
                 onChange={(e) => setVisitorName(e.target.value)}
                 placeholder="Contoh: Nita Rimayanti, S.Pd"
-                className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
+                className="md3-input"
               />
             </div>
 
@@ -485,25 +485,25 @@ export const GuestBookForm: React.FC = () => {
               {role === 'siswa' ? (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label htmlFor="select-student-class" className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider">
-                      Kelas Siswa <span className="text-rose-600">*</span>
+                    <label htmlFor="select-student-class" className="block text-xs font-medium text-[#49454F] uppercase tracking-wider">
+                      Kelas Siswa <span className="text-[#B3261E]">*</span>
                     </label>
                     {classOrPosition && ALL_STUDENT_CLASSES.includes(classOrPosition) && (
-                      <span className="text-[11px] font-black text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-sky-600" />
+                      <span className="text-[11px] font-medium text-[#1D192B] bg-[#E8DEF8] px-3 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#6750A4]" />
                         Kelas {classOrPosition}
                       </span>
                     )}
                   </div>
 
-                  {/* Clean Flat Dropdown Select */}
+                  {/* Clean MD3 Dropdown Select */}
                   <div className="relative">
                     <select
                       id="select-student-class"
                       required
                       value={classOrPosition}
                       onChange={(e) => handleSelectStudentClass(e.target.value)}
-                      className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-bold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150 cursor-pointer appearance-none pr-10"
+                      className="md3-select cursor-pointer appearance-none pr-10"
                     >
                       <option value="">-- Pilih Kelas Siswa (X-1 s/d XII-12) --</option>
                       <optgroup label="── KELAS X (X-1 s/d X-12) ──">
@@ -528,18 +528,18 @@ export const GuestBookForm: React.FC = () => {
                         ))}
                       </optgroup>
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#79747E]">
                       <ChevronDown className="w-5 h-5" />
                     </div>
                   </div>
-                  <p className="text-[11px] text-gray-500 font-medium mt-1.5">
+                  <p className="text-[11px] text-[#79747E] font-normal mt-1.5">
                     Pilih rombongan belajar Anda dari daftar tingkat X, XI, atau XII.
                   </p>
                 </div>
               ) : (
                 <div>
-                  <label htmlFor="input-class-position" className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2">
-                    Jabatan / Posisi <span className="text-rose-600">*</span>
+                  <label htmlFor="input-class-position" className="block text-xs font-medium text-[#49454F] uppercase tracking-wider mb-2">
+                    Jabatan / Posisi <span className="text-[#B3261E]">*</span>
                   </label>
                   <input
                     id="input-class-position"
@@ -548,7 +548,7 @@ export const GuestBookForm: React.FC = () => {
                     value={classOrPosition}
                     onChange={(e) => setClassOrPosition(e.target.value)}
                     placeholder="Contoh: Guru / Wali Kelas / Staf TU"
-                    className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
+                    className="md3-input"
                   />
                 </div>
               )}
@@ -558,16 +558,16 @@ export const GuestBookForm: React.FC = () => {
 
         {/* SECTION 2: Keluhan & Gejala Medis */}
         <div>
-          <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
+          <div className="flex items-center gap-3 text-[#1C1B1F] font-bold text-base mb-5 pb-3 border-b border-[#E7E0EC]">
+            <div className="w-8 h-8 rounded-full bg-[#6750A4] text-white flex items-center justify-center text-xs font-bold shadow-xs">
               2
             </div>
-            <span className="uppercase tracking-wider">Keluhan & Gejala yang Dirasakan</span>
+            <span className="tracking-tight">Keluhan & Gejala yang Dirasakan</span>
           </div>
 
           {/* Quick Symptoms clicker */}
           <div className="mb-3">
-            <span className="text-xs text-gray-600 mb-2 block font-bold uppercase tracking-wider">Pilih cepat keluhan umum:</span>
+            <span className="text-xs text-[#49454F] mb-2 block font-medium uppercase tracking-wider">Pilih cepat keluhan umum:</span>
             <div className="flex flex-wrap gap-2">
               {quickSymptoms.map(sym => {
                 const active = isTagActive(complaint, sym);
@@ -578,9 +578,9 @@ export const GuestBookForm: React.FC = () => {
                     onClick={() => {
                       setComplaint(prev => toggleQuickTag(prev, sym));
                     }}
-                    className={`text-xs px-3 py-2 rounded-md font-bold transition-all duration-150 cursor-pointer ${active
-                        ? 'bg-sky-500 text-white'
-                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                    className={`text-xs px-3.5 py-1.5 rounded-full font-medium active:scale-95 transition-all duration-300 cursor-pointer ${active
+                        ? 'bg-[#6750A4] text-white shadow-xs'
+                        : 'bg-[#E7E0EC] text-[#49454F] hover:bg-[#EDE7F2]'
                       }`}
                   >
                     {sym}
@@ -598,16 +598,16 @@ export const GuestBookForm: React.FC = () => {
               value={complaint}
               onChange={(e) => setComplaint(e.target.value)}
               placeholder="Jelaskan keluhan secara spesifik (misal: Pusing berputar sejak jam pelajaran ke-2, mual dan belum sarapan)..."
-              className="w-full p-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
+              className="md3-input min-h-[96px]"
             />
           </div>
 
           {/* Optional Vitals: Suhu & Tensi */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            <div className="flex items-center gap-3 bg-gray-100 p-4 rounded-md">
-              <Thermometer className="w-6 h-6 text-amber-500 shrink-0" />
+            <div className="flex items-center gap-3 bg-[#E7E0EC] p-4 rounded-2xl">
+              <Thermometer className="w-6 h-6 text-[#7D5260] shrink-0" />
               <div className="flex-1">
-                <label htmlFor="input-temp" className="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wide mb-1">
+                <label htmlFor="input-temp" className="block text-[11px] font-medium text-[#49454F] uppercase tracking-wide mb-1">
                   Suhu Tubuh (°C) - Opsional
                 </label>
                 <input
@@ -616,15 +616,15 @@ export const GuestBookForm: React.FC = () => {
                   value={temperature}
                   onChange={(e) => setTemperature(e.target.value)}
                   placeholder="36.5"
-                  className="w-full h-10 px-3 bg-white text-sm font-bold text-gray-900 rounded-md border-2 border-transparent focus:border-sky-500 outline-none"
+                  className="w-full h-10 px-3 bg-[#FFFBFE] text-sm font-medium text-[#1C1B1F] rounded-xl border-b-2 border-[#79747E] focus:border-[#6750A4] outline-none"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-3 bg-gray-100 p-4 rounded-md">
-              <Gauge className="w-6 h-6 text-sky-500 shrink-0" />
+            <div className="flex items-center gap-3 bg-[#E7E0EC] p-4 rounded-2xl">
+              <Gauge className="w-6 h-6 text-[#6750A4] shrink-0" />
               <div className="flex-1">
-                <label htmlFor="input-bp" className="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wide mb-1">
+                <label htmlFor="input-bp" className="block text-[11px] font-medium text-[#49454F] uppercase tracking-wide mb-1">
                   Tekanan Darah (mmHg) - Opsional
                 </label>
                 <input
@@ -633,7 +633,7 @@ export const GuestBookForm: React.FC = () => {
                   value={bloodPressure}
                   onChange={(e) => setBloodPressure(e.target.value)}
                   placeholder="110/70"
-                  className="w-full h-10 px-3 bg-white text-sm font-bold text-gray-900 rounded-md border-2 border-transparent focus:border-sky-500 outline-none"
+                  className="w-full h-10 px-3 bg-[#FFFBFE] text-sm font-medium text-[#1C1B1F] rounded-xl border-b-2 border-[#79747E] focus:border-[#6750A4] outline-none"
                 />
               </div>
             </div>
@@ -642,15 +642,15 @@ export const GuestBookForm: React.FC = () => {
 
         {/* SECTION 3: Tindakan / Penanganan UKS */}
         <div>
-          <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
+          <div className="flex items-center gap-3 text-[#1C1B1F] font-bold text-base mb-5 pb-3 border-b border-[#E7E0EC]">
+            <div className="w-8 h-8 rounded-full bg-[#6750A4] text-white flex items-center justify-center text-xs font-bold shadow-xs">
               3
             </div>
-            <span className="uppercase tracking-wider">Tindakan / Penanganan UKS</span>
+            <span className="tracking-tight">Tindakan / Penanganan UKS</span>
           </div>
 
           <div className="mb-3">
-            <span className="text-xs text-gray-600 mb-2 block font-bold uppercase tracking-wider">Pilih cepat tindakan yang diberikan:</span>
+            <span className="text-xs text-[#49454F] mb-2 block font-medium uppercase tracking-wider">Pilih cepat tindakan yang diberikan:</span>
             <div className="flex flex-wrap gap-2">
               {quickActions.map(act => {
                 const active = isTagActive(actionTaken, act);
@@ -661,9 +661,9 @@ export const GuestBookForm: React.FC = () => {
                     onClick={() => {
                       setActionTaken(prev => toggleQuickTag(prev, act));
                     }}
-                    className={`text-xs px-3 py-2 rounded-md font-bold transition-all duration-150 cursor-pointer ${active
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                    className={`text-xs px-3.5 py-1.5 rounded-full font-medium active:scale-95 transition-all duration-300 cursor-pointer ${active
+                        ? 'bg-[#7D5260] text-white shadow-xs'
+                        : 'bg-[#E7E0EC] text-[#49454F] hover:bg-[#EDE7F2]'
                       }`}
                   >
                     {act}
@@ -681,28 +681,28 @@ export const GuestBookForm: React.FC = () => {
               value={actionTaken}
               onChange={(e) => setActionTaken(e.target.value)}
               placeholder="Tindakan yang telah dilakukan petugas UKS (misal: Diberi teh manis hangat, diolesi minyak kayu putih, diobservasi di ruang UKS)..."
-              className="w-full p-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
+              className="md3-input min-h-[96px]"
             />
           </div>
         </div>
 
         {/* SECTION: Konfirmasi Riwayat Alergi Obat */}
-        <div className={`rounded-lg p-5 sm:p-6 transition-all border-2 ${hasDrugAllergy
-            ? 'bg-rose-50 border-rose-400'
-            : 'bg-gray-100 border-transparent'
+        <div className={`rounded-3xl p-5 sm:p-6 transition-all border ${hasDrugAllergy
+            ? 'bg-[#F9DEDC] border-[#B3261E]/40'
+            : 'bg-[#E7E0EC] border-transparent'
           }`}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-md flex items-center justify-center text-white font-bold ${hasDrugAllergy ? 'bg-rose-600' : 'bg-gray-800'
+            <div className="flex items-center gap-3.5">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-xs ${hasDrugAllergy ? 'bg-[#B3261E]' : 'bg-[#49454F]'
                 }`}>
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-extrabold text-gray-900 text-sm uppercase tracking-wider flex items-center gap-2">
+                <h3 className="font-bold text-[#1C1B1F] text-sm uppercase tracking-wide flex items-center gap-2">
                   Konfirmasi Riwayat Alergi Obat
-                  <span className="text-rose-600">*</span>
+                  <span className="text-[#B3261E]">*</span>
                 </h3>
-                <p className="text-xs text-gray-600 font-medium">
+                <p className="text-xs text-[#49454F] font-normal">
                   Apakah pengunjung memiliki riwayat alergi terhadap obat-obatan tertentu?
                 </p>
               </div>
@@ -716,9 +716,9 @@ export const GuestBookForm: React.FC = () => {
                   setHasDrugAllergy(false);
                   setDrugAllergyDescription('');
                 }}
-                className={`h-11 px-4 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer text-center ${!hasDrugAllergy
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-white text-gray-800 hover:bg-gray-200'
+                className={`h-11 px-5 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer text-center ${!hasDrugAllergy
+                    ? 'bg-[#6750A4] text-white shadow-xs'
+                    : 'bg-[#FFFBFE] text-[#49454F] hover:bg-white'
                   }`}
               >
                 ✓ Tidak Ada Alergi
@@ -728,9 +728,9 @@ export const GuestBookForm: React.FC = () => {
                 type="button"
                 id="allergy-btn-yes"
                 onClick={() => setHasDrugAllergy(true)}
-                className={`h-11 px-4 rounded-md text-xs font-extrabold transition-all duration-150 cursor-pointer text-center ${hasDrugAllergy
-                    ? 'bg-rose-600 text-white'
-                    : 'bg-white text-gray-800 hover:bg-rose-100 text-rose-700'
+                className={`h-11 px-5 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer text-center ${hasDrugAllergy
+                    ? 'bg-[#B3261E] text-white shadow-xs'
+                    : 'bg-[#FFFBFE] text-[#B3261E] hover:bg-[#F9DEDC]'
                   }`}
               >
                 ⚠ Ada Alergi Obat
@@ -739,9 +739,9 @@ export const GuestBookForm: React.FC = () => {
           </div>
 
           {hasDrugAllergy && (
-            <div className="mt-4 pt-4 border-t-2 border-rose-200">
-              <label htmlFor="input-allergy-desc" className="block text-xs font-extrabold text-rose-900 uppercase tracking-wider mb-2">
-                Sebutkan Nama Obat yang Menyebabkan Alergi: <span className="text-rose-600">*</span>
+            <div className="mt-4 pt-4 border-t border-[#B3261E]/20">
+              <label htmlFor="input-allergy-desc" className="block text-xs font-medium text-[#410E0B] uppercase tracking-wider mb-2">
+                Sebutkan Nama Obat yang Menyebabkan Alergi: <span className="text-[#B3261E]">*</span>
               </label>
               <input
                 id="input-allergy-desc"
@@ -750,9 +750,9 @@ export const GuestBookForm: React.FC = () => {
                 value={drugAllergyDescription}
                 onChange={(e) => setDrugAllergyDescription(e.target.value)}
                 placeholder="Contoh: Alergi Paracetamol, Antibiotik Amoxicillin, Golongan Sulfa, Asam Mefenamat, dll."
-                className="w-full h-12 px-4 rounded-md bg-white text-gray-900 text-sm font-semibold border-2 border-rose-400 focus:border-rose-600 outline-none"
+                className="w-full h-12 px-4 rounded-xl bg-[#FFFBFE] text-[#1C1B1F] text-sm font-medium border-b-2 border-[#B3261E] outline-none"
               />
-              <p className="text-xs text-rose-700 mt-2 font-bold">
+              <p className="text-xs text-[#B3261E] mt-2 font-medium">
                 Peringatan: Petugas UKS tidak akan memberikan obat yang mengandung bahan/zat pemicu alergi di atas.
               </p>
             </div>
@@ -760,17 +760,17 @@ export const GuestBookForm: React.FC = () => {
         </div>
 
         {/* SECTION 4: Kebutuhan Obat */}
-        <div className="bg-sky-50 rounded-lg border-2 border-sky-200 p-6 space-y-4">
+        <div className="bg-[#ECE6F0] rounded-3xl border border-[#CAC4D0] p-6 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-md bg-sky-500 text-white flex items-center justify-center">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-full bg-[#6750A4] text-white flex items-center justify-center shadow-xs">
                 <Pill className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-extrabold text-gray-900 text-sm uppercase tracking-wider">
+                <h3 className="font-bold text-[#1C1B1F] text-sm tracking-tight">
                   Kebutuhan Obat Pengunjung
                 </h3>
-                <p className="text-xs text-gray-600 font-medium">
+                <p className="text-xs text-[#49454F] font-normal">
                   {isAdminLoggedIn
                     ? 'Stok obat otomatis berkurang dari inventaris UKS secara real-time.'
                     : 'Pengajuan obat akan divalidasi dan diserahkan oleh petugas UKS.'}
@@ -792,8 +792,8 @@ export const GuestBookForm: React.FC = () => {
                 }}
                 className="sr-only peer"
               />
-              <div className="w-12 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
-              <span className="ml-3 text-xs font-bold text-gray-900 uppercase tracking-wider">
+              <div className="w-12 h-6 bg-[#CAC4D0] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#6750A4]"></div>
+              <span className="ml-3 text-xs font-medium text-[#1C1B1F]">
                 {needsMedicine ? 'Butuh Obat' : 'Tidak Butuh Obat'}
               </span>
             </label>
@@ -803,12 +803,12 @@ export const GuestBookForm: React.FC = () => {
           {needsMedicine && (
             <div className="space-y-4 pt-3">
               {medicinesGiven.length === 0 ? (
-                <div className="text-center py-6 bg-white rounded-md border-2 border-dashed border-sky-300 text-gray-600 text-sm">
+                <div className="text-center py-6 bg-[#FFFBFE] rounded-2xl border border-dashed border-[#CAC4D0] text-[#49454F] text-sm">
                   <span>Belum ada obat yang dipilih. </span>
                   <button
                     type="button"
                     onClick={handleAddMedicineRow}
-                    className="text-sky-600 font-bold hover:underline cursor-pointer"
+                    className="text-[#6750A4] font-medium hover:underline cursor-pointer"
                   >
                     + Klik untuk memilih obat
                   </button>
@@ -823,16 +823,16 @@ export const GuestBookForm: React.FC = () => {
                   return (
                     <div
                       key={index}
-                      className="bg-white p-5 rounded-lg border-2 border-sky-200 flex flex-col md:flex-row items-stretch md:items-center gap-4"
+                      className="bg-[#FFFBFE] p-5 rounded-2xl border border-[#E7E0EC] shadow-2xs flex flex-col md:flex-row items-stretch md:items-center gap-4"
                     >
                       {/* Medicine Dropdown */}
                       <div className="flex-1 w-full">
                         <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wide">
+                          <label className="block text-[11px] font-medium text-[#49454F] uppercase tracking-wide">
                             Nama Obat Tersedia
                           </label>
                           {isMultiDose && (
-                            <span className="bg-sky-100 text-sky-800 px-2 py-0.5 rounded text-[10px] font-black uppercase">
+                            <span className="bg-[#E8DEF8] text-[#1D192B] px-2.5 py-0.5 rounded-full text-[10px] font-medium">
                               Pemakaian Bersama di UKS
                             </span>
                           )}
@@ -840,7 +840,7 @@ export const GuestBookForm: React.FC = () => {
                         <select
                           value={medRow.medicineId}
                           onChange={(e) => handleUpdateMedicineRow(index, e.target.value)}
-                          className="w-full h-11 text-sm font-bold text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-md px-3 focus:bg-white focus:border-sky-500 outline-none"
+                          className="w-full h-11 text-sm font-medium text-[#1C1B1F] bg-[#E7E0EC] border-b-2 border-[#79747E] rounded-t-xl px-3 focus:bg-[#EDE7F2] focus:border-[#6750A4] outline-none"
                         >
                           {medicines.map(m => {
                             const isMulti = m.usageType === 'multi_dose' || ((m.unit === 'Botol' || m.unit === 'Tube') && m.usageType !== 'single_dose');
@@ -858,11 +858,11 @@ export const GuestBookForm: React.FC = () => {
                         </select>
                         {currentMedObj && (
                           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                            <span className="text-gray-600 font-medium">
-                              Kategori: <strong className="text-gray-900">{currentMedObj.category}</strong>
+                            <span className="text-[#49454F] font-normal">
+                              Kategori: <strong className="text-[#1C1B1F]">{currentMedObj.category}</strong>
                             </span>
-                            <span className="text-gray-300">•</span>
-                            <span className={`font-bold ${isOutOfStock ? 'text-rose-600' : isLowStock ? 'text-amber-600' : 'text-emerald-600'
+                            <span className="text-[#CAC4D0]">•</span>
+                            <span className={`font-medium ${isOutOfStock ? 'text-[#B3261E]' : isLowStock ? 'text-[#7D5260]' : 'text-[#6750A4]'
                               }`}>
                               Sisa: {currentMedObj.stock} {currentMedObj.unit}
                             </span>
@@ -872,7 +872,7 @@ export const GuestBookForm: React.FC = () => {
 
                       {/* Quantity Stepper */}
                       <div className="w-full md:w-36">
-                        <label className="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wide mb-1">
+                        <label className="block text-[11px] font-medium text-[#49454F] uppercase tracking-wide mb-1">
                           Jumlah Diberikan
                         </label>
                         <div className="flex items-center">
@@ -880,7 +880,7 @@ export const GuestBookForm: React.FC = () => {
                             type="button"
                             onClick={() => handleQuantityChange(index, medRow.quantity - 1)}
                             disabled={medRow.quantity <= 1}
-                            className="w-10 h-11 bg-gray-100 hover:bg-gray-200 text-gray-900 font-extrabold rounded-l-md border-2 border-r-0 border-gray-200 disabled:opacity-40 transition cursor-pointer"
+                            className="w-10 h-11 bg-[#E7E0EC] hover:bg-[#EDE7F2] text-[#1C1B1F] font-bold rounded-l-xl border-b-2 border-[#79747E] disabled:opacity-40 active:scale-95 transition cursor-pointer"
                           >
                             -
                           </button>
@@ -890,25 +890,25 @@ export const GuestBookForm: React.FC = () => {
                             max={currentMedObj ? currentMedObj.stock : 100}
                             value={medRow.quantity}
                             onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
-                            className="w-full text-center h-11 text-sm font-black border-2 border-gray-200 text-gray-900 bg-white"
+                            className="w-full text-center h-11 text-sm font-bold border-b-2 border-[#79747E] text-[#1C1B1F] bg-[#FFFBFE]"
                           />
                           <button
                             type="button"
                             onClick={() => handleQuantityChange(index, medRow.quantity + 1)}
                             disabled={currentMedObj ? medRow.quantity >= currentMedObj.stock : false}
-                            className="w-10 h-11 bg-gray-100 hover:bg-gray-200 text-gray-900 font-extrabold rounded-r-md border-2 border-l-0 border-gray-200 disabled:opacity-40 transition cursor-pointer"
+                            className="w-10 h-11 bg-[#E7E0EC] hover:bg-[#EDE7F2] text-[#1C1B1F] font-bold rounded-r-xl border-b-2 border-[#79747E] disabled:opacity-40 active:scale-95 transition cursor-pointer"
                           >
                             +
                           </button>
                         </div>
-                        <span className="text-[11px] text-gray-500 font-semibold block text-center mt-1">
+                        <span className="text-[11px] text-[#79747E] font-normal block text-center mt-1">
                           Satuan: {medRow.unit}
                         </span>
                       </div>
 
                       {/* Dosage / Notes */}
                       <div className="flex-1 w-full">
-                        <label className="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wide mb-1">
+                        <label className="block text-[11px] font-medium text-[#49454F] uppercase tracking-wide mb-1">
                           Aturan / Anjuran Pakai
                         </label>
                         <input
@@ -916,7 +916,7 @@ export const GuestBookForm: React.FC = () => {
                           value={medRow.dosageNotes || ''}
                           onChange={(e) => handleDosageChange(index, e.target.value)}
                           placeholder="Misal: 1 tablet sesudah makan"
-                          className="w-full h-11 px-3 bg-gray-50 text-sm font-semibold text-gray-900 border-2 border-gray-200 rounded-md focus:bg-white focus:border-sky-500 outline-none"
+                          className="w-full h-11 px-3 bg-[#E7E0EC] text-sm font-medium text-[#1C1B1F] border-b-2 border-[#79747E] rounded-t-xl focus:bg-[#EDE7F2] focus:border-[#6750A4] outline-none"
                         />
                       </div>
 
@@ -925,7 +925,7 @@ export const GuestBookForm: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleRemoveMedicineRow(index)}
-                          className="h-11 px-3 text-rose-600 hover:bg-rose-600 hover:text-white border-2 border-rose-300 rounded-md transition-all duration-150 flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+                          className="h-11 px-3.5 text-[#B3261E] hover:bg-[#F9DEDC] rounded-full active:scale-95 transition-all duration-300 flex items-center gap-1.5 text-xs font-medium cursor-pointer"
                           title="Hapus obat ini"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -941,9 +941,9 @@ export const GuestBookForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddMedicineRow}
-                  className="inline-flex items-center gap-2 text-xs font-extrabold text-sky-800 bg-sky-100 hover:bg-sky-200 px-4 py-2.5 rounded-md transition-all duration-150 cursor-pointer uppercase tracking-wider"
+                  className="inline-flex items-center gap-2 text-xs font-medium text-[#1D192B] bg-[#E8DEF8] hover:bg-[#EADDFF] px-5 py-2.5 rounded-full active:scale-95 transition-all duration-300 cursor-pointer shadow-xs"
                 >
-                  <Plus className="w-4 h-4 text-sky-700" />
+                  <Plus className="w-4 h-4 text-[#6750A4]" />
                   Tambah Obat Lainnya
                 </button>
               </div>
@@ -953,30 +953,30 @@ export const GuestBookForm: React.FC = () => {
 
         {/* SECTION 5: Status Akhir Kunjungan */}
         <div>
-          <div className="flex items-center gap-3 text-gray-900 font-extrabold text-base mb-4 pb-3 border-b-2 border-gray-100">
-            <div className="w-7 h-7 rounded-md bg-sky-500 text-white flex items-center justify-center text-xs font-black">
-              5
+          <div className="flex items-center gap-3 text-[#1C1B1F] font-bold text-base mb-5 pb-3 border-b border-[#E7E0EC]">
+            <div className="w-8 h-8 rounded-full bg-[#6750A4] text-white flex items-center justify-center text-xs font-bold shadow-xs">
+              4
             </div>
-            <span className="uppercase tracking-wider">Status Akhir Kunjungan</span>
+            <span className="tracking-tight">Status Akhir Kunjungan</span>
           </div>
 
           <div>
-            <label htmlFor="select-final-status" className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2">
-              Kondisi / Disposisi Akhir Pengunjung UKS <span className="text-rose-600">*</span>
+            <label htmlFor="select-final-status" className="block text-xs font-medium text-[#49454F] uppercase tracking-wider mb-2">
+              Kondisi / Disposisi Akhir Pengunjung UKS <span className="text-[#B3261E]">*</span>
             </label>
             <div className="relative">
               <select
                 id="select-final-status"
                 value={finalStatus}
                 onChange={(e) => setFinalStatus(e.target.value as VisitStatus)}
-                className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-bold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150 cursor-pointer appearance-none pr-10"
+                className="md3-select cursor-pointer appearance-none pr-10"
               >
                 <option value="Kembali ke Kelas / Mengajar">Kembali ke Kelas / Mengajar</option>
                 <option value="Istirahat di UKS">Istirahat di UKS</option>
                 <option value="Izin Pulang / Dijemput">Izin Pulang / Dijemput Orang Tua</option>
                 <option value="Rujukan ke Puskesmas/RS">Rujukan ke Puskesmas / Rumah Sakit</option>
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#79747E]">
                 <ChevronDown className="w-5 h-5" />
               </div>
             </div>
@@ -985,7 +985,7 @@ export const GuestBookForm: React.FC = () => {
 
         {/* SECTION 6: Catatan Tambahan (Opsional) */}
         <div>
-          <label htmlFor="input-notes" className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider mb-2">
+          <label htmlFor="input-notes" className="block text-xs font-medium text-[#49454F] uppercase tracking-wider mb-2">
             Catatan Tambahan Petugas UKS (Opsional)
           </label>
           <input
@@ -994,16 +994,16 @@ export const GuestBookForm: React.FC = () => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Misal: Sudah menghubungi wali murid, dipantau hingga jam istirahat kedua..."
-            className="w-full h-12 px-4 rounded-md bg-gray-100 focus:bg-white text-gray-900 text-sm font-semibold border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-150"
+            className="md3-input"
           />
         </div>
 
-        {/* Submit Button - Bold Primary Action Button */}
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-4 border-t-2 border-gray-100">
+        {/* Submit Button - Material You Pill Button */}
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-4 border-t border-[#E7E0EC]">
           <button
             id="btn-submit-guestbook"
             type="submit"
-            className="w-full sm:w-auto h-14 inline-flex items-center justify-center gap-3 bg-sky-500 hover:bg-sky-600 text-white font-extrabold uppercase tracking-wider px-10 rounded-md transition-all duration-200 hover:scale-105 cursor-pointer text-sm"
+            className="md3-btn-filled w-full sm:w-auto h-14 px-10 text-sm shadow-sm hover:shadow-md cursor-pointer"
           >
             <Send className="w-5 h-5" />
             Simpan Data Kunjungan
@@ -1011,60 +1011,60 @@ export const GuestBookForm: React.FC = () => {
         </div>
       </form>
 
-      {/* SUCCESS MODAL / POSTER DIALOG */}
+      {/* SUCCESS MODAL / MATERIAL YOU DIALOG */}
       {showSuccessModal && lastSubmitted && (
-        <div className="fixed inset-0 z-50 bg-gray-900/80 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 sm:p-8 border-4 border-sky-500">
-            <div className="w-16 h-16 rounded-lg bg-sky-500 text-white flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
+        <div className="fixed inset-0 z-50 bg-[#1C1B1F]/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#FFFBFE] rounded-[32px] max-w-lg w-full p-6 sm:p-8 border border-[#E7E0EC] shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-full bg-[#EADDFF] text-[#21005D] flex items-center justify-center mx-auto mb-4 shadow-xs">
+              <CheckCircle2 className="w-9 h-9 text-[#6750A4] stroke-[2.5]" />
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black text-center text-gray-900 mb-1 uppercase tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-bold text-center text-[#1C1B1F] mb-1 tracking-tight">
               {isAdminLoggedIn
                 ? 'Data Kunjungan Berhasil Disimpan!'
                 : 'Pengajuan Kunjungan Berhasil!'}
             </h3>
-            <p className="text-xs sm:text-sm text-center text-gray-600 font-medium mb-6">
+            <p className="text-xs sm:text-sm text-center text-[#49454F] font-normal mb-6">
               {isAdminLoggedIn
                 ? 'Data pasien telah terdata di log dan stok obat telah disinkronkan.'
                 : 'Data kunjungan telah masuk ke antrean verifikasi petugas UKS.'}
             </p>
 
-            {/* Flat Summary Card */}
-            <div className="bg-gray-100 rounded-md p-5 text-xs space-y-2.5 mb-6">
-              <div className="flex justify-between py-1 border-b border-gray-200">
-                <span className="text-gray-500 font-bold uppercase tracking-wide">Nama:</span>
-                <span className="font-black text-gray-900">{lastSubmitted.visitorName}</span>
+            {/* Material You Summary Card */}
+            <div className="bg-[#F3EDF7] rounded-2xl p-5 text-xs space-y-2.5 mb-6 border border-[#E7E0EC]">
+              <div className="flex justify-between py-1 border-b border-[#E7E0EC]">
+                <span className="text-[#49454F] font-medium">Nama:</span>
+                <span className="font-bold text-[#1C1B1F]">{lastSubmitted.visitorName}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-200">
-                <span className="text-gray-500 font-bold uppercase tracking-wide">Status / Kelas:</span>
-                <span className="font-bold text-gray-900">
+              <div className="flex justify-between py-1 border-b border-[#E7E0EC]">
+                <span className="text-[#49454F] font-medium">Status / Kelas:</span>
+                <span className="font-bold text-[#1C1B1F]">
                   {lastSubmitted.role.toUpperCase()} — {lastSubmitted.classOrPosition}
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-200">
-                <span className="text-gray-500 font-bold uppercase tracking-wide">Keluhan:</span>
-                <span className="font-bold text-gray-900 text-right max-w-[200px] truncate">
+              <div className="flex justify-between py-1 border-b border-[#E7E0EC]">
+                <span className="text-[#49454F] font-medium">Keluhan:</span>
+                <span className="font-medium text-[#1C1B1F] text-right max-w-[200px] truncate">
                   {lastSubmitted.complaint}
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-200">
-                <span className="text-gray-500 font-bold uppercase tracking-wide">Tindakan:</span>
-                <span className="font-bold text-gray-900 text-right max-w-[200px] truncate">
+              <div className="flex justify-between py-1 border-b border-[#E7E0EC]">
+                <span className="text-[#49454F] font-medium">Tindakan:</span>
+                <span className="font-medium text-[#1C1B1F] text-right max-w-[200px] truncate">
                   {lastSubmitted.actionTaken}
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-200">
-                <span className="text-gray-500 font-bold uppercase tracking-wide">Obat:</span>
-                <span className="font-black text-sky-600 text-right">
+              <div className="flex justify-between py-1 border-b border-[#E7E0EC]">
+                <span className="text-[#49454F] font-medium">Obat:</span>
+                <span className="font-bold text-[#6750A4] text-right">
                   {lastSubmitted.medicinesGiven.length > 0
                     ? lastSubmitted.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
                     : 'Tidak ada obat'}
                 </span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-gray-500 font-bold uppercase tracking-wide">Status:</span>
-                <span className="font-black bg-sky-500 text-white px-2.5 py-0.5 rounded-md uppercase text-[10px]">
+                <span className="text-[#49454F] font-medium">Status:</span>
+                <span className="font-medium bg-[#E8DEF8] text-[#1D192B] px-3 py-0.5 rounded-full text-[10px]">
                   {lastSubmitted.finalStatus}
                 </span>
               </div>
@@ -1075,7 +1075,7 @@ export const GuestBookForm: React.FC = () => {
                 type="button"
                 id="btn-modal-new-guest"
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full sm:flex-1 h-12 bg-gray-100 hover:bg-gray-200 text-gray-900 font-extrabold text-xs uppercase tracking-wider rounded-md transition-all duration-150 cursor-pointer text-center"
+                className="w-full sm:flex-1 h-12 md3-btn-tonal text-xs font-medium text-center"
               >
                 Isi Kunjungan Baru
               </button>
@@ -1087,7 +1087,7 @@ export const GuestBookForm: React.FC = () => {
                     setShowSuccessModal(false);
                     navigateToTab('dashboard');
                   }}
-                  className="w-full sm:flex-1 h-12 bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-md transition-all duration-150 cursor-pointer text-center flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 h-12 md3-btn-filled text-xs font-medium text-center flex items-center justify-center gap-2"
                 >
                   Buka Dashboard
                   <ArrowRight className="w-4 h-4" />

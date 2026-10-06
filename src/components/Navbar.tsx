@@ -17,7 +17,6 @@ import {
   UserCheck
 } from 'lucide-react';
 import { useUks } from '../context/UksContext';
-import { SCHOOL_INFO } from '../data/initialData';
 
 interface NavbarProps {
   onOpenLowStockModal: () => void;
@@ -54,20 +53,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const totalAlerts = lowStockMedicines.length;
-
   return (
-    <header className="sticky top-0 z-30 bg-white border-b-2 border-gray-200">
+    <header className="sticky top-0 z-30 bg-[#FFFBFE]/90 backdrop-blur-md border-b border-[#E7E0EC] transition-all duration-300">
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
           
           {/* School Brand & Logo */}
           <div 
-            className="flex items-center gap-3 cursor-pointer group transition-transform duration-200 hover:scale-102" 
+            className="flex items-center gap-3.5 cursor-pointer group active:scale-95 transition-transform duration-300" 
             onClick={() => navigateToTab('guestbook')}
           >
-            <div className="w-12 h-12 bg-sky-100 rounded-lg flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 bg-[#E8DEF8] rounded-2xl flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
               <img 
                 src="/logo-sman1-batu.png" 
                 alt="Logo SMA Negeri 1 Batu" 
@@ -76,27 +73,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-base sm:text-lg font-extrabold text-gray-900 leading-tight tracking-tight">
+                <h1 className="text-base sm:text-lg font-bold text-[#1C1B1F] leading-tight tracking-tight">
                   UKS SMAN 1 BATU
                 </h1>
               </div>
-              <p className="text-xs text-gray-500 font-semibold truncate max-w-[200px] sm:max-w-none uppercase tracking-wider">
+              <p className="text-xs text-[#49454F] font-normal truncate max-w-[200px] sm:max-w-none">
                 Buku Kontrol Pengunjung & Farmasi Digital
               </p>
             </div>
           </div>
 
-          {/* Center / Desktop Info - Bold Flat Pill */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-md bg-sky-100 text-sky-800 text-xs font-bold">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
-            <span>PORTAL LAYANAN KESEHATAN DIGITAL</span>
+          {/* Center / Desktop Info - MD3 Pill */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E8DEF8] text-[#1D192B] text-xs font-medium">
+            <span className="w-2 h-2 rounded-full bg-[#6750A4]"></span>
+            <span>Portal Layanan Kesehatan Digital</span>
           </div>
 
           {/* Right Action: Live Clock & Admin Login Button */}
           <div className="flex items-center gap-3">
             {/* Live Clock Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-md bg-gray-100 text-gray-800 text-xs font-bold" title="Waktu Sistem Real-time">
-              <Clock className="w-4 h-4 text-sky-600 shrink-0" />
+            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-[#F3EDF7] text-[#49454F] text-xs font-medium shadow-2xs" title="Waktu Sistem Real-time">
+              <Clock className="w-4 h-4 text-[#6750A4] shrink-0" />
               <span>{currentTime}</span>
             </div>
 
@@ -106,7 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
                 type="button"
                 id="btn-nav-login-admin"
                 onClick={() => navigateToTab('login')}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-xs font-bold transition-all duration-200 hover:scale-105 cursor-pointer bg-sky-500 hover:bg-sky-600 text-white"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 bg-[#6750A4] hover:bg-[#6750A4]/90 text-white shadow-sm hover:shadow-md cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Login Admin</span>
@@ -118,4 +115,3 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLowStockModal }) => {
     </header>
   );
 };
-

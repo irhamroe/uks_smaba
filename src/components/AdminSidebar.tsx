@@ -9,7 +9,7 @@ import {
   HeartPulse, 
   Clock, 
   ChevronRight, 
-  ChevronDown,
+  ChevronDown, 
   ShieldCheck, 
   X,
   ExternalLink,
@@ -41,24 +41,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     pendingVisits
   } = useUks();
 
-  const [currentTime, setCurrentTime] = useState<string>('');
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setCurrentTime(
-        new Intl.DateTimeFormat('id-ID', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        }).format(now)
-      );
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   const totalAlerts = lowStockMedicines.length;
 
   const handleNav = (tab: AppTab) => {
@@ -77,7 +59,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       icon: LayoutDashboard,
       description: 'Statistik & rekapitulasi pasien',
       badge: pendingVisits.length > 0 ? (
-        <span className="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-xs">
+        <span className="bg-[#7D5260] text-white text-[10px] font-medium px-2 py-0.5 rounded-full shadow-2xs">
           {pendingVisits.length} Verifikasi
         </span>
       ) : null
@@ -88,7 +70,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       icon: Pill,
       description: 'Inventaris & restock obat',
       badge: totalAlerts > 0 ? (
-        <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+        <span className="bg-[#B3261E] text-white text-[10px] font-medium px-2 py-0.5 rounded-full animate-pulse shadow-2xs">
           {totalAlerts} Kritis
         </span>
       ) : null
@@ -117,7 +99,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       icon: Users,
       description: 'Akun petugas & hak akses',
       badge: (
-        <span className="bg-slate-200 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+        <span className="bg-[#49454F] text-[#E8DEF8] text-[10px] font-medium px-2 py-0.5 rounded-full">
           {users.length}
         </span>
       )
@@ -136,22 +118,22 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {/* Mobile Backdrop */}
       {isOpenMobile && (
         <div 
-          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-[#1C1B1F]/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"
           onClick={onCloseMobile}
         />
       )}
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed top-0 bottom-0 left-0 z-50 w-72 bg-gray-900 text-white flex flex-col justify-between border-r-2 border-gray-800 transition-transform duration-300 ease-in-out
+        fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#1D192B] text-[#E8DEF8] flex flex-col justify-between border-r border-[#6750A4]/20 transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]
         lg:translate-x-0 lg:static lg:z-auto
         ${isOpenMobile ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Top Header & Brand */}
         <div>
-          <div className="p-5 border-b-2 border-gray-800 flex items-center justify-between">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNav('dashboard')}>
-              <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center shrink-0">
+          <div className="p-5 border-b border-[#49454F]/30 flex items-center justify-between">
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNav('dashboard')}>
+              <div className="w-11 h-11 bg-[#E8DEF8] rounded-2xl flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-300">
                 <img 
                   src="/logo-sman1-batu.png" 
                   alt="Logo SMA Negeri 1 Batu" 
@@ -160,12 +142,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-sm tracking-tight text-white uppercase">
+                  <span className="font-bold text-sm tracking-tight text-white uppercase">
                     UKS {schoolInfo.shortName || 'DIGITAL'}
                   </span>
                 </div>
-                <div className="text-[10px] font-bold text-sky-400 tracking-wider uppercase flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-sky-400"></span>
+                <div className="text-[10px] font-medium text-[#EADDFF] tracking-wider uppercase flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#D0BCFF]"></span>
                   Admin Control Panel
                 </div>
               </div>
@@ -174,26 +156,26 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="lg:hidden p-2 text-gray-400 hover:text-white rounded-md transition-colors"
+              className="lg:hidden p-2 text-[#CAC4D0] hover:text-white rounded-full hover:bg-white/10 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Admin User Card: Solid Flat Block */}
-          <div className="p-4 mx-3 my-3.5 bg-gray-800 rounded-lg">
+          {/* Admin User Card: MD3 Tonal Surface */}
+          <div className="p-3.5 mx-3.5 my-3.5 bg-[#2B2930] rounded-2xl border border-[#49454F]/30">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-md bg-sky-500 text-white font-extrabold text-sm flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#6750A4] text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
                 {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-white truncate">
                   {adminUser?.name || 'Petugas UKS'}
                 </div>
-                <div className="text-[11px] text-sky-300 font-semibold truncate">
+                <div className="text-[11px] text-[#D0BCFF] font-medium truncate">
                   {adminUser?.role || 'Administrator'}
                 </div>
-                <div className="text-[10px] text-gray-400 font-mono">
+                <div className="text-[10px] text-[#CAC4D0] font-mono">
                   @{adminUser?.username || 'admin'}
                 </div>
               </div>
@@ -202,7 +184,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
           {/* Navigation Items List */}
           <div className="px-3 space-y-1">
-            <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+            <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#CAC4D0]">
               Menu Utama Admin
             </div>
 
@@ -217,14 +199,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   type="button"
                   id={`admin-nav-${item.id}`}
                   onClick={() => handleNav(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer text-left ${
                     isActive 
-                      ? 'bg-sky-500 text-white font-extrabold' 
-                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                      ? 'bg-[#EADDFF] text-[#21005D] shadow-sm font-bold' 
+                      : 'text-[#E8DEF8] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#21005D]' : 'text-[#CAC4D0]'}`} />
                     <div className="truncate">
                       <div className="leading-tight">{item.label}</div>
                     </div>
@@ -232,33 +214,33 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
                     {item.badge}
-                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-white" />}
+                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#21005D]" />}
                   </div>
                 </button>
               );
             })}
 
-            {/* Laporan UKS Section with 2 Dedicated Submenus */}
+            {/* Laporan UKS Section */}
             <div className="pt-1.5">
               <button
                 type="button"
                 id="admin-nav-reports-parent"
                 onClick={() => setIsReportsOpen(!isReportsOpen)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
+                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer text-left ${
                   isReportsTabActive && !isReportsOpen
-                    ? 'bg-sky-500 text-white font-extrabold'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    ? 'bg-[#EADDFF] text-[#21005D] font-bold'
+                    : 'text-[#E8DEF8] hover:text-white hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <FileSpreadsheet className={`w-4 h-4 ${isReportsTabActive ? 'text-sky-400' : 'text-gray-400'}`} />
-                  <span className="font-bold">Laporan UKS</span>
+                  <FileSpreadsheet className={`w-4 h-4 ${isReportsTabActive ? 'text-[#D0BCFF]' : 'text-[#CAC4D0]'}`} />
+                  <span>Laporan UKS</span>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isReportsOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-[#CAC4D0] transition-transform duration-300 ${isReportsOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {isReportsOpen && (
-                <div className="mt-1 ml-3 pl-3 border-l-2 border-gray-800 space-y-1 py-1">
+                <div className="mt-1 ml-4 pl-3 border-l border-[#49454F]/40 space-y-1 py-1">
                   {reportSubItems.map((sub) => {
                     const SubIcon = sub.icon;
                     const isSubActive = (sub.id === 'reports_visits' && (activeTab === 'reports_visits' || activeTab === 'reports')) ||
@@ -270,17 +252,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         type="button"
                         id={`admin-nav-${sub.id}`}
                         onClick={() => handleNav(sub.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs transition-all duration-150 cursor-pointer text-left ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-xs active:scale-95 transition-all duration-300 cursor-pointer text-left ${
                           isSubActive
-                            ? 'bg-sky-500 text-white font-extrabold'
-                            : 'text-gray-300 hover:text-white hover:bg-gray-800 font-semibold'
+                            ? 'bg-[#EADDFF] text-[#21005D] font-bold shadow-xs'
+                            : 'text-[#CAC4D0] hover:text-white hover:bg-white/10 font-normal'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-gray-400'}`} />
+                          <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-[#21005D]' : 'text-[#CAC4D0]'}`} />
                           <span className="truncate">{sub.label}</span>
                         </div>
-                        {isSubActive && <ChevronRight className="w-3 h-3 text-white shrink-0" />}
+                        {isSubActive && <ChevronRight className="w-3 h-3 text-[#21005D] shrink-0" />}
                       </button>
                     );
                   })}
@@ -299,25 +281,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   type="button"
                   id={`admin-nav-${item.id}`}
                   onClick={() => handleNav(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-xs font-medium active:scale-95 transition-all duration-300 cursor-pointer text-left ${
                     isActive 
-                      ? 'bg-sky-500 text-white font-extrabold' 
-                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                      ? 'bg-[#EADDFF] text-[#21005D] shadow-sm font-bold' 
+                      : 'text-[#E8DEF8] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#21005D]' : 'text-[#CAC4D0]'}`} />
                     <div className="truncate">
                       <div className="leading-tight">{item.label}</div>
                       {item.isPublic && (
-                        <span className="text-[10px] text-gray-400 font-normal">Halaman Publik</span>
+                        <span className="text-[10px] text-[#CAC4D0] font-normal">Halaman Publik</span>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
                     {item.badge}
-                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-white" />}
+                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#21005D]" />}
                   </div>
                 </button>
               );
@@ -326,16 +308,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         </div>
 
         {/* Bottom Status & Logout */}
-        <div className="p-4 border-t-2 border-gray-800">
-          {/* Logout Button */}
+        <div className="p-4 border-t border-[#49454F]/30">
           <button
             type="button"
             id="btn-sidebar-logout"
             onClick={logoutAdmin}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md bg-gray-800 hover:bg-rose-600 text-gray-200 hover:text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-102 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-[#31111D] hover:bg-[#B3261E] text-[#FFD8E4] hover:text-white text-xs font-medium uppercase tracking-wider active:scale-95 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
-            <span>Logout</span>
+            <span>Logout / Keluar</span>
           </button>
         </div>
       </aside>

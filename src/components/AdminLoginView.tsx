@@ -61,7 +61,7 @@ export const AdminLoginView: React.FC = () => {
               setPendingTab(null);
               navigateToTab('guestbook');
             }}
-            className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-sky-600 transition-colors uppercase tracking-wider"
+            className="inline-flex items-center gap-2 text-xs font-medium text-[#49454F] hover:text-[#6750A4] transition-colors rounded-full px-4 py-2 hover:bg-[#E8DEF8]/60 active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
             Kembali ke Buku Kontrol Pengunjung
@@ -70,36 +70,37 @@ export const AdminLoginView: React.FC = () => {
 
         {/* Intended destination notification */}
         {pendingTab && (
-          <div className="mb-6 p-5 bg-amber-500 text-white rounded-lg flex items-start gap-3">
-            <Lock className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-[#FFD8E4] text-[#31111D] border border-[#7D5260]/20 rounded-2xl flex items-start gap-3 shadow-2xs">
+            <Lock className="w-5 h-5 text-[#7D5260] shrink-0 mt-0.5" />
             <div className="text-xs">
-              <div className="font-extrabold uppercase tracking-wider">Akses Terbatas Diperlukan</div>
-              <div className="mt-1 leading-relaxed font-medium">
+              <div className="font-bold uppercase tracking-wide">Akses Terbatas Diperlukan</div>
+              <div className="mt-0.5 leading-relaxed font-normal">
                 Anda diarahkan ke login untuk mengakses <span className="font-bold underline">{getDestinationLabel(pendingTab)}</span>.
               </div>
             </div>
           </div>
         )}
 
-        {/* Main Card - Pure Flat Poster Style */}
-        <div className="bg-white rounded-lg overflow-hidden border-2 border-gray-200">
-          {/* Card Header: Solid Color Block */}
-          <div className="bg-sky-500 text-white p-8 text-center relative">
-            {/* Background Geometric Accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12 pointer-events-none" />
+        {/* Main Card - Material You Poster Card */}
+        <div className="bg-[#F3EDF7] rounded-[32px] overflow-hidden border border-[#E7E0EC] shadow-md">
+          {/* Card Header: Material You Gradient & Organic Blur */}
+          <div className="bg-gradient-to-br from-[#6750A4] via-[#5B3E96] to-[#4F378B] text-white p-8 text-center relative overflow-hidden">
+            {/* Background Organic Accent */}
+            <div className="absolute top-0 right-0 w-36 h-36 bg-white/15 rounded-full blur-2xl -mr-12 -mt-12 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-28 h-28 bg-[#FFD8E4]/20 rounded-full blur-xl -ml-8 -mb-8 pointer-events-none" />
             
             <div className="relative z-10 flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center mb-3">
+              <div className="w-20 h-20 bg-[#FFFBFE] rounded-2xl flex items-center justify-center mb-3 shadow-xs">
                 <img
                   src="/logo-sman1-batu.png"
                   alt="Logo SMA Negeri 1 Batu"
                   className="w-16 h-16 object-contain"
                 />
               </div>
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight uppercase">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
                 Masuk Portal Admin UKS
               </h2>
-              <p className="text-xs font-semibold text-sky-100 mt-1">
+              <p className="text-xs font-normal text-[#EADDFF] mt-1">
                 Panel Manajemen & Pelayanan Kesehatan Sekolah
               </p>
             </div>
@@ -108,10 +109,10 @@ export const AdminLoginView: React.FC = () => {
           {/* Form Body */}
           <div className="p-6 sm:p-8 space-y-5">
             {errorMessage && (
-              <div className="p-4 bg-rose-500 text-white rounded-md flex items-start gap-3 text-xs font-semibold">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="p-4 bg-[#F9DEDC] text-[#410E0B] border border-[#B3261E]/30 rounded-2xl flex items-start gap-3 text-xs font-medium">
+                <AlertCircle className="w-4 h-4 text-[#B3261E] shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-extrabold uppercase">Gagal Masuk</div>
+                  <div className="font-bold uppercase">Gagal Masuk</div>
                   <div className="mt-0.5">{errorMessage}</div>
                 </div>
               </div>
@@ -120,11 +121,11 @@ export const AdminLoginView: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Username field */}
               <div>
-                <label className="block text-xs font-bold text-gray-900 mb-1.5 uppercase tracking-wider" htmlFor="admin-username">
+                <label className="block text-xs font-medium text-[#49454F] mb-1.5 uppercase tracking-wider" htmlFor="admin-username">
                   Username
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#79747E]">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -134,18 +135,18 @@ export const AdminLoginView: React.FC = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Masukkan username"
-                    className="w-full pl-10 pr-3.5 py-3 bg-gray-100 focus:bg-white text-gray-900 font-semibold text-sm rounded-md border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-200"
+                    className="w-full pl-10 pr-3.5 py-3 bg-[#E7E0EC] focus:bg-[#EDE7F2] text-[#1C1B1F] font-normal text-sm rounded-t-xl border-b-2 border-[#79747E] focus:border-[#6750A4] outline-none transition-all duration-200"
                   />
                 </div>
               </div>
 
               {/* Password field */}
               <div>
-                <label className="block text-xs font-bold text-gray-900 mb-1.5 uppercase tracking-wider" htmlFor="admin-password">
+                <label className="block text-xs font-medium text-[#49454F] mb-1.5 uppercase tracking-wider" htmlFor="admin-password">
                   Kata Sandi
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#79747E]">
                     <KeyRound className="w-4 h-4" />
                   </div>
                   <input
@@ -155,12 +156,12 @@ export const AdminLoginView: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Masukkan kata sandi"
-                    className="w-full pl-10 pr-10 py-3 bg-gray-100 focus:bg-white text-gray-900 font-semibold text-sm rounded-md border-2 border-transparent focus:border-sky-500 outline-none transition-all duration-200"
+                    className="w-full pl-10 pr-10 py-3 bg-[#E7E0EC] focus:bg-[#EDE7F2] text-[#1C1B1F] font-normal text-sm rounded-t-xl border-b-2 border-[#79747E] focus:border-[#6750A4] outline-none transition-all duration-200"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-900 cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#79747E] hover:text-[#1C1B1F] cursor-pointer"
                     title={showPassword ? 'Sembunyikan sandi' : 'Tampilkan sandi'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -174,7 +175,7 @@ export const AdminLoginView: React.FC = () => {
                   type="submit"
                   id="btn-submit-admin-login"
                   disabled={isSubmitting}
-                  className="w-full h-12 inline-flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-extrabold uppercase tracking-wider text-xs rounded-md transition-all duration-200 hover:scale-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 inline-flex items-center justify-center gap-2 bg-[#6750A4] hover:bg-[#6750A4]/90 text-white font-medium text-xs rounded-full active:scale-95 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Lock className="w-4 h-4" />
                   {isSubmitting ? 'Memproses...' : 'Masuk Sekarang'}
@@ -183,8 +184,8 @@ export const AdminLoginView: React.FC = () => {
             </form>
 
             {/* Public Access Note */}
-            <div className="pt-4 border-t-2 border-gray-100 text-center">
-              <p className="text-xs text-gray-600 font-medium">
+            <div className="pt-4 border-t border-[#E7E0EC] text-center">
+              <p className="text-xs text-[#49454F] font-normal">
                 Bukan petugas UKS? Anda dapat langsung mengisi buku kunjungan.{' '}
                 <button
                   type="button"
@@ -192,7 +193,7 @@ export const AdminLoginView: React.FC = () => {
                     setPendingTab(null);
                     navigateToTab('guestbook');
                   }}
-                  className="text-sky-600 font-bold hover:underline inline-block mt-1 cursor-pointer"
+                  className="text-[#6750A4] font-medium hover:underline inline-block mt-1 cursor-pointer"
                 >
                   Buka Formulir Kunjungan &rarr;
                 </button>

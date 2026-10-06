@@ -4,10 +4,7 @@ import {
   AlertTriangle, 
   Info, 
   XCircle, 
-  X,
-  Sparkles,
-  ShieldAlert,
-  BellRing
+  X
 } from 'lucide-react';
 import { useUks } from '../context/UksContext';
 
@@ -45,38 +42,50 @@ export const Toast: React.FC = () => {
         return {
           title: 'Berhasil',
           icon: CheckCircle2,
-          bgColor: 'bg-emerald-600',
-          textColor: 'text-white',
-          iconBg: 'bg-emerald-700',
-          barColor: 'bg-emerald-300'
+          bgColor: 'bg-[#1D192B]',
+          textColor: 'text-[#E8DEF8]',
+          iconBg: 'bg-[#6750A4]',
+          iconColor: 'text-white',
+          barColor: 'bg-[#D0BCFF]',
+          badgeBg: 'bg-[#EADDFF]',
+          badgeText: 'text-[#21005D]'
         };
       case 'warning':
         return {
           title: 'Peringatan',
           icon: AlertTriangle,
-          bgColor: 'bg-amber-500',
-          textColor: 'text-white',
-          iconBg: 'bg-amber-600',
-          barColor: 'bg-amber-200'
+          bgColor: 'bg-[#31111D]',
+          textColor: 'text-[#FFD8E4]',
+          iconBg: 'bg-[#7D5260]',
+          iconColor: 'text-white',
+          barColor: 'bg-[#FFD8E4]',
+          badgeBg: 'bg-[#FFD8E4]',
+          badgeText: 'text-[#31111D]'
         };
       case 'error':
         return {
           title: 'Perhatian / Gagal',
           icon: XCircle,
-          bgColor: 'bg-rose-600',
-          textColor: 'text-white',
-          iconBg: 'bg-rose-700',
-          barColor: 'bg-rose-300'
+          bgColor: 'bg-[#410E0B]',
+          textColor: 'text-[#F9DEDC]',
+          iconBg: 'bg-[#B3261E]',
+          iconColor: 'text-white',
+          barColor: 'bg-[#F9DEDC]',
+          badgeBg: 'bg-[#F9DEDC]',
+          badgeText: 'text-[#410E0B]'
         };
       case 'info':
       default:
         return {
           title: 'Informasi UKS',
           icon: Info,
-          bgColor: 'bg-sky-600',
-          textColor: 'text-white',
-          iconBg: 'bg-sky-700',
-          barColor: 'bg-sky-300'
+          bgColor: 'bg-[#2B2930]',
+          textColor: 'text-[#E8DEF8]',
+          iconBg: 'bg-[#6750A4]',
+          iconColor: 'text-white',
+          barColor: 'bg-[#EADDFF]',
+          badgeBg: 'bg-[#EADDFF]',
+          badgeText: 'text-[#21005D]'
         };
     }
   };
@@ -85,26 +94,26 @@ export const Toast: React.FC = () => {
   const Icon = config.icon;
 
   return (
-    <div className="fixed top-5 right-5 z-50 max-w-md w-[calc(100vw-2.5rem)] sm:w-full">
+    <div className="fixed top-5 right-5 z-50 max-w-md w-[calc(100vw-2.5rem)] sm:w-full animate-in fade-in slide-in-from-top-4 duration-300">
       <div 
-        className={`relative overflow-hidden ${config.bgColor} ${config.textColor} rounded-lg border-2 border-gray-900 p-4 sm:p-5`}
+        className={`relative overflow-hidden ${config.bgColor} ${config.textColor} rounded-3xl border border-white/10 shadow-xl p-4 sm:p-5`}
       >
         <div className="flex items-start gap-3.5 relative z-10">
           {/* Icon Badge */}
           <div className="relative shrink-0 mt-0.5">
-            <div className={`w-10 h-10 rounded-md ${config.iconBg} flex items-center justify-center`}>
-              <Icon className="w-5 h-5 text-white" />
+            <div className={`w-10 h-10 rounded-full ${config.iconBg} flex items-center justify-center shadow-xs`}>
+              <Icon className={`w-5 h-5 ${config.iconColor}`} />
             </div>
           </div>
 
           {/* Text Content */}
           <div className="flex-1 min-w-0 pr-2">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-sm bg-black/20 tracking-wider">
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${config.badgeBg} ${config.badgeText}`}>
                 {config.title}
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-bold leading-relaxed break-words">
+            <p className="text-xs sm:text-sm font-medium leading-relaxed break-words">
               {toast.message}
             </p>
           </div>
@@ -113,7 +122,7 @@ export const Toast: React.FC = () => {
           <button
             type="button"
             onClick={dismissToast}
-            className="p-1.5 rounded-md hover:bg-black/20 transition cursor-pointer shrink-0 text-white"
+            className="p-1.5 rounded-full hover:bg-white/10 active:scale-95 transition cursor-pointer shrink-0 text-white/80 hover:text-white"
             title="Tutup Notifikasi"
           >
             <X className="w-4 h-4" />
@@ -121,7 +130,7 @@ export const Toast: React.FC = () => {
         </div>
 
         {/* Live Countdown Progress Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/20 overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 overflow-hidden">
           <div 
             className={`h-full ${config.barColor} transition-all ease-linear`}
             style={{ width: `${progress}%`, transitionDuration: '40ms' }}
