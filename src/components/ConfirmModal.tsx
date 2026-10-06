@@ -31,23 +31,23 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       case 'danger':
         return {
           icon: Trash2,
-          iconBg: 'bg-rose-100 text-rose-600 ring-4 ring-rose-50',
-          confirmBtn: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-rose-600/20',
+          iconBg: 'bg-rose-600 text-white',
+          confirmBtn: 'bg-rose-600 hover:bg-rose-700 text-white',
           badgeText: 'Konfirmasi Hapus'
         };
       case 'warning':
         return {
           icon: AlertTriangle,
-          iconBg: 'bg-amber-100 text-amber-600 ring-4 ring-amber-50',
-          confirmBtn: 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white shadow-amber-600/20',
+          iconBg: 'bg-amber-500 text-white',
+          confirmBtn: 'bg-amber-500 hover:bg-amber-600 text-white',
           badgeText: 'Peringatan'
         };
       case 'info':
       default:
         return {
           icon: HelpCircle,
-          iconBg: 'bg-sky-100 text-sky-600 ring-4 ring-sky-50',
-          confirmBtn: 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white shadow-emerald-600/20',
+          iconBg: 'bg-blue-600 text-white',
+          confirmBtn: 'bg-blue-600 hover:bg-blue-700 text-white',
           badgeText: 'Konfirmasi Tindakan'
         };
     }
@@ -57,42 +57,42 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   const Icon = style.icon;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-gray-900/80 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg max-w-md w-full border-2 border-gray-200 overflow-hidden">
         
         {/* Header with Icon */}
         <div className="p-6 pb-4">
           <div className="flex items-start justify-between gap-4 mb-3">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${style.iconBg}`}>
+            <div className={`w-12 h-12 rounded-md flex items-center justify-center shrink-0 ${style.iconBg}`}>
               <Icon className="w-6 h-6" />
             </div>
 
             <button
               type="button"
               onClick={onCancel}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+              className="p-1.5 rounded-md text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+          <span className="text-[10px] font-black uppercase tracking-wider text-gray-500 block mb-1">
             {style.badgeText}
           </span>
-          <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
+          <h3 className="text-lg font-black text-gray-900 leading-snug">
             {title}
           </h3>
-          <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+          <p className="text-xs text-gray-600 mt-1.5 leading-relaxed font-medium">
             {message}
           </p>
 
           {/* Optional Details Box */}
           {details && details.length > 0 && (
-            <div className="mt-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs space-y-1.5">
+            <div className="mt-4 p-4 bg-gray-100 rounded-md text-xs space-y-1.5">
               {details.map((item, idx) => (
                 <div key={idx} className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">{item.label}:</span>
-                  <span className="font-bold text-slate-800 truncate max-w-[200px]">{item.value}</span>
+                  <span className="text-gray-500 font-bold">{item.label}:</span>
+                  <span className="font-extrabold text-gray-900 truncate max-w-[200px]">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -100,20 +100,20 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-2.5">
+        <div className="p-4 bg-gray-50 border-t-2 border-gray-100 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
+            className="px-4 py-2.5 rounded-md text-xs font-bold text-gray-700 hover:bg-gray-200 transition cursor-pointer uppercase tracking-wider"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer flex items-center gap-1.5 ${style.confirmBtn}`}
+            className={`px-5 py-2.5 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-150 hover:scale-105 cursor-pointer flex items-center gap-2 ${style.confirmBtn}`}
           >
-            {type === 'danger' && <Trash2 className="w-3.5 h-3.5" />}
+            {type === 'danger' && <Trash2 className="w-4 h-4" />}
             <span>{confirmLabel}</span>
           </button>
         </div>

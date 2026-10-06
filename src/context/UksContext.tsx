@@ -133,6 +133,7 @@ interface UksContextType {
     needsMedicine: boolean;
     medicinesGiven: MedicineUsage[];
     notes?: string;
+    finalStatus: VisitRecord['finalStatus'];
     temperature?: string;
     bloodPressure?: string;
     hasDrugAllergy?: boolean;

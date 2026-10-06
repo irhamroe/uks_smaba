@@ -123,7 +123,7 @@ const AppContent: React.FC = () => {
   // ==========================================
   if (isAdminLoggedIn) {
     return (
-      <div className="min-h-screen flex bg-slate-100/80 text-slate-800 font-sans antialiased">
+      <div className="min-h-screen flex bg-gray-100 text-gray-900 font-sans antialiased">
         {/* Left Navigation Sidebar */}
         <AdminSidebar
           isOpenMobile={isMobileSidebarOpen}
@@ -134,7 +134,7 @@ const AppContent: React.FC = () => {
         {/* Right Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Top Admin Header Bar */}
-          <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200/80 px-4 sm:px-8 py-3.5 shadow-2xs">
+          <header className="sticky top-0 z-30 bg-white border-b-2 border-gray-200 px-4 sm:px-8 py-4">
             <div className="flex items-center justify-between gap-4">
 
               {/* Left: Mobile Toggle & Breadcrumb Title */}
@@ -143,72 +143,72 @@ const AppContent: React.FC = () => {
                   type="button"
                   id="btn-admin-mobile-menu"
                   onClick={() => setIsMobileSidebarOpen(true)}
-                  className="lg:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                  className="lg:hidden p-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-800 transition cursor-pointer"
                   title="Buka Menu Samping"
                 >
                   <Menu className="w-5 h-5" />
                 </button>
 
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 truncate">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 uppercase tracking-wider truncate">
                     <span className="hidden sm:inline">UKS {schoolInfo.shortName || 'SMAN 1 BATU'}</span>
-                    <ChevronRight className="w-3 h-3 text-slate-400 hidden sm:inline" />
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 hidden sm:inline" />
                     <span>{pageInfo.category}</span>
                   </div>
-                  <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate">
+                  <h1 className="text-base sm:text-xl font-extrabold text-gray-900 truncate tracking-tight">
                     {pageInfo.title}
                   </h1>
                 </div>
               </div>
 
               {/* Right: Actions, Live Time & Profile */}
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-3 shrink-0">
                 {/* Live Clock */}
-                <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200/80 text-xs font-medium" title="Waktu Sekarang">
-                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="font-semibold text-slate-800">{adminTime}</span>
+                <div className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-md bg-gray-100 text-gray-800 text-xs font-bold" title="Waktu Sekarang">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  <span>{adminTime}</span>
                 </div>
 
                 {/* Officer Profile Interactive Menu */}
-                <div className="relative pl-2 border-l border-slate-200" ref={profileMenuRef}>
+                <div className="relative pl-3 border-l-2 border-gray-200" ref={profileMenuRef}>
                   <button
                     type="button"
                     id="btn-admin-profile-menu"
                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className="flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-xl hover:bg-slate-100 transition cursor-pointer border border-transparent hover:border-slate-200 text-left select-none group"
+                    className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-md hover:bg-gray-100 transition cursor-pointer text-left select-none group"
                     title="Klik untuk melihat profil & logout"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-emerald-600 group-hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center shadow-xs transition">
+                    <div className="w-8 h-8 rounded-md bg-blue-600 group-hover:bg-blue-700 text-white font-black text-xs flex items-center justify-center transition">
                       {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
                     </div>
                     <div className="hidden lg:flex flex-col text-left">
-                      <span className="text-xs font-bold text-slate-800 truncate max-w-[140px] group-hover:text-emerald-800">
+                      <span className="text-xs font-bold text-gray-900 truncate max-w-[140px]">
                         {adminUser?.name || 'Petugas UKS'}
                       </span>
-                      <span className="text-[10px] text-emerald-700 font-semibold">
+                      <span className="text-[10px] text-blue-600 font-extrabold uppercase tracking-wider">
                         {adminUser?.role || 'Admin'}
                       </span>
                     </div>
-                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180 text-emerald-700' : 'group-hover:text-slate-600'}`} />
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180 text-blue-600' : ''}`} />
                   </button>
 
                   {/* Dropdown Menu */}
                   {isProfileMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95">
-                      <div className="px-3.5 py-2.5 border-b border-slate-100 bg-slate-50/70 rounded-t-xl">
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg border-2 border-gray-200 py-2 z-50">
+                      <div className="px-4 py-3 border-b-2 border-gray-100 bg-gray-50">
+                        <div className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
                           Akun Petugas Aktif
                         </div>
-                        <div className="font-bold text-xs text-slate-900 truncate mt-0.5" title={adminUser?.name}>
+                        <div className="font-extrabold text-xs text-gray-900 truncate mt-0.5" title={adminUser?.name}>
                           {adminUser?.name || 'Petugas UKS'}
                         </div>
-                        <div className="text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                          <span>{adminUser?.role || 'Admin'} • {adminUser?.username ? `@${adminUser.username}` : 'UKS SMAN 1 Batu'}</span>
+                        <div className="text-[11px] text-blue-600 font-bold mt-0.5 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                          <span>{adminUser?.role || 'Admin'} • @{adminUser?.username || 'admin'}</span>
                         </div>
                       </div>
 
-                      <div className="p-1.5">
+                      <div className="p-2">
                         <button
                           type="button"
                           id="btn-profile-dropdown-logout"
@@ -216,14 +216,14 @@ const AppContent: React.FC = () => {
                             setIsProfileMenuOpen(false);
                             logoutAdmin();
                           }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer text-left"
+                          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-xs font-bold text-rose-600 hover:bg-rose-50 transition cursor-pointer text-left"
                         >
-                          <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
-                            <LogOut className="w-3.5 h-3.5" />
+                          <div className="w-7 h-7 rounded-md bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                            <LogOut className="w-4 h-4" />
                           </div>
                           <div>
-                            <div>Logout / Keluar</div>
-                            <div className="text-[10px] text-slate-400 font-normal">Akhiri sesi login admin</div>
+                            <div className="font-bold">Logout / Keluar</div>
+                            <div className="text-[10px] text-gray-500 font-normal">Akhiri sesi login admin</div>
                           </div>
                         </button>
                       </div>
@@ -235,7 +235,7 @@ const AppContent: React.FC = () => {
           </header>
 
           {/* Admin Main Body View */}
-          <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
+          <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-gray-100">
             {activeTab === 'dashboard' && <AdminDashboard onOpenRestockModal={handleOpenRestock} />}
             {activeTab === 'inventory' && (
               <MedicineInventory
@@ -265,7 +265,7 @@ const AppContent: React.FC = () => {
   // 2. PUBLIC MODE (GUEST BOOK / LOGIN)
   // ==========================================
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100/70 text-slate-800 font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-gray-100 text-gray-900 font-sans antialiased">
       {/* Public Navbar */}
       <Navbar onOpenLowStockModal={() => setIsLowStockModalOpen(true)} />
 
@@ -283,28 +283,30 @@ const AppContent: React.FC = () => {
         )}
       </main>
 
-      {/* Public Footer */}
-      <footer className="bg-white border-t border-slate-200 mt-12 py-8 text-slate-600 text-xs">
+      {/* Public Poster Footer */}
+      <footer className="bg-gray-900 text-white mt-12 py-10 border-t-4 border-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3 text-center md:text-left">
-            <img
-              src="/logo-sman1-batu.png"
-              alt="Logo SMA Negeri 1 Batu"
-              className="w-10 h-10 object-contain shrink-0 drop-shadow-xs"
-            />
+            <div className="w-12 h-12 bg-white rounded-md flex items-center justify-center shrink-0">
+              <img
+                src="/logo-sman1-batu.png"
+                alt="Logo SMA Negeri 1 Batu"
+                className="w-10 h-10 object-contain"
+              />
+            </div>
             <div>
-              <div className="font-bold text-slate-900 text-sm">{schoolInfo.name}</div>
-              <div className="text-slate-500 text-[11px]">{schoolInfo.address}</div>
+              <div className="font-extrabold text-white text-sm uppercase tracking-tight">{schoolInfo.name}</div>
+              <div className="text-gray-400 text-xs mt-0.5">{schoolInfo.address}</div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-500">
-            <span className="flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-300 font-medium">
+            <span className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-blue-400" />
               {schoolInfo.phone}
             </span>
-            <span className="flex items-center gap-1">
-              <Mail className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-blue-400" />
               {schoolInfo.email}
             </span>
           </div>

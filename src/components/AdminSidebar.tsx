@@ -143,27 +143,29 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed top-0 bottom-0 left-0 z-50 w-72 bg-slate-900 text-white flex flex-col justify-between border-r border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:static lg:z-auto lg:shadow-none
+        fixed top-0 bottom-0 left-0 z-50 w-72 bg-gray-900 text-white flex flex-col justify-between border-r-2 border-gray-800 transition-transform duration-300 ease-in-out
+        lg:translate-x-0 lg:static lg:z-auto
         ${isOpenMobile ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Top Header & Brand */}
         <div>
-          <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
+          <div className="p-5 border-b-2 border-gray-800 flex items-center justify-between">
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNav('dashboard')}>
-              <img 
-                src="/logo-sman1-batu.png" 
-                alt="Logo SMA Negeri 1 Batu" 
-                className="w-10 h-10 object-contain shrink-0 drop-shadow-xs" 
-              />
+              <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center shrink-0">
+                <img 
+                  src="/logo-sman1-batu.png" 
+                  alt="Logo SMA Negeri 1 Batu" 
+                  className="w-8 h-8 object-contain shrink-0" 
+                />
+              </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-sm tracking-tight text-white">
+                  <span className="font-extrabold text-sm tracking-tight text-white uppercase">
                     UKS {schoolInfo.shortName || 'DIGITAL'}
                   </span>
                 </div>
-                <div className="text-[10px] font-semibold text-emerald-400 tracking-wider uppercase flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <div className="text-[10px] font-bold text-blue-400 tracking-wider uppercase flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-blue-400"></span>
                   Admin Control Panel
                 </div>
               </div>
@@ -172,26 +174,26 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg transition"
+              className="lg:hidden p-2 text-gray-400 hover:text-white rounded-md transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Admin User Card */}
-          <div className="p-4 mx-3 my-3.5 bg-slate-800/80 rounded-2xl border border-slate-700/60">
+          {/* Admin User Card: Solid Flat Block */}
+          <div className="p-4 mx-3 my-3.5 bg-gray-800 rounded-lg">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-700/90 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs ring-2 ring-emerald-400/40">
+              <div className="w-10 h-10 rounded-md bg-blue-600 text-white font-extrabold text-sm flex items-center justify-center shrink-0">
                 {adminUser?.name ? adminUser.name.charAt(0).toUpperCase() : 'A'}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-white truncate">
                   {adminUser?.name || 'Petugas UKS'}
                 </div>
-                <div className="text-[11px] text-emerald-300 font-medium truncate">
+                <div className="text-[11px] text-blue-300 font-semibold truncate">
                   {adminUser?.role || 'Administrator'}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono">
+                <div className="text-[10px] text-gray-400 font-mono">
                   @{adminUser?.username || 'admin'}
                 </div>
               </div>
@@ -200,7 +202,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
           {/* Navigation Items List */}
           <div className="px-3 space-y-1">
-            <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
               Menu Utama Admin
             </div>
 
@@ -215,14 +217,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   type="button"
                   id={`admin-nav-${item.id}`}
                   onClick={() => handleNav(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition cursor-pointer text-left ${
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
                     isActive 
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 font-bold' 
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                      ? 'bg-blue-600 text-white font-extrabold' 
+                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
                     <div className="truncate">
                       <div className="leading-tight">{item.label}</div>
                     </div>
@@ -230,7 +232,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
                     {item.badge}
-                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-200" />}
+                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-white" />}
                   </div>
                 </button>
               );
@@ -242,21 +244,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 type="button"
                 id="admin-nav-reports-parent"
                 onClick={() => setIsReportsOpen(!isReportsOpen)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer text-left ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
                   isReportsTabActive && !isReportsOpen
-                    ? 'bg-emerald-600 text-white font-bold'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-blue-600 text-white font-extrabold'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <FileSpreadsheet className={`w-4 h-4 ${isReportsTabActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                  <FileSpreadsheet className={`w-4 h-4 ${isReportsTabActive ? 'text-blue-400' : 'text-gray-400'}`} />
                   <span className="font-bold">Laporan UKS</span>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isReportsOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isReportsOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {isReportsOpen && (
-                <div className="mt-1 ml-3 pl-3 border-l-2 border-slate-800 space-y-1 py-1">
+                <div className="mt-1 ml-3 pl-3 border-l-2 border-gray-800 space-y-1 py-1">
                   {reportSubItems.map((sub) => {
                     const SubIcon = sub.icon;
                     const isSubActive = (sub.id === 'reports_visits' && (activeTab === 'reports_visits' || activeTab === 'reports')) ||
@@ -268,17 +270,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         type="button"
                         id={`admin-nav-${sub.id}`}
                         onClick={() => handleNav(sub.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition cursor-pointer text-left ${
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-xs transition-all duration-150 cursor-pointer text-left ${
                           isSubActive
-                            ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                            : 'text-slate-300 hover:text-white hover:bg-slate-800/70 font-medium'
+                            ? 'bg-blue-600 text-white font-extrabold'
+                            : 'text-gray-300 hover:text-white hover:bg-gray-800 font-semibold'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-slate-400'}`} />
+                          <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-gray-400'}`} />
                           <span className="truncate">{sub.label}</span>
                         </div>
-                        {isSubActive && <ChevronRight className="w-3 h-3 text-emerald-200 shrink-0" />}
+                        {isSubActive && <ChevronRight className="w-3 h-3 text-white shrink-0" />}
                       </button>
                     );
                   })}
@@ -297,25 +299,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   type="button"
                   id={`admin-nav-${item.id}`}
                   onClick={() => handleNav(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition cursor-pointer text-left ${
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer text-left ${
                     isActive 
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 font-bold' 
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                      ? 'bg-blue-600 text-white font-extrabold' 
+                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
                     <div className="truncate">
                       <div className="leading-tight">{item.label}</div>
                       {item.isPublic && (
-                        <span className="text-[9px] text-slate-400 font-normal">Halaman Publik</span>
+                        <span className="text-[10px] text-gray-400 font-normal">Halaman Publik</span>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
                     {item.badge}
-                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-200" />}
+                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-white" />}
                   </div>
                 </button>
               );
@@ -324,13 +326,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         </div>
 
         {/* Bottom Status & Logout */}
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t-2 border-gray-800">
           {/* Logout Button */}
           <button
             type="button"
             id="btn-sidebar-logout"
             onClick={logoutAdmin}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-slate-800/90 hover:bg-rose-900/40 text-slate-300 hover:text-rose-200 border border-slate-700/80 hover:border-rose-700/50 text-xs font-bold transition cursor-pointer shadow-xs"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md bg-gray-800 hover:bg-rose-600 text-gray-200 hover:text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-102 cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
