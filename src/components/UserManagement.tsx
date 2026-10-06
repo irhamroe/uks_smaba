@@ -231,13 +231,13 @@ export const UserManagement: React.FC = () => {
   const getRoleBadge = (role: string) => {
     const r = role.toLowerCase();
     if (r.includes('koordinator')) {
-      return 'bg-purple-100 text-purple-800 border-purple-200';
+      return 'bg-sky-100 text-sky-800 border-sky-200';
     }
     if (r.includes('pembina')) {
       return 'bg-emerald-100 text-emerald-800 border-emerald-200';
     }
     if (r.includes('administrasi') || r.includes('staf')) {
-      return 'bg-sky-100 text-sky-800 border-sky-200';
+      return 'bg-cyan-100 text-cyan-800 border-cyan-200';
     }
     return 'bg-slate-100 text-slate-800 border-slate-200';
   };
@@ -287,12 +287,12 @@ export const UserManagement: React.FC = () => {
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Koordinator</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+            <span className="text-xs font-bold text-sky-700 uppercase tracking-wider">Koordinator</span>
+            <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-purple-700 mt-2">{stats.koordinator}</div>
+          <div className="text-2xl font-bold text-sky-700 mt-2">{stats.koordinator}</div>
           <div className="text-[11px] text-slate-400 mt-0.5">Koordinator UKS</div>
         </div>
 

@@ -42,25 +42,25 @@ export const Toast: React.FC = () => {
         return {
           title: 'Berhasil',
           icon: CheckCircle2,
-          bgColor: 'bg-[#1D192B]',
-          textColor: 'text-[#E8DEF8]',
-          iconBg: 'bg-[#6750A4]',
+          bgColor: 'bg-[#0C1E2E]',
+          textColor: 'text-[#E0F2FE]',
+          iconBg: 'bg-[#0284C7]',
           iconColor: 'text-white',
-          barColor: 'bg-[#D0BCFF]',
-          badgeBg: 'bg-[#EADDFF]',
-          badgeText: 'text-[#21005D]'
+          barColor: 'bg-[#38BDF8]',
+          badgeBg: 'bg-[#E0F2FE]',
+          badgeText: 'text-[#0C4A6E]'
         };
       case 'warning':
         return {
           title: 'Peringatan',
           icon: AlertTriangle,
-          bgColor: 'bg-[#31111D]',
-          textColor: 'text-[#FFD8E4]',
-          iconBg: 'bg-[#7D5260]',
+          bgColor: 'bg-[#451A03]',
+          textColor: 'text-[#FEF3C7]',
+          iconBg: 'bg-[#D97706]',
           iconColor: 'text-white',
-          barColor: 'bg-[#FFD8E4]',
-          badgeBg: 'bg-[#FFD8E4]',
-          badgeText: 'text-[#31111D]'
+          barColor: 'bg-[#FDE68A]',
+          badgeBg: 'bg-[#FEF3C7]',
+          badgeText: 'text-[#78350F]'
         };
       case 'error':
         return {
@@ -79,13 +79,13 @@ export const Toast: React.FC = () => {
         return {
           title: 'Informasi UKS',
           icon: Info,
-          bgColor: 'bg-[#2B2930]',
-          textColor: 'text-[#E8DEF8]',
-          iconBg: 'bg-[#6750A4]',
+          bgColor: 'bg-[#132A3E]',
+          textColor: 'text-[#E0F2FE]',
+          iconBg: 'bg-[#0284C7]',
           iconColor: 'text-white',
-          barColor: 'bg-[#EADDFF]',
-          badgeBg: 'bg-[#EADDFF]',
-          badgeText: 'text-[#21005D]'
+          barColor: 'bg-[#BAE6FD]',
+          badgeBg: 'bg-[#E0F2FE]',
+          badgeText: 'text-[#0C4A6E]'
         };
     }
   };

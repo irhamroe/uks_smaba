@@ -4,39 +4,39 @@
   :root {
     --font-roboto: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     
-    /* Material You (MD3) Palette - Violet Seed #6750A4 */
-    --md-sys-color-background: #FFFBFE;
-    --md-sys-color-on-background: #1C1B1F;
-    --md-sys-color-surface: #FFFBFE;
-    --md-sys-color-on-surface: #1C1B1F;
-    --md-sys-color-surface-variant: #E7E0EC;
-    --md-sys-color-on-surface-variant: #49454F;
-    --md-sys-color-surface-container: #F3EDF7;
-    --md-sys-color-surface-container-low: #E7E0EC;
-    --md-sys-color-surface-container-high: #ECE6F0;
+    /* Material You (MD3) Palette - Light Blue (Sky Blue) Seed #0284C7 */
+    --md-sys-color-background: #F8FAFC;
+    --md-sys-color-on-background: #0F172A;
+    --md-sys-color-surface: #F8FAFC;
+    --md-sys-color-on-surface: #0F172A;
+    --md-sys-color-surface-variant: #E0F2FE;
+    --md-sys-color-on-surface-variant: #334155;
+    --md-sys-color-surface-container: #F0F9FF;
+    --md-sys-color-surface-container-low: #E0F2FE;
+    --md-sys-color-surface-container-high: #E2E8F0;
     
-    --md-sys-color-primary: #6750A4;
+    --md-sys-color-primary: #0284C7;
     --md-sys-color-on-primary: #FFFFFF;
-    --md-sys-color-primary-container: #EADDFF;
-    --md-sys-color-on-primary-container: #21005D;
+    --md-sys-color-primary-container: #E0F2FE;
+    --md-sys-color-on-primary-container: #0C4A6E;
     
-    --md-sys-color-secondary: #625B71;
+    --md-sys-color-secondary: #0369A1;
     --md-sys-color-on-secondary: #FFFFFF;
-    --md-sys-color-secondary-container: #E8DEF8;
-    --md-sys-color-on-secondary-container: #1D192B;
+    --md-sys-color-secondary-container: #E0F2FE;
+    --md-sys-color-on-secondary-container: #0C4A6E;
     
-    --md-sys-color-tertiary: #7D5260;
+    --md-sys-color-tertiary: #0284C7;
     --md-sys-color-on-tertiary: #FFFFFF;
-    --md-sys-color-tertiary-container: #FFD8E4;
-    --md-sys-color-on-tertiary-container: #31111D;
+    --md-sys-color-tertiary-container: #BAE6FD;
+    --md-sys-color-on-tertiary-container: #0369A1;
     
     --md-sys-color-error: #B3261E;
     --md-sys-color-on-error: #FFFFFF;
     --md-sys-color-error-container: #F9DEDC;
     --md-sys-color-on-error-container: #410E0B;
     
-    --md-sys-color-outline: #79747E;
-    --md-sys-color-outline-variant: #CAC4D0;
+    --md-sys-color-outline: #94A3B8;
+    --md-sys-color-outline-variant: #CBD5E1;
     
     --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
   }
@@ -49,8 +49,8 @@
   
   body {
     font-family: var(--font-roboto);
-    background-color: #FFFBFE;
-    color: #1C1B1F;
+    background-color: #F8FAFC;
+    color: #0F172A;
     touch-action: manipulation;
     overflow-x: hidden;
   }
@@ -72,36 +72,36 @@
 
 /* Elevation & Surfaces */
 .md3-surface {
-  background-color: #FFFBFE;
-  color: #1C1B1F;
+  background-color: #F8FAFC;
+  color: #0F172A;
 }
 
 .md3-card {
-  background-color: #F3EDF7;
-  color: #1C1B1F;
+  background-color: #F0F9FF;
+  color: #0F172A;
   border-radius: 1.5rem; /* 24px */
-  box-shadow: 0 1px 3px rgba(28, 27, 31, 0.08);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
   transition: all 300ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .md3-card-elevated {
-  background-color: #F3EDF7;
-  color: #1C1B1F;
+  background-color: #F0F9FF;
+  color: #0F172A;
   border-radius: 1.5rem; /* 24px */
-  box-shadow: 0 4px 8px -2px rgba(28, 27, 31, 0.1), 0 2px 4px -2px rgba(28, 27, 31, 0.06);
+  box-shadow: 0 4px 8px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
   transition: all 300ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .md3-card-interactive {
-  background-color: #F3EDF7;
-  color: #1C1B1F;
+  background-color: #F0F9FF;
+  color: #0F172A;
   border-radius: 1.5rem; /* 24px */
-  box-shadow: 0 1px 3px rgba(28, 27, 31, 0.08);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
   transition: all 300ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .md3-card-interactive:hover {
-  box-shadow: 0 8px 16px -4px rgba(103, 80, 164, 0.15), 0 4px 8px -4px rgba(28, 27, 31, 0.08);
+  box-shadow: 0 8px 16px -4px rgba(2, 132, 199, 0.15), 0 4px 8px -4px rgba(15, 23, 42, 0.06);
   transform: translateY(-2px) scale(1.005);
 }
 
@@ -111,27 +111,27 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #6750A4;
+  background-color: #0284C7;
   color: #FFFFFF;
   font-weight: 500;
   font-size: 0.875rem;
   border-radius: 9999px; /* Pill */
   padding: 0.75rem 1.5rem;
   min-height: 48px;
-  box-shadow: 0 1px 3px rgba(103, 80, 164, 0.2);
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
   transition: all 300ms cubic-bezier(0.2, 0, 0, 1);
   cursor: pointer;
   border: none;
 }
 
 .md3-btn-filled:hover {
-  background-color: rgba(103, 80, 164, 0.9);
-  box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+  background-color: #0369A1;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
 }
 
 .md3-btn-filled:active {
   transform: scale(0.95);
-  background-color: rgba(103, 80, 164, 0.8);
+  background-color: #075985;
 }
 
 .md3-btn-tonal {
@@ -139,8 +139,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #E8DEF8;
-  color: #1D192B;
+  background-color: #E0F2FE;
+  color: #0C4A6E;
   font-weight: 500;
   font-size: 0.875rem;
   border-radius: 9999px; /* Pill */
@@ -152,8 +152,8 @@
 }
 
 .md3-btn-tonal:hover {
-  background-color: rgba(232, 222, 248, 0.85);
-  box-shadow: 0 2px 6px rgba(29, 25, 43, 0.08);
+  background-color: #BAE6FD;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
 }
 
 .md3-btn-tonal:active {
@@ -166,10 +166,10 @@
   justify-content: center;
   gap: 0.5rem;
   background-color: transparent;
-  color: #6750A4;
+  color: #0284C7;
   font-weight: 500;
   font-size: 0.875rem;
-  border: 1px solid #79747E;
+  border: 1px solid #94A3B8;
   border-radius: 9999px; /* Pill */
   padding: 0.75rem 1.5rem;
   min-height: 48px;
@@ -178,13 +178,13 @@
 }
 
 .md3-btn-outlined:hover {
-  background-color: rgba(103, 80, 164, 0.08);
-  border-color: #6750A4;
+  background-color: rgba(2, 132, 199, 0.08);
+  border-color: #0284C7;
 }
 
 .md3-btn-outlined:active {
   transform: scale(0.95);
-  background-color: rgba(103, 80, 164, 0.15);
+  background-color: rgba(2, 132, 199, 0.15);
 }
 
 /* Material You Filled Input Style */
@@ -194,10 +194,10 @@
   padding: 0.875rem 1rem;
   font-size: 0.9375rem;
   font-weight: 400;
-  color: #1C1B1F;
-  background-color: #E7E0EC;
+  color: #0F172A;
+  background-color: #E0F2FE;
   border: none;
-  border-bottom: 2px solid #79747E;
+  border-bottom: 2px solid #94A3B8;
   border-top-left-radius: 0.75rem;
   border-top-right-radius: 0.75rem;
   border-bottom-left-radius: 0;
@@ -207,8 +207,8 @@
 }
 
 .md3-input:focus, .md3-select:focus {
-  background-color: #EDE7F2;
-  border-bottom-color: #6750A4;
+  background-color: #F0F9FF;
+  border-bottom-color: #0284C7;
   outline: none;
 }
 
@@ -217,17 +217,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #7D5260;
+  background-color: #0284C7;
   color: #FFFFFF;
   border-radius: 1.25rem; /* 20px */
-  box-shadow: 0 4px 10px rgba(125, 82, 96, 0.3);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
   transition: all 300ms cubic-bezier(0.2, 0, 0, 1);
   cursor: pointer;
 }
 
 .md3-fab:hover {
-  background-color: rgba(125, 82, 96, 0.9);
-  box-shadow: 0 8px 20px rgba(125, 82, 96, 0.4);
+  background-color: #0369A1;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
   transform: scale(1.05);
 }
 
@@ -241,7 +241,7 @@
   border-radius: 9999px;
   filter: blur(80px);
   pointer-events: none;
-  background: radial-gradient(circle, rgba(103, 80, 164, 0.15) 0%, rgba(103, 80, 164, 0) 70%);
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.15) 0%, rgba(2, 132, 199, 0) 70%);
 }
 
 .md3-ambient-blob-2 {
@@ -249,7 +249,7 @@
   border-radius: 9999px;
   filter: blur(90px);
   pointer-events: none;
-  background: radial-gradient(circle, rgba(125, 82, 96, 0.12) 0%, rgba(125, 82, 96, 0) 70%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0) 70%);
 }
 
 .md3-ambient-blob-3 {
@@ -257,5 +257,5 @@
   border-radius: 9999px;
   filter: blur(75px);
   pointer-events: none;
-  background: radial-gradient(circle, rgba(232, 222, 248, 0.5) 0%, rgba(232, 222, 248, 0) 70%);
+  background: radial-gradient(circle, rgba(224, 242, 254, 0.6) 0%, rgba(224, 242, 254, 0) 70%);
 }

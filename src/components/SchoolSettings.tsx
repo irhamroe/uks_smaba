@@ -318,13 +318,13 @@ export const SchoolSettings: React.FC = () => {
               </div>
 
               {/* Koordinator UKS Info (Dynamic from User Management) */}
-              <div className="p-4 bg-purple-50/70 rounded-xl border border-purple-200 space-y-2.5">
+              <div className="p-4 bg-sky-50/70 rounded-xl border border-sky-200 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-bold text-xs text-purple-900 uppercase tracking-wide">
-                    <ShieldCheck className="w-4 h-4 text-purple-700" />
+                  <div className="flex items-center gap-2 font-bold text-xs text-sky-900 uppercase tracking-wide">
+                    <ShieldCheck className="w-4 h-4 text-sky-700" />
                     Pihak Penanggung Jawab: Koordinator UKS
                   </div>
-                  <span className="text-[10px] bg-purple-200 text-purple-900 font-bold px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] bg-sky-200 text-sky-900 font-bold px-2 py-0.5 rounded-full">
                     Otomatis dari Manajemen Pengguna
                   </span>
                 </div>
@@ -342,7 +342,7 @@ export const SchoolSettings: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigateToTab('users')}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-700 hover:text-purple-900 bg-white hover:bg-purple-100 border border-purple-300 px-3 py-1.5 rounded-xl transition cursor-pointer shadow-2xs shrink-0"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900 bg-white hover:bg-sky-100 border border-sky-300 px-3 py-1.5 rounded-xl transition cursor-pointer shadow-2xs shrink-0"
                   >
                     <span>Ubah di Manajemen Pengguna</span>
                     <ArrowRight className="w-3.5 h-3.5" />

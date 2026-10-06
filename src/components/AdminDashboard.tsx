@@ -253,7 +253,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                             ? 'bg-emerald-100 text-emerald-800'
                             : visit.role === 'guru'
                               ? 'bg-sky-100 text-sky-800'
-                              : 'bg-purple-100 text-purple-800'
+                              : 'bg-cyan-100 text-cyan-800'
                           }`}>
                           {visit.role.toUpperCase()}
                         </span>
@@ -478,79 +478,102 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
         </div>
       )}
 
-      {/* KPI METRIC CARDS */}
+      {/* KPI METRIC CARDS - Colorful Backgrounds & Modern Icons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Hari ini */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        {/* Card 1: Hari ini - Emerald / Green */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-white rounded-2xl p-5 border border-emerald-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 group flex items-center justify-between">
+          <Users className="w-24 h-24 text-emerald-500/10 absolute -right-4 -bottom-4 pointer-events-none group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" />
+          <div className="relative z-10">
+            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
               Kunjungan Hari Ini
             </span>
-            <div className="text-3xl font-extrabold text-slate-900 mt-1">
-              {stats.todayCount} <span className="text-sm font-normal text-slate-500">orang</span>
+            <div className="text-3xl font-black text-slate-900 mt-1">
+              {stats.todayCount} <span className="text-sm font-semibold text-emerald-700">orang</span>
             </div>
-            <div className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
-              <Clock className="w-3 h-3" />
+            <div className="text-[11px] text-emerald-700 font-semibold mt-1.5 flex items-center gap-1.5">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <Clock className="w-3 h-3 text-emerald-600" />
               Tercatat disetujui
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+          <div className="relative z-10 w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/30 group-hover:scale-105 transition-transform duration-300">
             <Users className="w-6 h-6" />
           </div>
         </div>
 
-        {/* Card 2: Bulan Ini */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        {/* Card 2: Bulan Ini - Sky / Blue */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-sky-500/15 via-sky-500/5 to-white rounded-2xl p-5 border border-sky-200 shadow-xs hover:shadow-md hover:border-sky-300 transition-all duration-300 group flex items-center justify-between">
+          <Calendar className="w-24 h-24 text-sky-500/10 absolute -right-4 -bottom-4 pointer-events-none group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" />
+          <div className="relative z-10">
+            <span className="text-xs font-bold text-sky-800 uppercase tracking-wider">
               Total Bulan Ini
             </span>
-            <div className="text-3xl font-extrabold text-slate-900 mt-1">
-              {stats.monthCount} <span className="text-sm font-normal text-slate-500">pasien</span>
+            <div className="text-3xl font-black text-slate-900 mt-1">
+              {stats.monthCount} <span className="text-sm font-semibold text-sky-700">pasien</span>
             </div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">
+            <div className="text-[11px] text-sky-800 font-semibold mt-1.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
               Siswa: {roleBreakdown.siswa} • Guru: {roleBreakdown.guru}
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
+          <div className="relative z-10 w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-md shadow-sky-500/30 group-hover:scale-105 transition-transform duration-300">
             <Calendar className="w-6 h-6" />
           </div>
         </div>
 
-        {/* Card 3: Pasien Istirahat Aktif */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        {/* Card 3: Pasien Istirahat Aktif - Amber / Orange */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-white rounded-2xl p-5 border border-amber-200 shadow-xs hover:shadow-md hover:border-amber-300 transition-all duration-300 group flex items-center justify-between">
+          <Activity className="w-24 h-24 text-amber-500/10 absolute -right-4 -bottom-4 pointer-events-none group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" />
+          <div className="relative z-10">
+            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">
               Pasien Istirahat di UKS
             </span>
-            <div className="text-3xl font-extrabold text-slate-900 mt-1">
-              {stats.activeRestingCount} <span className="text-sm font-normal text-slate-500">orang</span>
+            <div className="text-3xl font-black text-slate-900 mt-1">
+              {stats.activeRestingCount} <span className="text-sm font-semibold text-amber-700">orang</span>
             </div>
-            <div className="text-[11px] text-amber-600 font-medium mt-1">
-              {stats.activeRestingCount > 0 ? 'Sedang diobservasi di ranjang' : 'Semua ranjang kosong'}
+            <div className="text-[11px] text-amber-800 font-semibold mt-1.5 flex items-center gap-1.5">
+              {stats.activeRestingCount > 0 ? (
+                <>
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                  </span>
+                  <span>Sedang diobservasi di ranjang</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                  <span>Semua ranjang kosong</span>
+                </>
+              )}
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+          <div className="relative z-10 w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-amber-500/30 group-hover:scale-105 transition-transform duration-300">
             <Activity className="w-6 h-6" />
           </div>
         </div>
 
-        {/* Card 4: Total Obat & Peringatan */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        {/* Card 4: Total Obat & Peringatan - Purple / Pink / Rose */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-purple-500/15 via-purple-500/5 to-white rounded-2xl p-5 border border-purple-200 shadow-xs hover:shadow-md hover:border-purple-300 transition-all duration-300 group flex items-center justify-between">
+          <Pill className="w-24 h-24 text-purple-500/10 absolute -right-4 -bottom-4 pointer-events-none group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300" />
+          <div className="relative z-10">
+            <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">
               Katalog Stok Obat
             </span>
-            <div className="text-3xl font-extrabold text-slate-900 mt-1">
-              {medicines.length} <span className="text-sm font-normal text-slate-500">jenis</span>
+            <div className="text-3xl font-black text-slate-900 mt-1">
+              {medicines.length} <span className="text-sm font-semibold text-purple-700">jenis</span>
             </div>
-            <div className="text-[11px] text-slate-500 font-medium mt-1">
-              <span className={lowStockMedicines.length > 0 ? 'text-amber-600 font-bold' : 'text-emerald-600 font-medium'}>
+            <div className="text-[11px] font-semibold mt-1.5 flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${lowStockMedicines.length > 0 ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`}></span>
+              <span className={lowStockMedicines.length > 0 ? 'text-rose-700 font-bold' : 'text-emerald-700 font-semibold'}>
                 {lowStockMedicines.length} obat kritis / habis
               </span>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
+          <div className="relative z-10 w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-purple-500/30 group-hover:scale-105 transition-transform duration-300">
             <Pill className="w-6 h-6" />
           </div>
         </div>
@@ -725,7 +748,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                             ? 'bg-emerald-100 text-emerald-800'
                             : record.role === 'guru'
                               ? 'bg-sky-100 text-sky-800'
-                              : 'bg-purple-100 text-purple-800'
+                              : 'bg-cyan-100 text-cyan-800'
                             }`}>
                             {record.role === 'siswa' ? 'Siswa' : record.role === 'guru' ? 'Guru' : 'Staf'}
                           </span>
