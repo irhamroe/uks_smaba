@@ -364,47 +364,50 @@ export const GuestBookForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-6 sm:py-10 px-4 sm:px-6">
+    <div className="max-w-4xl mx-auto py-3 sm:py-8 px-3 sm:px-6 pb-24 md:pb-12">
       {/* Welcome Banner Card - Material You Atmospheric Hero */}
-      <div className="mb-8 bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#075985] text-white rounded-[32px] sm:rounded-[40px] p-6 sm:p-9 relative overflow-hidden shadow-md">
+      <div className="mb-6 sm:mb-8 bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#075985] text-white rounded-2xl sm:rounded-[36px] p-4 sm:p-9 relative overflow-hidden shadow-md">
         {/* Atmospheric Organic Blur Circles */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#38BDF8]/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 w-48 h-48 bg-[#BAE6FD]/15 rounded-full blur-2xl -mb-16 pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs font-medium text-white mb-3 shadow-2xs">
+            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium text-white mb-2.5 sm:mb-3 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#BAE6FD]" />
               Buku Kontrol Pengunjung Digital UKS
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            <h2 className="text-xl sm:text-3xl font-bold tracking-tight">
               Selamat Datang di UKS SMAN 1 Batu
             </h2>
-            <p className="text-xs sm:text-sm text-[#E0F2FE] font-normal mt-1.5 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#E0F2FE] font-normal mt-1 max-w-xl leading-relaxed">
               Silakan isi formulir kunjungan UKS di bawah ini secara lengkap untuk pencatatan riwayat kesehatan sekolah.
             </p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowSearchSickLetterModal(true)}
-                className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-xl backdrop-blur-md border border-white/30 transition cursor-pointer shadow-xs active:scale-95"
-              >
-                <FileText className="w-4 h-4 text-[#BAE6FD]" />
-                Cek & Unduh Surat Sakit Siswa
-              </button>
-            </div>
+            {/* Tombol Cek & Unduh Surat Sakit: HANYA TAMPIL JIKA LOGIN SEBAGAI PETUGAS UKS / ADMIN */}
+            {isAdminLoggedIn && (
+              <div className="mt-3.5 sm:mt-4 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSearchSickLetterModal(true)}
+                  className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3.5 py-2 rounded-xl backdrop-blur-md border border-white/30 transition cursor-pointer shadow-xs active:scale-95"
+                >
+                  <FileText className="w-4 h-4 text-[#BAE6FD]" />
+                  Cek & Unduh Surat Sakit Siswa
+                </button>
+              </div>
+            )}
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center shrink-0 w-full sm:w-auto border border-white/20 shadow-xs">
-            <div className="flex items-center justify-center gap-2 text-xs text-[#E0F2FE] font-medium uppercase tracking-wider">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 text-center shrink-0 w-full sm:w-auto border border-white/20 shadow-xs flex sm:flex-col items-center justify-between sm:justify-center">
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#E0F2FE] font-medium uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-[#38BDF8]"></span>
               <span>Waktu Sekarang</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-1">
+            <div className="text-lg sm:text-2xl font-bold font-mono text-white sm:mt-1">
               {liveTime || '--:--:--'}
             </div>
-            <div className="text-xs text-[#E0F2FE] font-normal mt-0.5">
+            <div className="hidden sm:block text-xs text-[#E0F2FE] font-normal mt-0.5">
               {new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date())}
             </div>
           </div>
@@ -412,7 +415,7 @@ export const GuestBookForm: React.FC = () => {
       </div>
 
       {/* Main Guest Book Form Card */}
-      <form onSubmit={handleSubmit} className="bg-[#F0F9FF] rounded-[32px] sm:rounded-[40px] border border-[#E0F2FE] p-6 sm:p-9 space-y-8 shadow-sm">
+      <form onSubmit={handleSubmit} className="bg-[#F0F9FF] rounded-2xl sm:rounded-[36px] border border-[#E0F2FE] p-4 sm:p-8 space-y-6 sm:space-y-8 shadow-sm">
 
         {/* Error Alert if any */}
         {errorMessage && (

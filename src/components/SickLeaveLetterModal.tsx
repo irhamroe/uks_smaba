@@ -175,83 +175,83 @@ export const SickLeaveLetterModal: React.FC<SickLeaveLetterModalProps> = ({
         </div>
 
         {/* Scrollable Container on screen, fully visible on print */}
-        <div className="p-4 sm:p-7 max-h-[85vh] overflow-y-auto print:max-h-none print:p-0 print:overflow-visible">
+        <div className="p-2.5 sm:p-7 max-h-[88vh] overflow-y-auto print:max-h-none print:p-0 print:overflow-visible">
           
           {/* THE OFFICIAL CERTIFICATE / LETTER (Matches user reference image) */}
           <div 
             id="printable-sick-letter"
-            className="bg-white rounded-2xl border-2 border-slate-200 p-5 sm:p-7 shadow-xs relative"
+            className="bg-white rounded-xl sm:rounded-2xl border-2 border-slate-200 p-3.5 sm:p-7 shadow-xs relative"
           >
             {/* 1. KOP SURAT RESMI */}
-            <div className="flex items-center gap-3 sm:gap-4 pb-3 border-b-2 border-slate-900">
+            <div className="flex items-center gap-2.5 sm:gap-4 pb-2.5 sm:pb-3 border-b-2 border-slate-900">
               <img 
                 src={logoSrc} 
                 alt="Logo SMAN 1 Batu" 
-                className="w-14 h-14 sm:w-18 sm:h-18 object-contain shrink-0"
+                className="w-11 h-11 sm:w-18 sm:h-18 object-contain shrink-0"
                 onError={(e) => {
                   // Fallback icon if image cannot be loaded
                   (e.target as HTMLElement).style.display = 'none';
                 }}
               />
               <div className="flex-1 text-center">
-                <div className="text-[10px] sm:text-xs font-bold tracking-wider text-slate-700 uppercase leading-tight">
+                <div className="text-[9px] sm:text-xs font-bold tracking-wider text-slate-700 uppercase leading-tight">
                   {schoolInfo?.governmentHeader || 'PEMERINTAH PROVINSI JAWA TIMUR • DINAS PENDIDIKAN'}
                 </div>
-                <div className="text-base sm:text-xl font-black text-slate-900 tracking-tight mt-0.5 leading-tight">
+                <div className="text-sm sm:text-xl font-black text-slate-900 tracking-tight mt-0.5 leading-tight">
                   {schoolInfo?.name || 'SMAN 1 BATU'}
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-teal-700 tracking-wide mt-0.5">
+                <div className="text-[11px] sm:text-sm font-bold text-teal-700 tracking-wide mt-0.5">
                   {schoolInfo?.division || 'UNIT KESEHATAN SEKOLAH (UKS)'}
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-slate-500 mt-1 leading-snug">
+                <div className="text-[8px] sm:text-[10px] text-slate-500 mt-0.5 sm:mt-1 leading-snug">
                   {schoolInfo?.address || 'Jl. Ngaglik No. 1, Kota Batu'} • Telp: {schoolInfo?.phone || '(0341) 591310'} • Surel: {schoolInfo?.email || 'uks@sman1batu.sch.id'}
                 </div>
               </div>
             </div>
             {/* Secondary thin divider line */}
-            <div className="w-full border-b border-slate-400 mt-0.5 mb-4"></div>
+            <div className="w-full border-b border-slate-400 mt-0.5 mb-3 sm:mb-4"></div>
 
             {/* 2. PILL BADGE TITLE (CENTERED) */}
-            <div className="flex justify-center my-3.5">
-              <span className="inline-flex items-center px-4 sm:px-6 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] sm:text-xs font-black tracking-wide uppercase shadow-xs">
+            <div className="flex justify-center my-2.5 sm:my-3.5">
+              <span className="inline-flex items-center px-3 sm:px-6 py-1 sm:py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[10px] sm:text-xs font-black tracking-wide uppercase shadow-xs text-center">
                 {badgeText}
               </span>
             </div>
 
             {/* 3. DETAILS CARD (KARTU DATA SISWA) */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 text-xs sm:text-sm space-y-2 mb-4">
+            <div className="rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-3 sm:p-5 text-xs sm:text-sm space-y-2 mb-3 sm:mb-4">
               {/* Row 1: Nama Siswa */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Nama Siswa</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-black text-slate-900 tracking-wide uppercase">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Nama Siswa</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-black text-slate-900 tracking-wide uppercase text-xs sm:text-sm">
                   {record.visitorName}
                 </span>
               </div>
 
               {/* Row 2: Kelas */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Kelas</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-bold text-slate-800">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Kelas</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-bold text-slate-800 text-xs sm:text-sm">
                   {record.classOrPosition}
                 </span>
               </div>
 
               {/* Row 3: Waktu Disetujui */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Waktu Disetujui</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-semibold text-slate-700">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Waktu Disetujui</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-semibold text-slate-700 text-xs sm:text-sm">
                   {formattedApprovedDate}
                 </span>
               </div>
 
               {/* Row 4: Keluhan / Gejala */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Keluhan / Gejala</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-medium text-slate-800">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Keluhan / Gejala</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-medium text-slate-800 text-xs sm:text-sm">
                   {record.complaint}
                   {(record.temperature || record.bloodPressure) && (
                     <span className="ml-1 text-slate-500 font-normal">
@@ -265,27 +265,27 @@ export const SickLeaveLetterModal: React.FC<SickLeaveLetterModalProps> = ({
 
               {/* Row 5: Riwayat Alergi */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Riwayat Alergi Obat</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className={record.hasDrugAllergy ? "font-bold text-rose-700" : "font-normal text-slate-600"}>
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Riwayat Alergi Obat</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className={record.hasDrugAllergy ? "font-bold text-rose-700 text-xs sm:text-sm" : "font-normal text-slate-600 text-xs sm:text-sm"}>
                   {record.hasDrugAllergy ? `Ada (${record.drugAllergyDescription || 'Perlu konfirmasi'})` : 'Tidak Ada Riwayat Alergi'}
                 </span>
               </div>
 
               {/* Row 6: Tindakan UKS */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Tindakan UKS</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-medium text-slate-800">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Tindakan UKS</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-medium text-slate-800 text-xs sm:text-sm">
                   {record.actionTaken || 'Penanganan pertama di ruang UKS'}
                 </span>
               </div>
 
               {/* Row 7: Terapi Obat */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Terapi Obat Diberikan</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-medium text-slate-800">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Terapi Obat</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-medium text-slate-800 text-xs sm:text-sm">
                   {record.medicinesGiven.length > 0 ? (
                     record.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit}${m.dosageNotes ? ` - ${m.dosageNotes}` : ''})`).join(', ')
                   ) : (
@@ -296,18 +296,18 @@ export const SickLeaveLetterModal: React.FC<SickLeaveLetterModalProps> = ({
 
               {/* Row 8: Status Kepulangan */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Status Kepulangan</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-black text-emerald-700">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Status Akhir</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-black text-emerald-700 text-xs sm:text-sm">
                   {isGoingHome ? 'Diizinkan Pulang Dijemput Orang Tua' : 'Istirahat di Ruang UKS'}
                 </span>
               </div>
 
               {/* Row 9: Catatan / Anjuran */}
               <div className="flex items-start">
-                <span className="w-32 sm:w-40 text-slate-500 font-medium shrink-0">Keperluan / Alasan</span>
-                <span className="text-slate-500 mx-1.5 shrink-0">:</span>
-                <span className="font-medium text-slate-600 italic">
+                <span className="w-28 sm:w-40 text-slate-500 font-medium text-[11px] sm:text-xs shrink-0">Keperluan / Alasan</span>
+                <span className="text-slate-500 mx-1 shrink-0">:</span>
+                <span className="font-medium text-slate-600 italic text-xs sm:text-sm">
                   "{record.notes || (isGoingHome 
                     ? 'Kondisi kesehatan menurun dan perlu istirahat/rawat jalan di rumah.' 
                     : 'Pemulihan kondisi fisik di ruang UKS hingga jam pelajaran berakhir.')}"

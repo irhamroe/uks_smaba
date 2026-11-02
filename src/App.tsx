@@ -22,7 +22,13 @@ import {
   ChevronRight,
   ChevronDown,
   LogOut,
-  Sparkles
+  Sparkles,
+  LayoutDashboard,
+  Pill,
+  FileSpreadsheet,
+  Users,
+  ClipboardList,
+  LogIn
 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -35,6 +41,7 @@ const AppContent: React.FC = () => {
     schoolInfo,
     logoutAdmin,
     lowStockMedicines,
+    pendingVisits,
     setPendingTab,
     showToast
   } = useUks();
@@ -238,7 +245,7 @@ const AppContent: React.FC = () => {
           </header>
 
           {/* Admin Main Body View */}
-          <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-transparent">
+          <main className="flex-1 p-3 sm:p-8 pb-20 md:pb-8 overflow-y-auto bg-transparent">
             {activeTab === 'dashboard' && <AdminDashboard onOpenRestockModal={handleOpenRestock} />}
             {activeTab === 'inventory' && (
               <MedicineInventory
@@ -252,6 +259,94 @@ const AppContent: React.FC = () => {
             {activeTab === 'guestbook' && <GuestBookForm />}
           </main>
         </div>
+
+        {/* Mobile Bottom Navigation Bar for Admin (Phones & Small screens < 768px) */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#F8FAFC]/95 backdrop-blur-md border-t border-[#E0F2FE] px-1 py-1 shadow-lg flex items-center justify-around">
+          <button
+            type="button"
+            onClick={() => navigateToTab('dashboard')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition cursor-pointer relative min-w-[56px] active:scale-95 ${
+              activeTab === 'dashboard'
+                ? 'text-[#0284C7] font-bold'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <div className={`p-1 rounded-full ${activeTab === 'dashboard' ? 'bg-[#E0F2FE]' : ''}`}>
+              <LayoutDashboard className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5">Dashboard</span>
+            {pendingVisits.length > 0 && (
+              <span className="absolute top-0 right-1.5 w-4 h-4 rounded-full bg-amber-500 text-white font-bold text-[9px] flex items-center justify-center animate-pulse">
+                {pendingVisits.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigateToTab('guestbook')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition cursor-pointer min-w-[56px] active:scale-95 ${
+              activeTab === 'guestbook'
+                ? 'text-[#0284C7] font-bold'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <div className={`p-1 rounded-full ${activeTab === 'guestbook' ? 'bg-[#E0F2FE]' : ''}`}>
+              <ClipboardList className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5">Buku Tamu</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigateToTab('inventory')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition cursor-pointer relative min-w-[56px] active:scale-95 ${
+              activeTab === 'inventory'
+                ? 'text-[#0284C7] font-bold'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <div className={`p-1 rounded-full ${activeTab === 'inventory' ? 'bg-[#E0F2FE]' : ''}`}>
+              <Pill className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5">Obat</span>
+            {lowStockMedicines.length > 0 && (
+              <span className="absolute top-0 right-1.5 w-4 h-4 rounded-full bg-rose-600 text-white font-bold text-[9px] flex items-center justify-center animate-pulse">
+                {lowStockMedicines.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigateToTab('reports')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition cursor-pointer min-w-[56px] active:scale-95 ${
+              activeTab === 'reports' || activeTab === 'reports_visits' || activeTab === 'reports_medicines'
+                ? 'text-[#0284C7] font-bold'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <div className={`p-1 rounded-full ${activeTab === 'reports' || activeTab === 'reports_visits' || activeTab === 'reports_medicines' ? 'bg-[#E0F2FE]' : ''}`}>
+              <FileSpreadsheet className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5">Laporan</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigateToTab('users')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition cursor-pointer min-w-[56px] active:scale-95 ${
+              activeTab === 'users'
+                ? 'text-[#0284C7] font-bold'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <div className={`p-1 rounded-full ${activeTab === 'users' ? 'bg-[#E0F2FE]' : ''}`}>
+              <Users className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5">Pengguna</span>
+          </button>
+        </nav>
 
         {/* Global Modals & Notifications */}
         <LowStockAlertModal
@@ -278,7 +373,7 @@ const AppContent: React.FC = () => {
       <Navbar onOpenLowStockModal={() => setIsLowStockModalOpen(true)} />
 
       {/* Main Content Area */}
-      <main className="flex-1 relative z-10">
+      <main className="flex-1 relative z-10 pb-20 md:pb-0">
         {/* Public route */}
         {activeTab === 'guestbook' && <GuestBookForm />}
 
@@ -291,29 +386,58 @@ const AppContent: React.FC = () => {
         )}
       </main>
 
+      {/* Mobile Floating Bottom Bar for Public Visitors */}
+      <nav className="md:hidden fixed bottom-3 left-4 right-4 z-40 bg-[#0F172A]/90 backdrop-blur-md text-white rounded-full p-1.5 shadow-2xl flex items-center justify-around border border-white/20">
+        <button
+          type="button"
+          onClick={() => navigateToTab('guestbook')}
+          className={`flex items-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold transition active:scale-95 cursor-pointer ${
+            activeTab === 'guestbook'
+              ? 'bg-[#0284C7] text-white shadow-xs'
+              : 'text-slate-300 hover:text-white'
+          }`}
+        >
+          <ClipboardList className="w-4 h-4" />
+          <span>Buku Tamu</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigateToTab('login')}
+          className={`flex items-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold transition active:scale-95 cursor-pointer ${
+            activeTab === 'login'
+              ? 'bg-[#0284C7] text-white shadow-xs'
+              : 'text-slate-300 hover:text-white'
+          }`}
+        >
+          <LogIn className="w-4 h-4" />
+          <span>Login Petugas</span>
+        </button>
+      </nav>
+
       {/* Public Material You Footer */}
-      <footer className="bg-[#0C1E2E] text-[#E0F2FE] mt-16 py-12 rounded-t-[36px] sm:rounded-t-[48px] border-t border-[#0284C7]/20 relative z-10 shadow-lg">
+      <footer className="bg-[#0C1E2E] text-[#E0F2FE] mt-12 sm:mt-16 py-8 sm:py-12 rounded-t-[32px] sm:rounded-t-[48px] border-t border-[#0284C7]/20 relative z-10 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="w-12 h-12 bg-[#071724] rounded-2xl flex items-center justify-center shrink-0 border border-[#0284C7]/30 shadow-xs">
+          <div className="flex items-center gap-3 sm:gap-4 text-center md:text-left">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#071724] rounded-2xl flex items-center justify-center shrink-0 border border-[#0284C7]/30 shadow-xs">
               <img
                 src="/logo-sman1-batu.png"
                 alt="Logo SMA Negeri 1 Batu"
-                className="w-10 h-10 object-contain"
+                className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
               />
             </div>
             <div>
-              <div className="font-bold text-white text-base tracking-tight">{schoolInfo.name}</div>
-              <div className="text-[#94A3B8] text-xs mt-0.5">{schoolInfo.address}</div>
+              <div className="font-bold text-white text-sm sm:text-base tracking-tight">{schoolInfo.name}</div>
+              <div className="text-[#94A3B8] text-[11px] sm:text-xs mt-0.5">{schoolInfo.address}</div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-[#E0F2FE] font-medium">
-            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#071724] border border-[#0284C7]/20">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-[#E0F2FE] font-medium">
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#071724] border border-[#0284C7]/20 text-[11px] sm:text-xs">
               <Phone className="w-3.5 h-3.5 text-[#BAE6FD]" />
               {schoolInfo.phone}
             </span>
-            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#071724] border border-[#0284C7]/20">
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#071724] border border-[#0284C7]/20 text-[11px] sm:text-xs">
               <Mail className="w-3.5 h-3.5 text-[#BAE6FD]" />
               {schoolInfo.email}
             </span>

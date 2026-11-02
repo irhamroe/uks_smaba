@@ -705,12 +705,195 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
       {/* REKAPITULASI TABEL DATA KUNJUNGAN */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-bold text-slate-900 text-base">
+          <h3 className="font-bold text-slate-900 text-sm sm:text-base">
             Riwayat Kunjungan UKS
           </h3>
+          <span className="text-xs text-slate-500 font-semibold">
+            {filteredRecords.length} Data
+          </span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* MOBILE CARDS VIEW (Phones & Small screens < 768px) */}
+        <div className="block md:hidden divide-y divide-slate-100">
+          {filteredRecords.length === 0 ? (
+            <div className="p-8 text-center text-slate-400">
+              <p className="font-medium text-sm">Tidak ada data kunjungan yang cocok.</p>
+              <p className="text-xs text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau ubah filter status.</p>
+            </div>
+          ) : (
+            paginatedRecords.map(record => {
+              const isPending = record.approvalStatus === 'pending';
+              const isRejected = record.approvalStatus === 'rejected';
+              const isEligibleSick = isEligibleForSickLetter(record);
+
+              return (
+                <div
+                  key={record.id}
+                  className={`p-4 transition ${
+                    isPending ? 'bg-amber-50/40' : isRejected ? 'bg-rose-50/25 opacity-75' : 'hover:bg-slate-50/80'
+                  }`}
+                >
+                  {/* Top Bar: Time, Date & Role */}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-xs text-slate-900">{record.time} WIB</span>
+                      <span className="text-[10px] text-slate-400">• {record.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        record.role === 'siswa'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : record.role === 'guru'
+                            ? 'bg-sky-100 text-sky-800'
+                            : 'bg-cyan-100 text-cyan-800'
+                      }`}>
+                        {record.role === 'siswa' ? 'Siswa' : record.role === 'guru' ? 'Guru' : 'Staf'} ({record.gender})
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Name & Class */}
+                  <div className="flex items-baseline justify-between gap-2">
+                    <h4 className="font-black text-slate-900 text-sm">{record.visitorName}</h4>
+                    <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
+                      {record.classOrPosition}
+                    </span>
+                  </div>
+
+                  {/* Keluhan & Alergi */}
+                  <div className="mt-2 text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                    <div className="flex items-start gap-1.5">
+                      <span className="text-slate-400 font-medium shrink-0">Keluhan:</span>
+                      <span className="font-medium text-slate-800">{record.complaint}</span>
+                    </div>
+                    {record.hasDrugAllergy && (
+                      <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded-md">
+                        <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
+                        Alergi: {record.drugAllergyDescription || 'Ada Alergi Obat'}
+                      </div>
+                    )}
+                    {(record.temperature || record.bloodPressure) && (
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-500 font-medium">
+                        {record.temperature && <span>Suhu: {record.temperature}°C</span>}
+                        {record.bloodPressure && <span>Tensi: {record.bloodPressure}</span>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tindakan & Obat */}
+                  <div className="mt-2 text-[11px] text-slate-600">
+                    <span className="text-slate-400 text-[10px] block mb-0.5">Tindakan UKS:</span>
+                    <span className="font-medium text-slate-800">{record.actionTaken || '-'}</span>
+                  </div>
+
+                  {record.medicinesGiven.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {record.medicinesGiven.map((m, idx) => (
+                        <span key={idx} className="bg-teal-50 border border-teal-200 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                          {m.medicineName} ({m.quantity} {m.unit})
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Status & Approval */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        record.finalStatus === 'Kembali ke Kelas / Mengajar'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : (record.finalStatus === 'Istirahat di UKS' || record.finalStatus === 'Sedang Istirahat di UKS')
+                            ? 'bg-amber-100 text-amber-800'
+                            : record.finalStatus === 'Izin Pulang / Dijemput'
+                              ? 'bg-indigo-100 text-indigo-800'
+                              : 'bg-red-100 text-red-800'
+                      }`}>
+                        {record.finalStatus === 'Sedang Istirahat di UKS' ? 'Istirahat di UKS' : record.finalStatus}
+                      </span>
+
+                      {isPending ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">
+                          <Clock className="w-3 h-3 text-amber-600" />
+                          Menunggu
+                        </span>
+                      ) : isRejected ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800">
+                          <XCircle className="w-3 h-3 text-rose-600" />
+                          Ditolak
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          Disetujui
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-1 ml-auto">
+                      {isEligibleSick && (
+                        <button
+                          type="button"
+                          onClick={() => setSickLetterVisit(record)}
+                          className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition cursor-pointer"
+                          title="Buka / Cetak Surat Sakit"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          Surat Sakit
+                        </button>
+                      )}
+
+                      {isPending && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => approveVisitRecord(record.id)}
+                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition active:scale-95 cursor-pointer"
+                            title="Setujui Kunjungan"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRejectReason('');
+                              setRejectingVisit(record);
+                            }}
+                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition active:scale-95 cursor-pointer"
+                            title="Tolak Kunjungan"
+                          >
+                            <Ban className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedVisit(record)}
+                        className="p-1.5 text-slate-500 hover:bg-slate-100 rounded-lg transition active:scale-95 cursor-pointer"
+                        title="Lihat Detail"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeletingVisit(record)}
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition active:scale-95 cursor-pointer"
+                        title="Hapus"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* DESKTOP TABLE VIEW (Medium to Large screens >= 768px) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px]">
               <tr>
