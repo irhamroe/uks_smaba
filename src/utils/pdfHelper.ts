@@ -492,3 +492,380 @@ export function printMedicineUsageReport(
     doc.save(`Laporan_Penggunaan_Obat_UKS_${safeFilename}_${safePeriod}.pdf`);
   }
 }
+
+// =========================================================================
+// 3. SURAT KETERANGAN SAKIT DIGITAL RESMI (ISTIRAHAT DI UKS / IZIN PULANG)
+// =========================================================================
+
+export function formatIndonesianDateFull(dateStr: string, timeStr?: string): string {
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const monthNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      const dateText = `${day} ${monthNames[month]} ${year}`;
+      return timeStr ? `${dateText}, Pukul ${timeStr} WIB` : dateText;
+    }
+    return dateStr;
+  } catch {
+    return dateStr;
+  }
+}
+
+export function isEligibleForSickLetter(record?: VisitRecord | null): boolean {
+  if (!record) return false;
+  if (record.role !== 'siswa') return false;
+
+  const isApproved = record.approvalStatus === 'approved' || (!record.approvalStatus && Boolean(record.approvedBy));
+  if (!isApproved) return false;
+
+  const status = record.finalStatus;
+  const action = record.actionTaken?.toLowerCase() || '';
+
+  const isResting = status === 'Istirahat di UKS' ||
+                    status === 'Sedang Istirahat di UKS' ||
+                    action.includes('istirahat di uks');
+
+  const isGoingHome = status === 'Izin Pulang / Dijemput' ||
+                      action.includes('pulang') ||
+                      action.includes('dijemput');
+
+  return isResting || isGoingHome;
+}
+
+export function generateSickLeaveLetterPdfDoc(
+  record: VisitRecord,
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): jsPDF {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const koordinator = customKoordinator || {
+    name: 'Koordinator UKS',
+    nip: '-',
+    role: 'Koordinator UKS'
+  };
+
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  const isGoingHome = record.finalStatus === 'Izin Pulang / Dijemput' ||
+                      record.actionTaken?.toLowerCase().includes('pulang') ||
+                      record.actionTaken?.toLowerCase().includes('dijemput');
+
+  const cleanDate = (record.date || '').replace(/[^0-9]/g, '');
+  const shortId = (record.id || '').replace(/[^a-zA-Z0-9]/g, '').slice(-4).toUpperCase() || 'UKS1';
+  const verificationCode = `VERIF-UKS-${cleanDate || '2026'}-${shortId}-${(school.shortName || 'SMAN1BATU').replace(/[^a-zA-Z0-9]/g, '')}`;
+
+  // 1. Frame Luar Dokumen
+  doc.setDrawColor(203, 213, 225); // slate-300
+  doc.setLineWidth(0.4);
+  doc.roundedRect(12, 10, pageWidth - 24, 275, 4, 4, 'S');
+
+  // 2. Kop Surat Resmi SMAN 1 Batu
+  if (school.logoUrl) {
+    try {
+      doc.addImage(school.logoUrl, 'PNG', 16, 14, 20, 20);
+    } catch {
+      // ignore logo error
+    }
+  }
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(71, 85, 105);
+  doc.text(school.governmentHeader || 'PEMERINTAH PROVINSI JAWA TIMUR • DINAS PENDIDIKAN', pageWidth / 2, 17, { align: 'center' });
+
+  doc.setFontSize(14);
+  doc.setTextColor(15, 23, 42);
+  doc.text(school.name || 'SMAN 1 BATU', pageWidth / 2, 24, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.setTextColor(13, 148, 136); // Teal-600
+  doc.text(school.division || 'UNIT KESEHATAN SEKOLAH (UKS)', pageWidth / 2, 30, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  const contactLine = `${school.address || 'Jl. Ngaglik No. 1, Kota Batu'} • Telp: ${school.phone || '(0341) 591310'} • Surel: ${school.email || 'uks@sman1batu.sch.id'}`;
+  doc.text(contactLine, pageWidth / 2, 35, { align: 'center' });
+
+  // Garis Pembatas Kop Ganda
+  doc.setDrawColor(30, 41, 59);
+  doc.setLineWidth(0.7);
+  doc.line(16, 38, pageWidth - 16, 38);
+  doc.setLineWidth(0.2);
+  doc.line(16, 39, pageWidth - 16, 39);
+
+  // 3. Status Pill Badge (Tengah)
+  const badgeTitle = isGoingHome
+    ? 'SURAT IZIN: PULANG DIJEMPUT (DISETUJUI)'
+    : 'SURAT IZIN: ISTIRAHAT DI UKS (DISETUJUI)';
+
+  const pillWidth = 114;
+  const pillHeight = 8;
+  const pillX = (pageWidth - pillWidth) / 2;
+  const pillY = 44;
+
+  doc.setFillColor(236, 253, 245); // emerald-50
+  doc.setDrawColor(110, 231, 183); // emerald-300
+  doc.setLineWidth(0.35);
+  doc.roundedRect(pillX, pillY, pillWidth, pillHeight, 4, 4, 'FD');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(6, 95, 70); // emerald-800
+  doc.text(badgeTitle, pageWidth / 2, pillY + 5.5, { align: 'center' });
+
+  // 4. Kartu Rincian Data Siswa
+  const cardY = 56;
+  const cardHeight = 86;
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(226, 232, 240); // slate-200
+  doc.roundedRect(16, cardY, pageWidth - 32, cardHeight, 3, 3, 'FD');
+
+  const approvedTimeFormatted = formatIndonesianDateFull(record.date, record.time);
+
+  const detailRows: { label: string; value: string; isBold?: boolean; isHighlight?: boolean }[] = [
+    { label: 'Nama Siswa', value: record.visitorName.toUpperCase(), isBold: true },
+    { label: 'Kelas', value: record.classOrPosition, isBold: true },
+    { label: 'Waktu Disetujui', value: approvedTimeFormatted },
+    {
+      label: 'Keluhan / Gejala',
+      value: `${record.complaint}${record.temperature ? ` (Suhu: ${record.temperature}°C)` : ''}${record.bloodPressure ? ` (Tensi: ${record.bloodPressure})` : ''}`
+    },
+    {
+      label: 'Riwayat Alergi Obat',
+      value: record.hasDrugAllergy ? `Ada (${record.drugAllergyDescription || 'Perlu konfirmasi'})` : 'Tidak Ada Riwayat Alergi'
+    },
+    { label: 'Tindakan UKS', value: record.actionTaken || 'Penanganan pertama di ruang UKS' },
+    {
+      label: 'Terapi Obat',
+      value: record.medicinesGiven.length > 0
+        ? record.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit}${m.dosageNotes ? ` - ${m.dosageNotes}` : ''})`).join(', ')
+        : 'Tanpa obat (Istirahat & observasi)'
+    },
+    {
+      label: 'Status Kepulangan',
+      value: isGoingHome ? 'Diizinkan Pulang Dijemput Orang Tua' : 'Istirahat di Ruang UKS',
+      isBold: true,
+      isHighlight: true
+    },
+    {
+      label: 'Keperluan / Alasan',
+      value: `"${record.notes || (isGoingHome ? 'Kondisi kesehatan menurun dan perlu istirahat/rawat jalan di rumah.' : 'Pemulihan kondisi fisik di ruang UKS hingga jam pelajaran berakhir.')}"`
+    }
+  ];
+
+  let currentDetailY = cardY + 7;
+  const labelX = 22;
+  const colonX = 58;
+  const valueX = 61;
+  const maxValueWidth = pageWidth - 32 - 50;
+
+  detailRows.forEach(row => {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(row.label, labelX, currentDetailY);
+    doc.text(':', colonX, currentDetailY);
+
+    if (row.isHighlight) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(13, 148, 136); // Teal-600
+    } else if (row.isBold) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(15, 23, 42);
+    } else {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(30, 41, 59);
+    }
+
+    // Split text if it wraps
+    const lines = doc.splitTextToSize(row.value, maxValueWidth);
+    doc.text(lines[0] || '', valueX, currentDetailY);
+    currentDetailY += 8.6;
+  });
+
+  // 5. Header Lembar Pengesahan 1 Tahap (Petugas UKS)
+  const signHeaderY = 150;
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.35);
+  doc.line(16, signHeaderY, pageWidth - 16, signHeaderY);
+
+  const signTitle = 'LEMBAR PENGESAHAN (PETUGAS UKS)';
+  const signTitleWidth = 86;
+  const signTitleX = (pageWidth - signTitleWidth) / 2;
+
+  doc.setFillColor(255, 255, 255);
+  doc.rect(signTitleX - 2, signHeaderY - 2.5, signTitleWidth + 4, 5, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(51, 65, 85);
+  doc.text(signTitle, pageWidth / 2, signHeaderY + 1.2, { align: 'center' });
+
+  // 6. 1 Kotak Pengesahan Petugas UKS
+  const officerName = record.approvedBy || record.handledBy || 'Petugas UKS';
+  const boxY = 157;
+  const boxHeight = 36;
+  const boxWidth = 104;
+  const boxX = (pageWidth - boxWidth) / 2;
+
+  doc.setFillColor(240, 253, 250); // teal-50
+  doc.setDrawColor(153, 246, 228); // teal-200
+  doc.roundedRect(boxX, boxY, boxWidth, boxHeight, 3, 3, 'FD');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(15, 23, 42);
+  doc.text('PETUGAS PEMERIKSA UKS', pageWidth / 2, boxY + 7.5, { align: 'center' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(13, 148, 136); // Teal-600
+  doc.text('✓ Telah Diverifikasi & Disetujui', pageWidth / 2, boxY + 14.5, { align: 'center' });
+
+  // Divider inside box
+  doc.setDrawColor(204, 251, 241);
+  doc.setLineWidth(0.2);
+  doc.line(boxX + 6, boxY + 18, boxX + boxWidth - 6, boxY + 18);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42);
+  doc.text(officerName, pageWidth / 2, boxY + 25, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Waktu: ${record.time} WIB (${record.date})`, pageWidth / 2, boxY + 31, { align: 'center' });
+
+  // 7. Area Footer Validasi Digital & QR Code
+  const footerY = 208;
+
+  // Render QR Code Box
+  const qrX = 18;
+  const qrY = footerY;
+  const qrSize = 22;
+
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(30, 41, 59);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(qrX, qrY, qrSize, qrSize, 2, 2, 'FD');
+
+  // Draw QR corner markers
+  doc.setFillColor(30, 41, 59);
+  doc.rect(qrX + 2, qrY + 2, 5, 5, 'F');
+  doc.rect(qrX + qrSize - 7, qrY + 2, 5, 5, 'F');
+  doc.rect(qrX + 2, qrY + qrSize - 7, 5, 5, 'F');
+
+  // Inner squares
+  doc.setFillColor(255, 255, 255);
+  doc.rect(qrX + 3.2, qrY + 3.2, 2.6, 2.6, 'F');
+  doc.rect(qrX + qrSize - 5.8, qrY + 3.2, 2.6, 2.6, 'F');
+  doc.rect(qrX + 3.2, qrY + qrSize - 5.8, 2.6, 2.6, 'F');
+
+  // Center pixels
+  doc.setFillColor(30, 41, 59);
+  doc.rect(qrX + 4, qrY + 4, 1, 1, 'F');
+  doc.rect(qrX + qrSize - 5, qrY + 4, 1, 1, 'F');
+  doc.rect(qrX + 4, qrY + qrSize - 5, 1, 1, 'F');
+  doc.rect(qrX + 9, qrY + 9, 4, 4, 'F');
+  doc.rect(qrX + 15, qrY + 11, 2, 2, 'F');
+  doc.rect(qrX + 10, qrY + 15, 3, 2, 'F');
+
+  // QR Text
+  const qrTextX = qrX + qrSize + 4;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(15, 23, 42);
+  doc.text('VERIFIKASI UKS DIGITAL', qrTextX, qrY + 6);
+
+  doc.setFontSize(7.5);
+  doc.setTextColor(13, 148, 136); // Teal-600
+  doc.text('DIGITAL VALIDATED', qrTextX, qrY + 11);
+
+  doc.setFont('courier', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(100, 116, 139);
+  doc.text(verificationCode, qrTextX, qrY + 17);
+
+  // Kanan: Validasi Petugas UKS
+  const signRightX = pageWidth - 18;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.text('Petugas UKS', signRightX, footerY + 3, { align: 'right' });
+
+  // Verified Badge
+  const vbWidth = 22;
+  const vbHeight = 4.5;
+  const vbX = signRightX - vbWidth;
+  const vbY = footerY + 5.5;
+
+  doc.setFillColor(209, 250, 229); // emerald-100
+  doc.setDrawColor(110, 231, 183); // emerald-300
+  doc.setLineWidth(0.3);
+  doc.roundedRect(vbX, vbY, vbWidth, vbHeight, 1.5, 1.5, 'FD');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.5);
+  doc.setTextColor(6, 95, 70);
+  doc.text('VERIFIED', vbX + vbWidth / 2, vbY + 3.2, { align: 'center' });
+
+  // Petugas Name
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42);
+  doc.text(officerName, signRightX, footerY + 16, { align: 'right' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text('Unit Kesehatan Sekolah (UKS)', signRightX, footerY + 20, { align: 'right' });
+
+  return doc;
+}
+
+export function exportSickLeaveLetterToPdf(
+  record: VisitRecord,
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): void {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = generateSickLeaveLetterPdfDoc(record, customSchoolInfo, customKoordinator);
+  const safeName = record.visitorName.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const safeClass = record.classOrPosition.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const safeDate = (record.date || '').replace(/[^a-zA-Z0-9_-]/g, '_');
+  doc.save(`Surat_Keterangan_Sakit_UKS_${safeName}_${safeClass}_${safeDate}.pdf`);
+}
+
+export function printSickLeaveLetter(
+  record: VisitRecord,
+  customSchoolInfo?: SchoolInfo,
+  customKoordinator?: AdminUser | null
+): void {
+  const school = customSchoolInfo || DEFAULT_SCHOOL_INFO;
+  const doc = generateSickLeaveLetterPdfDoc(record, customSchoolInfo, customKoordinator);
+  doc.autoPrint();
+  const blobUrl = doc.output('bloburl');
+  const printWindow = window.open(blobUrl, '_blank');
+  if (!printWindow) {
+    const safeName = record.visitorName.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safeClass = record.classOrPosition.replace(/[^a-zA-Z0-9_-]/g, '_');
+    doc.save(`Surat_Keterangan_Sakit_UKS_${safeName}_${safeClass}.pdf`);
+  }
+}
+

@@ -32,6 +32,8 @@ import { useUks } from '../context/UksContext';
 import { VisitRecord, VisitorRole, VisitStatus } from '../types';
 import { STUDENT_CLASSES } from '../data/initialData';
 import { ConfirmModal } from './ConfirmModal';
+import { SickLeaveLetterModal } from './SickLeaveLetterModal';
+import { isEligibleForSickLetter } from '../utils/pdfHelper';
 
 interface AdminDashboardProps {
   onOpenRestockModal: (medicineId?: string) => void;
@@ -52,7 +54,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
     deleteVisitRecord,
     updateVisitStatus,
     navigateToTab,
-    adminUser
+    adminUser,
+    schoolInfo,
+    koordinatorUks
   } = useUks();
 
   // Filters State
@@ -69,6 +73,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
 
   // Selected visit for detail modal
   const [selectedVisit, setSelectedVisit] = useState<VisitRecord | null>(null);
+
+  // Selected visit for Surat Keterangan Sakit modal
+  const [sickLetterVisit, setSickLetterVisit] = useState<VisitRecord | null>(null);
 
   // Selected visit for delete confirmation modal
   const [deletingVisit, setDeletingVisit] = useState<VisitRecord | null>(null);
@@ -811,16 +818,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
 
                       {/* Status Kunjungan */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${record.finalStatus === 'Kembali ke Kelas / Mengajar'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : (record.finalStatus === 'Istirahat di UKS' || record.finalStatus === 'Sedang Istirahat di UKS')
-                            ? 'bg-amber-100 text-amber-800 animate-pulse'
-                            : record.finalStatus === 'Izin Pulang / Dijemput'
-                              ? 'bg-indigo-100 text-indigo-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                          {record.finalStatus === 'Sedang Istirahat di UKS' ? 'Istirahat di UKS' : record.finalStatus}
-                        </span>
+                        <div className="flex flex-col items-start gap-1">
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${record.finalStatus === 'Kembali ke Kelas / Mengajar'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : (record.finalStatus === 'Istirahat di UKS' || record.finalStatus === 'Sedang Istirahat di UKS')
+                              ? 'bg-amber-100 text-amber-800 animate-pulse'
+                              : record.finalStatus === 'Izin Pulang / Dijemput'
+                                ? 'bg-indigo-100 text-indigo-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                            {record.finalStatus === 'Sedang Istirahat di UKS' ? 'Istirahat di UKS' : record.finalStatus}
+                          </span>
+                          {isEligibleForSickLetter(record) && (
+                            <button
+                              type="button"
+                              onClick={() => setSickLetterVisit(record)}
+                              className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 hover:border-teal-300 transition cursor-pointer"
+                              title="Terbitkan & Cetak Surat Keterangan Sakit"
+                            >
+                              <FileText className="w-3 h-3 text-teal-600" />
+                              Surat Sakit
+                            </button>
+                          )}
+                        </div>
                       </td>
 
                       {/* Status Verifikasi (Approval) */}
@@ -887,6 +907,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                                 <Ban className="w-4 h-4" />
                               </button>
                             </>
+                          )}
+                          {isEligibleForSickLetter(record) && (
+                            <button
+                              type="button"
+                              onClick={() => setSickLetterVisit(record)}
+                              className="p-1.5 text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition cursor-pointer"
+                              title="Buka / Cetak Surat Keterangan Sakit"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </button>
                           )}
                           <button
                             type="button"
@@ -1091,6 +1121,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
                   {selectedVisit.finalStatus}
                 </span>
               </div>
+
+              {/* Surat Sakit Banner / Quick Action */}
+              {isEligibleForSickLetter(selectedVisit) ? (
+                <div className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-black text-teal-900 uppercase tracking-wide">
+                        Surat Keterangan Sakit Digital Tersedia
+                      </div>
+                      <div className="text-[11px] text-teal-700">
+                        Disetujui untuk {selectedVisit.finalStatus}. Tervalidasi resmi 3 tahap.
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const v = selectedVisit;
+                      setSickLetterVisit(v);
+                    }}
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition cursor-pointer"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Buka & Cetak Surat Sakit
+                  </button>
+                </div>
+              ) : (selectedVisit.role === 'siswa' && (selectedVisit.finalStatus === 'Istirahat di UKS' || selectedVisit.finalStatus === 'Sedang Istirahat di UKS' || selectedVisit.finalStatus === 'Izin Pulang / Dijemput') && selectedVisit.approvalStatus === 'pending') ? (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+                  <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold">Surat Keterangan Sakit Menunggu Persetujuan:</span>
+                    <p className="text-[11px] text-amber-800 mt-0.5">
+                      Siswa mengajukan {selectedVisit.finalStatus}. Begitu Anda klik "Setujui", surat keterangan sakit resmi otomatis terbit dan siap dicetak.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="mt-4 pt-3 border-t border-slate-200 flex justify-end gap-2">
@@ -1205,6 +1275,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenRestockMod
           </div>
         </div>
       )}
+      {/* Surat Keterangan Sakit Modal */}
+      <SickLeaveLetterModal
+        isOpen={!!sickLetterVisit}
+        onClose={() => setSickLetterVisit(null)}
+        record={sickLetterVisit}
+        schoolInfo={schoolInfo}
+        koordinator={koordinatorUks}
+      />
     </div>
   );
 };

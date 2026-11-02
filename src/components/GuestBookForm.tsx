@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   UserCheck,
   GraduationCap,
@@ -19,14 +19,28 @@ import {
   Send,
   Sparkles,
   ArrowRight,
-  ChevronDown
+  ChevronDown,
+  Printer,
+  FileCheck,
+  Search,
+  X
 } from 'lucide-react';
 import { useUks } from '../context/UksContext';
 import { MedicineUsage, VisitRecord, VisitorRole, Gender, VisitStatus } from '../types';
 import { STUDENT_CLASSES, ALL_STUDENT_CLASSES } from '../data/initialData';
+import { SickLeaveLetterModal } from './SickLeaveLetterModal';
+import { isEligibleForSickLetter } from '../utils/pdfHelper';
 
 export const GuestBookForm: React.FC = () => {
-  const { medicines, addVisitRecord, navigateToTab, isAdminLoggedIn } = useUks();
+  const { 
+    records, 
+    medicines, 
+    addVisitRecord, 
+    navigateToTab, 
+    isAdminLoggedIn, 
+    schoolInfo, 
+    koordinatorUks 
+  } = useUks();
 
   // Form State
   const [role, setRole] = useState<VisitorRole>('siswa');
@@ -61,6 +75,30 @@ export const GuestBookForm: React.FC = () => {
   const [lastSubmitted, setLastSubmitted] = useState<VisitRecord | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Surat Keterangan Sakit Modal State
+  const [sickLetterRecord, setSickLetterRecord] = useState<VisitRecord | null>(null);
+  const [showSearchSickLetterModal, setShowSearchSickLetterModal] = useState(false);
+  const [searchStudentQuery, setSearchStudentQuery] = useState('');
+
+  // Live submitted visit record from context (updates when approved)
+  const liveSubmitted = lastSubmitted ? records.find(r => r.id === lastSubmitted.id) || lastSubmitted : null;
+
+  // Filtered approved sick letters for student search lookup
+  const eligibleSickRecords = useMemo(() => {
+    return records.filter(r => isEligibleForSickLetter(r));
+  }, [records]);
+
+  const filteredSickRecords = useMemo(() => {
+    if (!searchStudentQuery.trim()) {
+      return eligibleSickRecords.slice(0, 8);
+    }
+    const q = searchStudentQuery.toLowerCase();
+    return eligibleSickRecords.filter(r =>
+      r.visitorName.toLowerCase().includes(q) ||
+      r.classOrPosition.toLowerCase().includes(q)
+    ).slice(0, 10);
+  }, [eligibleSickRecords, searchStudentQuery]);
 
   // Quick class select handler
   const handleSelectStudentClass = (selectedClass: string) => {
@@ -345,6 +383,17 @@ export const GuestBookForm: React.FC = () => {
             <p className="text-xs sm:text-sm text-[#E0F2FE] font-normal mt-1.5 max-w-xl leading-relaxed">
               Silakan isi formulir kunjungan UKS di bawah ini secara lengkap untuk pencatatan riwayat kesehatan sekolah.
             </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSearchSickLetterModal(true)}
+                className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-xl backdrop-blur-md border border-white/30 transition cursor-pointer shadow-xs active:scale-95"
+              >
+                <FileText className="w-4 h-4 text-[#BAE6FD]" />
+                Cek & Unduh Surat Sakit Siswa
+              </button>
+            </div>
           </div>
 
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center shrink-0 w-full sm:w-auto border border-white/20 shadow-xs">
@@ -1070,6 +1119,38 @@ export const GuestBookForm: React.FC = () => {
               </div>
             </div>
 
+            {/* Surat Keterangan Sakit Action in Success Dialog */}
+            {isEligibleForSickLetter(liveSubmitted) ? (
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSickLetterRecord(liveSubmitted);
+                  }}
+                  className="w-full h-12 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 active:scale-[0.98] text-white font-bold text-xs rounded-2xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition"
+                >
+                  <FileText className="w-4 h-4" />
+                  Buka & Cetak Surat Keterangan Sakit Resmi
+                </button>
+              </div>
+            ) : (liveSubmitted && liveSubmitted.role === 'siswa' && 
+                 (liveSubmitted.finalStatus === 'Istirahat di UKS' || liveSubmitted.finalStatus === 'Sedang Istirahat di UKS' || liveSubmitted.finalStatus === 'Izin Pulang / Dijemput') && 
+                 liveSubmitted.approvalStatus === 'pending') ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left mb-4">
+                <div className="flex items-start gap-2.5">
+                  <Clock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5 animate-pulse" />
+                  <div>
+                    <div className="text-xs font-bold text-amber-900">
+                      Surat Keterangan Sakit Menunggu Verifikasi
+                    </div>
+                    <p className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
+                      Anda memilih tindakan <strong>{liveSubmitted.finalStatus}</strong>. Surat Keterangan Sakit digital resmi otomatis terbit setelah disetujui oleh Petugas UKS di ruang piket.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
@@ -1097,6 +1178,106 @@ export const GuestBookForm: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Modal Pencarian & Unduh Surat Sakit Siswa */}
+      {showSearchSickLetterModal && (
+        <div className="fixed inset-0 z-50 bg-[#0F172A]/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Cek & Unduh Surat Sakit Siswa</h3>
+                  <p className="text-xs text-slate-500">Pilih atau cari nama siswa yang telah disetujui petugas UKS</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSearchSickLetterModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchStudentQuery}
+                  onChange={(e) => setSearchStudentQuery(e.target.value)}
+                  placeholder="Cari nama siswa atau kelas..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                {filteredSickRecords.length === 0 ? (
+                  <div className="text-center py-8 text-xs text-slate-400">
+                    Belum ditemukan data surat sakit yang telah disetujui petugas.
+                  </div>
+                ) : (
+                  filteredSickRecords.map(rec => (
+                    <div
+                      key={rec.id}
+                      className="p-3 rounded-2xl border border-slate-200 hover:border-teal-300 hover:bg-teal-50/40 transition flex items-center justify-between gap-3"
+                    >
+                      <div>
+                        <div className="font-bold text-slate-900 text-xs sm:text-sm">
+                          {rec.visitorName}
+                        </div>
+                        <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
+                          <span className="font-semibold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
+                            {rec.classOrPosition}
+                          </span>
+                          <span>{rec.date} • {rec.time} WIB</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-1 line-clamp-1">
+                          Status: {rec.finalStatus} ({rec.complaint})
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSickLetterRecord(rec);
+                          setShowSearchSickLetterModal(false);
+                        }}
+                        className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shrink-0 flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        Buka
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowSearchSickLetterModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/70 transition cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Surat Keterangan Sakit Modal */}
+      <SickLeaveLetterModal
+        isOpen={!!sickLetterRecord}
+        onClose={() => setSickLetterRecord(null)}
+        record={sickLetterRecord}
+        schoolInfo={schoolInfo}
+        koordinator={koordinatorUks}
+      />
     </div>
   );
 };
