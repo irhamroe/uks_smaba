@@ -364,7 +364,7 @@ export const GuestBookForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-3 sm:py-8 px-3 sm:px-6 pb-24 md:pb-12">
+    <div className="max-w-4xl mx-auto py-3 sm:py-8 px-3 sm:px-6">
       {/* Welcome Banner Card - Material You Atmospheric Hero */}
       <div className="mb-6 sm:mb-8 bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#075985] text-white rounded-2xl sm:rounded-[36px] p-4 sm:p-9 relative overflow-hidden shadow-md">
         {/* Atmospheric Organic Blur Circles */}

@@ -373,7 +373,7 @@ const AppContent: React.FC = () => {
       <Navbar onOpenLowStockModal={() => setIsLowStockModalOpen(true)} />
 
       {/* Main Content Area */}
-      <main className="flex-1 relative z-10 pb-20 md:pb-0">
+      <main className="flex-1 relative z-10">
         {/* Public route */}
         {activeTab === 'guestbook' && <GuestBookForm />}
 
@@ -385,35 +385,6 @@ const AppContent: React.FC = () => {
           <AdminLoginView />
         )}
       </main>
-
-      {/* Mobile Floating Bottom Bar for Public Visitors */}
-      <nav className="md:hidden fixed bottom-3 left-4 right-4 z-40 bg-[#0F172A]/90 backdrop-blur-md text-white rounded-full p-1.5 shadow-2xl flex items-center justify-around border border-white/20">
-        <button
-          type="button"
-          onClick={() => navigateToTab('guestbook')}
-          className={`flex items-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold transition active:scale-95 cursor-pointer ${
-            activeTab === 'guestbook'
-              ? 'bg-[#0284C7] text-white shadow-xs'
-              : 'text-slate-300 hover:text-white'
-          }`}
-        >
-          <ClipboardList className="w-4 h-4" />
-          <span>Buku Tamu</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigateToTab('login')}
-          className={`flex items-center gap-1.5 py-2 px-4 rounded-full text-xs font-bold transition active:scale-95 cursor-pointer ${
-            activeTab === 'login'
-              ? 'bg-[#0284C7] text-white shadow-xs'
-              : 'text-slate-300 hover:text-white'
-          }`}
-        >
-          <LogIn className="w-4 h-4" />
-          <span>Login Petugas</span>
-        </button>
-      </nav>
 
       {/* Public Material You Footer */}
       <footer className="bg-[#0C1E2E] text-[#E0F2FE] mt-12 sm:mt-16 py-8 sm:py-12 rounded-t-[32px] sm:rounded-t-[48px] border-t border-[#0284C7]/20 relative z-10 shadow-lg">
