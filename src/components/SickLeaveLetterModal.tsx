@@ -3,7 +3,6 @@ import {
   X, 
   Printer, 
   Download, 
-  Check, 
   Share2, 
   Building2, 
   FileText,
@@ -353,40 +352,7 @@ export const SickLeaveLetterModal: React.FC<SickLeaveLetterModalProps> = ({
               </div>
             </div>
 
-            {/* 4. LEMBAR PENGESAHAN HEADER */}
-            <div className="relative my-3 text-center">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300"></div>
-              </div>
-              <div className="relative">
-                <span className="bg-white px-3 text-[10px] sm:text-[11px] font-black tracking-wider text-slate-700 uppercase">
-                  LEMBAR PENGESAHAN (PETUGAS UKS)
-                </span>
-              </div>
-            </div>
-
-            {/* 5. 1 APPROVAL BOX (PETUGAS UKS) */}
-            <div className="max-w-md mx-auto mb-4">
-              <div className="rounded-2xl border border-teal-200 bg-teal-50/60 p-3 sm:p-4 text-center shadow-2xs">
-                <div className="text-xs font-black text-slate-800 uppercase tracking-wide">
-                  PETUGAS PEMERIKSA UKS
-                </div>
-                <div className="text-[11px] font-bold text-teal-700 mt-1 flex items-center justify-center gap-1.5">
-                  <Check className="w-4 h-4 text-teal-600 stroke-[3]" />
-                  Telah Diverifikasi & Disetujui
-                </div>
-                <div className="mt-2.5 pt-2 border-t border-teal-200/80 flex flex-col sm:flex-row items-center justify-between gap-1 px-2 text-xs">
-                  <div className="text-slate-600 font-medium">
-                    Petugas: <span className="font-black text-slate-900">{officerName}</span>
-                  </div>
-                  <div className="text-slate-500 font-medium">
-                    Waktu: <span className="font-bold text-slate-800">{record.time} WIB</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 6. FOOTER VALIDATION & QR CODE */}
+            {/* 4. FOOTER VALIDATION & QR CODE */}
             <div className="flex flex-row items-center justify-between gap-2 pt-3 border-t border-slate-200">
               
               {/* Left: QR Code Badge */}
@@ -416,6 +382,9 @@ export const SickLeaveLetterModal: React.FC<SickLeaveLetterModalProps> = ({
                 </div>
                 <div className="text-[11px] sm:text-xs font-black text-slate-900 underline underline-offset-2">
                   {officerName}
+                </div>
+                <div className="text-[8px] sm:text-[9px] text-slate-400 mt-0.5">
+                  Pukul {record.time} WIB
                 </div>
               </div>
 

@@ -568,7 +568,7 @@ export function generateSickLeaveLetterPdfDoc(
   // 1. Frame Luar Dokumen
   doc.setDrawColor(203, 213, 225); // slate-300
   doc.setLineWidth(0.4);
-  doc.roundedRect(12, 10, pageWidth - 24, 275, 4, 4, 'S');
+  doc.roundedRect(12, 10, pageWidth - 24, 178, 4, 4, 'S');
 
   // 2. Kop Surat Resmi SMAN 1 Batu
   if (school.logoUrl) {
@@ -698,62 +698,15 @@ export function generateSickLeaveLetterPdfDoc(
     currentDetailY += 8.6;
   });
 
-  // 5. Header Lembar Pengesahan 1 Tahap (Petugas UKS)
-  const signHeaderY = 150;
-  doc.setDrawColor(203, 213, 225);
-  doc.setLineWidth(0.35);
-  doc.line(16, signHeaderY, pageWidth - 16, signHeaderY);
-
-  const signTitle = 'LEMBAR PENGESAHAN (PETUGAS UKS)';
-  const signTitleWidth = 86;
-  const signTitleX = (pageWidth - signTitleWidth) / 2;
-
-  doc.setFillColor(255, 255, 255);
-  doc.rect(signTitleX - 2, signHeaderY - 2.5, signTitleWidth + 4, 5, 'F');
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
-  doc.setTextColor(51, 65, 85);
-  doc.text(signTitle, pageWidth / 2, signHeaderY + 1.2, { align: 'center' });
-
-  // 6. 1 Kotak Pengesahan Petugas UKS
   const officerName = record.approvedBy || record.handledBy || 'Petugas UKS';
-  const boxY = 157;
-  const boxHeight = 36;
-  const boxWidth = 104;
-  const boxX = (pageWidth - boxWidth) / 2;
 
-  doc.setFillColor(240, 253, 250); // teal-50
-  doc.setDrawColor(153, 246, 228); // teal-200
-  doc.roundedRect(boxX, boxY, boxWidth, boxHeight, 3, 3, 'FD');
+  // 5. Garis Pembatas Menuju Footer
+  doc.setDrawColor(226, 232, 240); // slate-200
+  doc.setLineWidth(0.35);
+  doc.line(16, 149, pageWidth - 16, 149);
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(15, 23, 42);
-  doc.text('PETUGAS PEMERIKSA UKS', pageWidth / 2, boxY + 7.5, { align: 'center' });
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(13, 148, 136); // Teal-600
-  doc.text('✓ Telah Diverifikasi & Disetujui', pageWidth / 2, boxY + 14.5, { align: 'center' });
-
-  // Divider inside box
-  doc.setDrawColor(204, 251, 241);
-  doc.setLineWidth(0.2);
-  doc.line(boxX + 6, boxY + 18, boxX + boxWidth - 6, boxY + 18);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.setTextColor(15, 23, 42);
-  doc.text(officerName, pageWidth / 2, boxY + 25, { align: 'center' });
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(100, 116, 139);
-  doc.text(`Waktu: ${record.time} WIB (${record.date})`, pageWidth / 2, boxY + 31, { align: 'center' });
-
-  // 7. Area Footer Validasi Digital & QR Code
-  const footerY = 208;
+  // 6. Area Footer Validasi Digital & QR Code
+  const footerY = 154;
 
   // Render QR Code Box
   const qrX = 18;
