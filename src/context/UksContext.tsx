@@ -140,7 +140,7 @@ interface UksContextType {
     drugAllergyDescription?: string;
     customDate?: string;
     customTime?: string;
-  }) => { success: boolean; error?: string };
+  }) => { success: boolean; error?: string; record?: VisitRecord };
   
   approveVisitRecord: (id: string) => { success: boolean; error?: string };
   rejectVisitRecord: (id: string, reason?: string) => { success: boolean; error?: string };
@@ -682,7 +682,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         showToast(`Data kunjungan ${newRecord.visitorName} berhasil dicatat & disinkronkan ke cloud!`, 'success');
       }
 
-      return { success: true };
+      return { success: true, record: newRecord };
     }
 
     // CASE 2: PUBLIC VISITOR ENTRY (Goes to Pending Approval Queue, stock is NOT deducted yet)
@@ -712,7 +712,7 @@ export const UksProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     syncSaveVisit(newRecord);
 
     showToast(`Pengajuan kunjungan ${newRecord.visitorName} berhasil dikirim ke database online dan menunggu verifikasi Petugas UKS.`, 'info');
-    return { success: true };
+    return { success: true, record: newRecord };
   };
 
   // Approve Visit Record: Validates stock, deducts medicine stock, marks as approved
