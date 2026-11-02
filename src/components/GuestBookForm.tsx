@@ -589,45 +589,45 @@ export const GuestBookForm: React.FC = () => {
                 </div>
 
                 {/* Ringkasan Data Kunjungan */}
-                <div className="bg-white/80 rounded-2xl p-5 text-xs space-y-2.5 mb-6 border border-emerald-200 shadow-2xs">
+                <div className="bg-white/90 rounded-2xl p-4 sm:p-5 text-xs space-y-2 mb-6 border border-emerald-200 shadow-2xs">
                   <div className="font-bold text-slate-800 text-sm pb-2 border-b border-slate-200 flex items-center justify-between">
                     <span>Ringkasan Data Pasien</span>
                     <span className="text-emerald-700 font-semibold">{activeTrackedRecord.date}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Nama Siswa:</span>
-                    <span className="font-bold text-slate-900">{activeTrackedRecord.visitorName}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Nama Siswa:</span>
+                    <span className="font-bold text-slate-900 sm:text-right">{activeTrackedRecord.visitorName}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Kelas / Status:</span>
-                    <span className="font-bold text-slate-900">SISWA — {activeTrackedRecord.classOrPosition}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Kelas / Status:</span>
+                    <span className="font-bold text-slate-900 sm:text-right">SISWA — {activeTrackedRecord.classOrPosition}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Keluhan:</span>
-                    <span className="font-semibold text-slate-800 text-right max-w-[240px]">{activeTrackedRecord.complaint}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Keluhan:</span>
+                    <span className="font-semibold text-slate-800 sm:text-right break-words">{activeTrackedRecord.complaint}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Tindakan UKS:</span>
-                    <span className="font-semibold text-slate-800 text-right max-w-[240px]">{activeTrackedRecord.actionTaken}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Tindakan UKS:</span>
+                    <span className="font-semibold text-slate-800 sm:text-right break-words">{activeTrackedRecord.actionTaken}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Disposisi Akhir:</span>
-                    <span className="font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-0.5 rounded-full text-[11px]">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Disposisi Akhir:</span>
+                    <span className="font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-0.5 rounded-full text-[11px] w-fit sm:self-auto">
                       {activeTrackedRecord.finalStatus}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Obat Diberikan:</span>
-                    <span className="font-bold text-sky-700 text-right">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Obat Diberikan:</span>
+                    <span className="font-bold text-sky-700 sm:text-right break-words">
                       {activeTrackedRecord.medicinesGiven && activeTrackedRecord.medicinesGiven.length > 0
                         ? activeTrackedRecord.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
                         : 'Tidak ada obat'}
                     </span>
                   </div>
                   {activeTrackedRecord.notes && (
-                    <div className="flex justify-between py-1">
-                      <span className="text-slate-500 font-medium">Catatan Petugas:</span>
-                      <span className="text-slate-700 italic text-right max-w-[240px]">{activeTrackedRecord.notes}</span>
+                    <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 gap-0.5 sm:gap-2">
+                      <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Catatan Petugas:</span>
+                      <span className="text-slate-700 italic sm:text-right break-words">{activeTrackedRecord.notes}</span>
                     </div>
                   )}
                 </div>
@@ -799,45 +799,45 @@ export const GuestBookForm: React.FC = () => {
                 </div>
 
                 {/* Ringkasan Data Kunjungan */}
-                <div className="bg-white/80 rounded-2xl p-5 text-xs space-y-2.5 mb-6 border border-amber-200 shadow-2xs">
+                <div className="bg-white/90 rounded-2xl p-4 sm:p-5 text-xs space-y-2 mb-6 border border-amber-200 shadow-2xs">
                   <div className="font-bold text-slate-800 text-sm pb-2 border-b border-slate-200 flex items-center justify-between">
-                    <span>Ringkasan Data Pengajuan Kunjungan</span>
+                    <span>Ringkasan Data Pengajuan</span>
                     <span className="text-amber-800 font-semibold">{activeTrackedRecord.date}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Nama Siswa:</span>
-                    <span className="font-bold text-slate-900">{activeTrackedRecord.visitorName}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Nama Siswa:</span>
+                    <span className="font-bold text-slate-900 sm:text-right">{activeTrackedRecord.visitorName}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Kelas / Status:</span>
-                    <span className="font-bold text-slate-900">SISWA — {activeTrackedRecord.classOrPosition}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Kelas / Status:</span>
+                    <span className="font-bold text-slate-900 sm:text-right">SISWA — {activeTrackedRecord.classOrPosition}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Keluhan:</span>
-                    <span className="font-semibold text-slate-800 text-right max-w-[240px]">{activeTrackedRecord.complaint}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Keluhan:</span>
+                    <span className="font-semibold text-slate-800 sm:text-right break-words">{activeTrackedRecord.complaint}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Tindakan yang Diajukan:</span>
-                    <span className="font-semibold text-slate-800 text-right max-w-[240px]">{activeTrackedRecord.actionTaken}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Tindakan yang Diajukan:</span>
+                    <span className="font-semibold text-slate-800 sm:text-right break-words">{activeTrackedRecord.actionTaken}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Disposisi yang Diajukan:</span>
-                    <span className="font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full text-[11px]">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Disposisi yang Diajukan:</span>
+                    <span className="font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full text-[11px] w-fit sm:self-auto">
                       {activeTrackedRecord.finalStatus}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-500 font-medium">Obat Diminta:</span>
-                    <span className="font-bold text-sky-700 text-right">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 border-b border-slate-100 gap-0.5 sm:gap-2">
+                    <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Obat Diminta:</span>
+                    <span className="font-bold text-sky-700 sm:text-right break-words">
                       {activeTrackedRecord.medicinesGiven && activeTrackedRecord.medicinesGiven.length > 0
                         ? activeTrackedRecord.medicinesGiven.map(m => `${m.medicineName} (${m.quantity} ${m.unit})`).join(', ')
                         : 'Tidak ada obat'}
                     </span>
                   </div>
                   {activeTrackedRecord.notes && (
-                    <div className="flex justify-between py-1">
-                      <span className="text-slate-500 font-medium">Catatan Tambahan:</span>
-                      <span className="text-slate-700 italic text-right max-w-[240px]">{activeTrackedRecord.notes}</span>
+                    <div className="flex flex-col sm:flex-row sm:justify-between py-1.5 gap-0.5 sm:gap-2">
+                      <span className="text-slate-500 font-medium text-[11px] sm:text-xs">Catatan Tambahan:</span>
+                      <span className="text-slate-700 italic sm:text-right break-words">{activeTrackedRecord.notes}</span>
                     </div>
                   )}
                 </div>
@@ -1648,18 +1648,18 @@ export const GuestBookForm: React.FC = () => {
         </>
       )}
 
-      {/* Modal Pencarian & Unduh Surat Sakit Siswa */}
+      {/* Modal Pencarian & Unduh Surat Sakit Siswa (Mobile Bottom Sheet / Desktop Modal) */}
       {showSearchSickLetterModal && (
-        <div className="fixed inset-0 z-50 bg-[#0F172A]/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 pb-4 border-b border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-[#0F172A]/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
+            <div className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5" />
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">Cek & Unduh Surat Sakit Siswa</h3>
-                  <p className="text-xs text-slate-500">Pilih atau cari nama siswa yang telah disetujui petugas UKS</p>
+                <div className="min-w-0">
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 truncate">Cek & Unduh Surat Sakit</h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 truncate">Daftar siswa yang telah disetujui petugas UKS</p>
                 </div>
               </div>
               <button
@@ -1671,7 +1671,7 @@ export const GuestBookForm: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-3.5 overflow-y-auto flex-1">
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -1694,8 +1694,8 @@ export const GuestBookForm: React.FC = () => {
                       key={rec.id}
                       className="p-3 rounded-2xl border border-slate-200 hover:border-teal-300 hover:bg-teal-50/40 transition flex items-center justify-between gap-3"
                     >
-                      <div>
-                        <div className="font-bold text-slate-900 text-xs sm:text-sm">
+                      <div className="min-w-0">
+                        <div className="font-bold text-slate-900 text-xs sm:text-sm truncate">
                           {rec.visitorName}
                         </div>
                         <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
@@ -1715,7 +1715,7 @@ export const GuestBookForm: React.FC = () => {
                           setSickLetterRecord(rec);
                           setShowSearchSickLetterModal(false);
                         }}
-                        className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shrink-0 flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                        className="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 active:scale-95 text-white rounded-xl text-xs font-bold shrink-0 flex items-center gap-1.5 shadow-xs transition cursor-pointer"
                       >
                         <Printer className="w-3.5 h-3.5" />
                         Buka
@@ -1726,11 +1726,11 @@ export const GuestBookForm: React.FC = () => {
               </div>
             </div>
 
-            <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-end">
+            <div className="px-4 py-3 sm:px-6 bg-slate-50 border-t border-slate-100 flex justify-end pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <button
                 type="button"
                 onClick={() => setShowSearchSickLetterModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/70 transition cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-200/70 hover:bg-slate-200 transition cursor-pointer"
               >
                 Tutup
               </button>
